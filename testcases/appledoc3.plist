@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Lincoln</key>
+    <dict>
+        <key>DOB</key>
+        <date>1809-02-12T09:18:00Z</date>
+        <key>Name</key>
+        <string>Abraham Lincoln</string>
+        <key>Scores</key>
+        <array>
+            <integer>8</integer>
+            <real>4.9000000953674316</real>
+            <integer>9</integer>
+        </array>
+    </dict>
+    <key>Washington</key>
+    <dict>
+        <key>DOB</key>
+        <date>1732-02-17T01:32:00Z</date>
+        <key>Name</key>
+        <string>George Washington</string>
+        <key>Scores</key>
+        <array>
+            <integer>6</integer>
+            <real>4.5999999046325684</real>
+            <integer>6</integer>
+        </array>
+    </dict>
+</dict>
+
+</plist>

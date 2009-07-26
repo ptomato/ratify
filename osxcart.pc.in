@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: Osxcart
+Description: GLib/GTK+ library for handling OS X data formats
+Version: @PACKAGE_VERSION@
+URL: http://sourceforge.net/projects/osxcart
+Requires: glib-2.0 >= @GLIB_REQUIRED_VERSION@ gtk+-2.0 >= @GTK_REQUIRED_VERSION@ gdk-2.0 gdk-pixbuf-2.0
+Libs: -L${libdir} -losxcart
+Cflags: -I${includedir}/osxcart

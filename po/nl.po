@@ -1,0 +1,212 @@
+# DUTCH TRANSLATION OF OSXCART.
+# Copyright (C) 2009 P. F. Chimento
+# This file is distributed under the same license as the Osxcart package.
+# P. F. Chimento <philip.chimento@gmail.com>, 2009
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Osxcart 0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-07-26 16:19+0200\n"
+"PO-Revision-Date: 2009-07-26 16:19+0100\n"
+"Last-Translator: \n"
+"Language-Team: Osxcart <philip.chimento@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Dutch\n"
+"X-Poedit-Country: NETHERLANDS\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"Plural-Forms: en\n"
+
+#: ../osxcart/plist-common.c:20
+#, c-format
+msgid "<plist> root element not found; got <%s> instead"
+msgstr "<%s> gevonden in plaats van <plist> wortelelement"
+
+#: ../osxcart/plist-common.c:31
+#, c-format
+msgid "Unsupported plist version '%s'"
+msgstr "Geen ondersteuning voor plistversie '%s'"
+
+#: ../osxcart/plist-common.c:39
+#, c-format
+msgid "<%s> should have no content, but found '%s'"
+msgstr "<%s> mag geen inhoud hebben, maar heeft '%s'"
+
+#: ../osxcart/plist-common.c:54
+#, c-format
+msgid "Could not parse date '%s'"
+msgstr "Kan datum '%s' niet verwerken"
+
+#: ../osxcart/plist-parser-oldglib.c:89 ../osxcart/plist-parser.c:109
+#, c-format
+msgid "<key> element found outside of <dict>"
+msgstr "<key> element gevonden buiten <dict>"
+
+#: ../osxcart/plist-parser-oldglib.c:93
+#, c-format
+msgid "Unknown element <%s>"
+msgstr "Onbekend element <%s>"
+
+#: ../osxcart/plist-parser-oldglib.c:144
+#, c-format
+msgid "Unexpected object <%s>"
+msgstr "Onverwacht object <%s>"
+
+#: ../osxcart/plist-parser-oldglib.c:167 ../osxcart/plist-parser.c:82
+#, c-format
+msgid "Missing <key> for object <%s> in <dict>"
+msgstr "Object <%s> heeft geen <key> in <dict>"
+
+#: ../osxcart/plist-parser-oldglib.c:214 ../osxcart/plist-parser.c:194
+#, c-format
+msgid "No objects found within <plist> root element"
+msgstr "Geen objecten gevonden binnen <plist> wortelelement"
+
+#: ../osxcart/plist-parser.c:77
+#, c-format
+msgid ""
+"Unexpected object <%s>; subsequent objects ought to be enclosed in an "
+"<array> or <dict>"
+msgstr ""
+"Onverwacht object <%s>; opeenvolgende objecten moeten binnen een <array> of "
+"<dict> worden geplaatst"
+
+#: ../osxcart/plist-parser.c:149
+#, c-format
+msgid "Unknown object <%s>"
+msgstr "Onbekend object <%s>"
+
+#: ../osxcart/rtf-deserialize.c:212
+#, c-format
+msgid "Backslash encountered without control word"
+msgstr "Omgekeerde schuine streep gevonden zonder opvolgend commando"
+
+#: ../osxcart/rtf-deserialize.c:277 ../osxcart/rtf-deserialize.c:465
+#, c-format
+msgid "Expected a two-character hexadecimal code after \\'"
+msgstr "Hexadecimale code van twee tekens verwacht na \\'"
+
+#: ../osxcart/rtf-deserialize.c:349
+#, c-format
+msgid "Expected a number after control word '\\%s'"
+msgstr "Getal verwacht na commando '\\%s'"
+
+#: ../osxcart/rtf-deserialize.c:481
+#, c-format
+msgid "Conversion error: %s"
+msgstr "Fout bij omzetten: %s"
+
+#: ../osxcart/rtf-deserialize.c:523
+#, c-format
+msgid "RTF format must begin with '{\\rtf'"
+msgstr "RTF-formaat moet beginnen met '{\\rtf'"
+
+#: ../osxcart/rtf-document.c:316 ../osxcart/rtf-document.c:343
+#: ../osxcart/rtf-stylesheet.c:251 ../osxcart/rtf-stylesheet.c:263
+#, c-format
+msgid "Color '%i' undefined"
+msgstr "Ongedefinieerde kleur '%i'"
+
+#: ../osxcart/rtf-document.c:384 ../osxcart/rtf-stylesheet.c:291
+#, c-format
+msgid "Font '%i' undefined"
+msgstr "Ongedefinieerd lettertype '%i'"
+
+#: ../osxcart/rtf-document.c:629
+#, c-format
+msgid "Unsupported RTF version '%i'"
+msgstr "Geen ondersteuning voor RTF-versie '%i'"
+
+#: ../osxcart/rtf-document.c:667
+#, c-format
+msgid "Style '%i' undefined"
+msgstr "Ongedefinieerde stijl '%i'"
+
+#: ../osxcart/rtf-field.c:159
+msgid "Unexpected end of field instructions"
+msgstr "Onverwacht einde veldinstructies"
+
+#: ../osxcart/rtf-field.c:166
+msgid "Expected a string in field instructions"
+msgstr "Tekenreeks verwacht in veldinstructies"
+
+#: ../osxcart/rtf-field.c:324
+#, c-format
+msgid "Format '%s' not supported."
+msgstr "Geen ondersteuning voor formaat '%s'"
+
+#: ../osxcart/rtf-field.c:340
+#, c-format
+msgid "Error loading picture '%s': %s"
+msgstr "Fout bij inezen afbeelding '%s': %s"
+
+#. ShiftJIS
+#. Johab
+#. GB2312
+#. Greek
+#. Turkish
+#. Vietnamese
+#. Hebrew
+#. Arabic
+#. Arabic Traditional
+#. Arabic user
+#.
+#. * FIXME: which one?
+#. * 864 Arabic
+#. * 708 Arabic (ASMO 708)
+#. * 709 Arabic (ASMO 449+, BCON V4)
+#. * 710 Arabic (transparent Arabic)
+#. * 711 Arabic (Nafitha Enhanced)
+#. * 720 Arabic (transparent ASMO)
+#. * 1256 Arabic
+#.
+#: ../osxcart/rtf-fonttbl.c:188
+#, c-format
+msgid "Character set %d not supported"
+msgstr "Geen ondersteuning voor tekenset %d"
+
+#: ../osxcart/rtf-fonttbl.c:212
+#, c-format
+msgid "Unknown character set %d"
+msgstr "Onbekend tekenset %d"
+
+#: ../osxcart/rtf-picture.c:135
+#, c-format
+msgid "Error loading picture of MIME type '%s': %s"
+msgstr "Fout bij inladen afbeelding met MIME-type '%s': %s"
+
+#: ../osxcart/rtf-picture.c:143
+#, c-format
+msgid "Module for loading MIME type '%s' not found"
+msgstr "Module niet gevonden voor inladen MIME-type '%s'"
+
+#: ../osxcart/rtf-picture.c:170
+#, c-format
+msgid "Error in \\pict data: '%s'"
+msgstr "Ongeldige \\pict gegevens: '%s'"
+
+#: ../osxcart/rtf-picture.c:180
+#, c-format
+msgid "Error reading \\pict data: %s"
+msgstr "Fout bij inlezen \\pict gegevens: %s"
+
+#: ../osxcart/rtf-picture.c:226
+msgid "Error loading picture"
+msgstr "Fout bij inlezen afbeelding"
+
+#: ../osxcart/rtf-picture.c:245
+#, c-format
+msgid "Error closing pixbuf loader: %s"
+msgstr "Fout bij sluiten pixbuflader: %s"
+
+#: ../osxcart/rtf-picture.c:253
+#, c-format
+msgid "Invalid bitmap type '%i' for \\dibitmap"
+msgstr "Ongeldig bitmaptype '%i' in \\dibitmap commando"
+
+#: ../osxcart/rtf-picture.c:348
+#, c-format
+msgid "Invalid bitmap type '%i' for \\wbitmap"
+msgstr "Ongeldig bitmaptype '%i' in \\wbitmap commando"

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Array</key>
+	<array>
+		<integer>1</integer>
+		<string>2</string>
+		<real>3.00000000000000</real>
+	</array>
+	<key>Data</key>
+	<data>c3VyZS4=</data>
+	<key>Date</key>
+	<date>2009-04-22T21:38:43.501773Z</date>
+	<key>Dict</key>
+	<dict>
+		<key>Integer</key>
+		<integer>1</integer>
+		<key>Real</key>
+		<real>2.00000000000000</real>
+		<key>String</key>
+		<string>3</string>
+	</dict>
+	<key>False value</key>
+	<false/>
+	<key>Integer</key>
+	<integer>-1</integer>
+	<key>Real</key>
+	<real>3.14159265358979</real>
+	<key>String</key>
+	<string>Hello, world</string>
+	<key>True value</key>
+	<true/>
+</dict>
+</plist>
