@@ -71,7 +71,7 @@ attributes_new(void)
 	attr->strikethrough = FALSE;
 	attr->subscript = FALSE;
 	attr->superscript = FALSE;
-	attr->underline = PANGO_UNDERLINE_NONE;
+	attr->underline = -1;
 	attr->chardirection = -1;
 	
 	attr->unicode_skip = 1;
