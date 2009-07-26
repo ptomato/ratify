@@ -94,7 +94,7 @@ font_table_text(ParserContext *ctx)
 	fontprop->font_name = g_strconcat(state->name, name, NULL);
 	ctx->font_table = g_slist_prepend(ctx->font_table, fontprop);
 	
-	gchar *tagname = g_strdup_printf("libmac-rtf-font-%i", state->index);
+	gchar *tagname = g_strdup_printf("osxcart-rtf-font-%i", state->index);
 	GtkTextTag *tag;
     if((tag = gtk_text_tag_table_lookup(ctx->tags, tagname)))
         gtk_text_tag_table_remove(ctx->tags, tag);

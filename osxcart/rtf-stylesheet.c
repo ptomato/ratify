@@ -121,7 +121,7 @@ stylesheet_text(ParserContext *ctx)
 	}
 	g_string_assign(ctx->text, semicolon + 1); /* Leave the text after the semicolon in the buffer */
 	
-	tagname = g_strdup_printf("libmac-rtf-style-%i", state->index);
+	tagname = g_strdup_printf("osxcart-rtf-style-%i", state->index);
     if((tag = gtk_text_tag_table_lookup(ctx->tags, tagname)))
         gtk_text_tag_table_remove(ctx->tags, tag);
 	tag = gtk_text_tag_new(tagname);
@@ -173,7 +173,7 @@ stylesheet_text(ParserContext *ctx)
 	}
 	if(state->attr->font != -1)
 	{
-		gchar *tagname = g_strdup_printf("libmac-rtf-font-%d", state->attr->font);
+		gchar *tagname = g_strdup_printf("osxcart-rtf-font-%d", state->attr->font);
 		GtkTextTag *fonttag = gtk_text_tag_table_lookup(ctx->tags, tagname);
 		PangoFontDescription *fontdesc;
 
