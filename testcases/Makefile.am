@@ -9,6 +9,11 @@ check-local: test-osxcart
 	gtester test-osxcart -o=testlog.xml; \
 	gtester-report testlog.xml > testlog.html
 
+noinst_PROGRAMS = test-rtfwrite
+test_rtfwrite_SOURCES = test-rtfwrite.c
+test_rtfwrite_CFLAGS = @TEST_CFLAGS@ $(AM_CFLAGS)
+test_rtfwrite_LDADD = @TEST_LIBS@ ../osxcart/libosxcart.la
+
 CLEANFILES = testlog.xml testlog.html
 
 EXTRA_DIST = \
