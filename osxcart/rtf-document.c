@@ -7,10 +7,11 @@
 #include <osxcart/rtf.h>
 #include "rtf-deserialize.h"
 #include "rtf-document.h"
+#include "rtf-langcode.h"
 
 /* Document destination functions */
 static DocFunc doc_ansi, doc_footnote, doc_mac, doc_pc, doc_pca;
-static DocParamFunc doc_ansicpg, doc_deff, doc_rtf;
+static DocParamFunc doc_ansicpg, doc_deff, doc_deflang, doc_rtf;
 
 extern const DestinationInfo colortbl_destination, field_destination,
                              fonttbl_destination, footnote_destination,
@@ -23,6 +24,7 @@ const ControlWord document_word_table[] = {
 	{ "cell", SPECIAL_CHARACTER, FALSE, NULL, 0, "\t" }, /* Fake tables */
 	{ "colortbl", DESTINATION, FALSE, NULL, 0, NULL, &colortbl_destination },
 	{ "deff", REQUIRED_PARAMETER, FALSE, doc_deff },
+	{ "deflang", REQUIRED_PARAMETER, FALSE, doc_deflang },
 	{ "field", DESTINATION, TRUE, NULL, 0, NULL, &field_destination },
 	{ "fonttbl", DESTINATION, FALSE, NULL, 0, NULL, &fonttbl_destination },
 	{ "footnote", DESTINATION, TRUE, doc_footnote, 0, NULL, &footnote_destination },
@@ -73,6 +75,7 @@ attributes_new(void)
 	attr->superscript = FALSE;
 	attr->underline = -1;
 	attr->chardirection = -1;
+	attr->language = 1024;
 	
 	attr->unicode_skip = 1;
 	
@@ -238,6 +241,13 @@ apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTe
 
 	if(attr->invisible)
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-invisible", start, end);
+
+	if(attr->language)
+	{
+		gchar *tagname = g_strdup_printf("osxcart-rtf-language-%i", attr->language);
+		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
+		g_free(tagname);
+	}
 }
 
 /*
@@ -376,6 +386,13 @@ doc_deff(ParserContext *ctx, Attributes *attr, gint32 font, GError **error)
     return TRUE;
 }
 
+static gboolean
+doc_deflang(ParserContext *ctx, Attributes *attr, gint32 language, GError **error)
+{
+	ctx->default_language = language;
+	return doc_lang(ctx, attr, language, error);
+}
+
 gboolean
 doc_f(ParserContext *ctx, Attributes *attr, gint32 param, GError **error)
 {
@@ -435,6 +452,26 @@ doc_i(ParserContext *ctx, Attributes *attr, gint32 param, GError **error)
     }
     attr->italic = (param != 0);
     return TRUE;
+}
+
+gboolean
+doc_lang(ParserContext *ctx, Attributes *attr, gint32 language, GError **error)
+{
+	
+	gchar *tagname = g_strdup_printf("osxcart-rtf-language-%i", language);
+	if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
+	{
+		GtkTextTag *tag = gtk_text_tag_new(tagname);
+		g_object_set(tag,
+		             "language", language_to_iso(language),
+		             "language-set", TRUE,
+		             NULL);
+		gtk_text_tag_table_add(ctx->tags, tag);
+	}
+	g_free(tagname);
+
+	attr->language = language;
+	return TRUE;
 }
 
 gboolean
@@ -535,6 +572,7 @@ doc_plain(ParserContext *ctx, Attributes *attr, GError **error)
 	attr->strikethrough = FALSE;
 	attr->underline = PANGO_UNDERLINE_NONE;
 	attr->chardirection = -1;
+	attr->language = ctx->default_language;
 	return TRUE;
 }
 

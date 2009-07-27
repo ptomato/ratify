@@ -24,7 +24,8 @@ libosxcart_la_SOURCES = \
 	rtf-footnote.c \
 	rtf-picture.c \
 	rtf-field.c \
-	rtf-stylesheet.c
+	rtf-stylesheet.c \
+	rtf-langcode.c rtf-langcode.h 
 	
 libosxcart_la_CPPFLAGS = \
 	-DG_LOG_DOMAIN=\"Osxcart\"

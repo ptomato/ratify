@@ -30,6 +30,7 @@ parser_context_new(const gchar *rtftext, GtkTextBuffer *textbuffer, GtkTextIter 
 	ctx->codepage = -1;
 	ctx->default_codepage = 1252;
 	ctx->default_font = -1;
+	ctx->default_language = 1024;
 	ctx->group_nesting_level = 0;
 	ctx->color_table = NULL;
 	ctx->font_table = NULL;

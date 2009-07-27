@@ -1,6 +1,7 @@
 #include <string.h>
 #include <glib.h>
 #include <gtk/gtk.h>
+#include "rtf-langcode.h"
 
 /* Change this later FIXME */
 #define PIXELS_TO_TWIPS(pixels) (pixels * 20)
@@ -36,13 +37,26 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
     gboolean val;
     gint pixels, pango;
     gdouble factor, points;
-    GString *code = g_string_new("");
+	const gchar *name;
+    GString *code;
     
-    /* g_object_get(tag, "background-set", &val, NULL);
-    if(val)
-    {
-        GdkColor color;*/
-        
+    /* First check if this is a osxcart named tag that doesn't have a direct 
+	 Pango attributes equivalent, such as superscript or subscript. */
+	g_object_get(tag, "name", &name, NULL);
+	if(strcmp(name, "osxcart-rtf-superscript") == 0)
+	{
+		g_hash_table_insert(ctx->tag_codes, tag, g_strdup("\\super"));
+		return;
+	}
+	else if(strcmp(name, "osxcart-rtf-subscript") == 0)
+	{
+		g_hash_table_insert(ctx->tag_codes, tag, g_strdup("\\sub"));
+		return;
+	}
+
+	/* Otherwise, read the attributes one by one and add RTF code for them */
+	code = g_string_new("");
+	
     g_object_get(tag, "indent-set", &val, NULL);
     if(val)
     {
@@ -81,7 +95,16 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
                 break;
         }
     }
-    
+
+	g_object_get(tag, "language-set", &val, NULL);
+	if(val)
+	{
+		gchar *isocode;
+		g_object_get(tag, "language", &isocode, NULL);
+		g_string_append_printf(code, "\\lang%d", language_to_wincode(isocode));
+		g_free(isocode);
+	}
+	
     g_object_get(tag, "left-margin-set", &val, NULL);
     if(val)
     {
