@@ -62,6 +62,7 @@ attributes_new(void)
 	attr->tabs = NULL;
 	attr->left_margin = 0;
 	attr->right_margin = 0;
+	attr->indent = 0;
 	
 	attr->background = -1;
 	attr->foreground = -1;
@@ -247,6 +248,13 @@ apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTe
 		g_free(tagname);
 	}
 
+	if(attr->indent != 0)
+	{
+		gchar *tagname = g_strdup_printf("osxcart-rtf-indent-%i", attr->right_margin);
+		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
+		g_free(tagname);
+	}
+	
 	if(attr->invisible)
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-invisible", start, end);
 
@@ -414,6 +422,25 @@ doc_f(ParserContext *ctx, Attributes *attr, gint32 param, GError **error)
     return TRUE;
 }
 
+gboolean
+doc_fi(ParserContext *ctx, Attributes *attr, gint32 twips, GError **error)
+{
+    gchar *tagname = g_strdup_printf("osxcart-rtf-indent-%i", twips);
+    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
+    {
+        GtkTextTag *tag = gtk_text_tag_new(tagname);
+        g_object_set(tag, 
+                     "indent", PANGO_PIXELS(TWIPS_TO_PANGO(twips)), 
+                     "indent-set", TRUE,
+                     NULL);
+        gtk_text_tag_table_add(ctx->tags, tag);
+    }
+    g_free(tagname);
+    
+    attr->indent = twips;
+    return TRUE;
+}
+
 static gboolean
 doc_footnote(ParserContext *ctx, Attributes *attr, GError **error)
 {
@@ -573,6 +600,7 @@ doc_pard(ParserContext *ctx, Attributes *attr, GError **error)
 	attr->ignore_space_after = FALSE;
 	attr->left_margin = 0;
 	attr->right_margin = 0;
+	attr->indent = 0;
 	if(attr->tabs)
 	    pango_tab_array_free(attr->tabs);
 	attr->tabs = NULL;
@@ -599,6 +627,7 @@ doc_plain(ParserContext *ctx, Attributes *attr, GError **error)
 	attr->style = -1;
 	attr->background = -1;
 	attr->foreground = -1;
+	attr->highlight = -1;
 	attr->font = -1;
 	attr->size = -1;
 	attr->italic = FALSE;

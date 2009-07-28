@@ -22,6 +22,7 @@ typedef struct {
 	PangoTabArray *tabs;
 	gint left_margin;
 	gint right_margin;
+	gint indent;
 	
 	/* Character formatting */
 	
@@ -57,7 +58,7 @@ typedef gboolean DocParamFunc(ParserContext *, Attributes *, gint32, GError **);
 /* Document destination functions usable in other destinations */
 DocFunc doc_chftn, doc_ltrch, doc_ltrpar, doc_pard, doc_plain, doc_qc, doc_qj, 
         doc_ql, doc_qr, doc_rtlch, doc_rtlpar, doc_sub, doc_super, doc_ulnone;
-DocParamFunc doc_b, doc_cb, doc_cf, doc_f, doc_fs, doc_highlight, doc_i, 
+DocParamFunc doc_b, doc_cb, doc_cf, doc_f, doc_fi, doc_fs, doc_highlight, doc_i, 
              doc_lang, doc_li, doc_ri, doc_s, doc_sa, doc_saauto, doc_sb, 
              doc_sbauto, doc_scaps, doc_strike, doc_tx, doc_u, doc_uc, doc_ul, 
              doc_uldb, doc_ulwave, doc_v;
@@ -80,6 +81,7 @@ extern const DestinationInfo shppict_destination;
 	{ "cs", REQUIRED_PARAMETER, TRUE, doc_s }, \
 	{ "ds", REQUIRED_PARAMETER, TRUE, doc_s }, \
 	{ "f", REQUIRED_PARAMETER, TRUE, doc_f }, \
+	{ "fi", OPTIONAL_PARAMETER, TRUE, doc_fi, 0 }, \
 	{ "fs", OPTIONAL_PARAMETER, TRUE, doc_fs, 24 }, \
 	{ "highlight", REQUIRED_PARAMETER, TRUE, doc_highlight }, \
 	{ "i", OPTIONAL_PARAMETER, TRUE, doc_i, 1 }, \
