@@ -205,12 +205,16 @@ apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTe
 	{
 	    /* Create a separate tag for each PangoTabArray */
 	    gchar *tagname = g_strdup_printf("osxcart-rtf-tabs-%p", attr->tabs);
-	    GtkTextTag *tag = gtk_text_tag_new(tagname);
-        g_object_set(tag, 
-                     "tabs", attr->tabs, 
-                     "tabs-set", TRUE,
-                     NULL);
-        gtk_text_tag_table_add(ctx->tags, tag);
+		GtkTextTag *tag;
+		if((tag = gtk_text_tag_table_lookup(ctx->tags, tagname)) == NULL)
+		{
+			tag = gtk_text_tag_new(tagname);
+		    g_object_set(tag, 
+		                 "tabs", attr->tabs, 
+		                 "tabs-set", TRUE,
+		                 NULL);
+		    gtk_text_tag_table_add(ctx->tags, tag);
+		}
 	    g_free(tagname);
 	    gtk_text_buffer_apply_tag(ctx->textbuffer, tag, start, end);
 	}
@@ -259,7 +263,7 @@ apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTe
 	if(attr->invisible)
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-invisible", start, end);
 
-	if(attr->language)
+	if(attr->language != 1024)
 	{
 		gchar *tagname = g_strdup_printf("osxcart-rtf-language-%i", attr->language);
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
