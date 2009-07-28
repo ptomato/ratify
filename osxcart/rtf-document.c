@@ -621,6 +621,14 @@ doc_mac(ParserContext *ctx, Attributes *attr, GError **error)
 }
 
 gboolean
+doc_nosupersub(ParserContext *ctx, Attributes *attr, GError **error)
+{
+	attr->subscript = FALSE;
+	attr->superscript = FALSE;
+	return TRUE;
+}
+
+gboolean
 doc_pard(ParserContext *ctx, Attributes *attr, GError **error)
 {
 	attr->style = -1;
@@ -666,6 +674,8 @@ doc_plain(ParserContext *ctx, Attributes *attr, GError **error)
 	attr->bold = FALSE;
 	attr->smallcaps = FALSE;
 	attr->strikethrough = FALSE;
+	attr->subscript = FALSE;
+	attr->superscript = FALSE;
 	attr->underline = PANGO_UNDERLINE_NONE;
 	attr->chardirection = -1;
 	attr->language = ctx->default_language;

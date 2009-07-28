@@ -57,8 +57,9 @@ typedef gboolean DocFunc(ParserContext *, Attributes *, GError **);
 typedef gboolean DocParamFunc(ParserContext *, Attributes *, gint32, GError **);
 
 /* Document destination functions usable in other destinations */
-DocFunc doc_chftn, doc_ltrch, doc_ltrpar, doc_pard, doc_plain, doc_qc, doc_qj, 
-        doc_ql, doc_qr, doc_rtlch, doc_rtlpar, doc_sub, doc_super, doc_ulnone;
+DocFunc doc_chftn, doc_ltrch, doc_ltrpar, doc_nosupersub, doc_pard, doc_plain, 
+        doc_qc, doc_qj, doc_ql, doc_qr, doc_rtlch, doc_rtlpar, doc_sub, 
+        doc_super, doc_ulnone;
 DocParamFunc doc_b, doc_cb, doc_cf, doc_dn, doc_f, doc_fi, doc_fs, 
              doc_highlight, doc_i, doc_lang, doc_li, doc_ri, doc_s, doc_sa, 
              doc_saauto, doc_sb, doc_sbauto, doc_scaps, doc_strike, doc_tx, 
@@ -93,6 +94,7 @@ extern const DestinationInfo shppict_destination;
 	{ "ltrch", NO_PARAMETER, TRUE, doc_ltrch }, \
 	{ "ltrpar", NO_PARAMETER, TRUE, doc_ltrpar }, \
 	{ "nonshppict", DESTINATION, FALSE, NULL, 0, NULL, &ignore_destination }, \
+	{ "nosupersub", NO_PARAMETER, TRUE, doc_nosupersub }, \
 	{ "par", SPECIAL_CHARACTER, FALSE, NULL, 0, "\n" }, \
 	{ "pard", NO_PARAMETER, TRUE, doc_pard }, \
 	{ "plain", NO_PARAMETER, TRUE, doc_plain }, \
