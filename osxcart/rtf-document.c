@@ -78,6 +78,7 @@ attributes_new(void)
 	attr->underline = -1;
 	attr->chardirection = -1;
 	attr->language = 1024;
+	attr->rise = 0;
 	
 	attr->unicode_skip = 1;
 	
@@ -264,6 +265,15 @@ apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTe
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
 		g_free(tagname);
 	}
+
+	if(attr->rise != 0)
+	{
+		gchar *tagname = (attr->rise > 0)?
+			g_strdup_printf("osxcart-rtf-up-%i", attr->rise) :
+			g_strdup_printf("osxcart-rtf-down-%i", -attr->rise);
+		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
+		g_free(tagname);
+	}
 }
 
 /*
@@ -407,6 +417,28 @@ doc_deflang(ParserContext *ctx, Attributes *attr, gint32 language, GError **erro
 {
 	ctx->default_language = language;
 	return doc_lang(ctx, attr, language, error);
+}
+
+gboolean
+doc_dn(ParserContext *ctx, Attributes *attr, gint32 halfpoints, GError **error)
+{
+	if(halfpoints != 0)
+	{
+		gchar *tagname = g_strdup_printf("osxcart-rtf-down-%i", halfpoints);
+		if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
+	    {
+		    GtkTextTag *tag = gtk_text_tag_new(tagname);
+			g_object_set(tag, 
+			             "rise", HALF_POINTS_TO_PANGO(-halfpoints), 
+			             "rise-set", TRUE,
+			             NULL);
+			gtk_text_tag_table_add(ctx->tags, tag);
+		}
+		g_free(tagname);
+	}
+
+	attr->rise = -halfpoints;
+	return TRUE;
 }
 
 gboolean
@@ -637,6 +669,7 @@ doc_plain(ParserContext *ctx, Attributes *attr, GError **error)
 	attr->underline = PANGO_UNDERLINE_NONE;
 	attr->chardirection = -1;
 	attr->language = ctx->default_language;
+	attr->rise = 0;
 	return TRUE;
 }
 
@@ -998,6 +1031,28 @@ doc_ulwave(ParserContext *ctx, Attributes *attr, gint32 param, GError **error)
     }
     attr->underline = param? PANGO_UNDERLINE_ERROR : PANGO_UNDERLINE_NONE;
     return TRUE;
+}
+
+gboolean
+doc_up(ParserContext *ctx, Attributes *attr, gint32 halfpoints, GError **error)
+{
+	if(halfpoints != 0)
+	{
+		gchar *tagname = g_strdup_printf("osxcart-rtf-up-%i", halfpoints);
+		if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
+	    {
+		    GtkTextTag *tag = gtk_text_tag_new(tagname);
+			g_object_set(tag, 
+			             "rise", HALF_POINTS_TO_PANGO(halfpoints), 
+			             "rise-set", TRUE,
+			             NULL);
+			gtk_text_tag_table_add(ctx->tags, tag);
+		}
+		g_free(tagname);
+	}
+
+	attr->rise = halfpoints;
+	return TRUE;
 }
 
 gboolean
