@@ -166,7 +166,9 @@ fcharset_to_codepage(gint charset)
         case 0:   return 1252; /* "ANSI" */
         case 1:   return -1;   /* default */
 		case 2:   return -1;   /* Symbol; only works in Symbol font of course */
-		case 77:  return 10000;/* Mac */
+		case 77:  return 10000;/* MacRoman */
+		case 78:  return 10001;/* MacJapanese */
+		case 84:  return 10007;/* MacCyrillic */
         case 128: return 943;  /* ShiftJIS */
 		case 129: return 949;  /* Hangul */
         case 130: return 1361; /* Johab */
