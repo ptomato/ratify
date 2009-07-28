@@ -29,10 +29,10 @@ typedef gboolean StyleParamFunc(ParserContext *, StylesheetState *, gint32, GErr
 
 static StyleFunc sty_ltrch, sty_ltrpar, sty_qc, sty_qj, sty_ql,
                  sty_qr, sty_rtlch, sty_rtlpar, sty_sub, sty_super, sty_ulnone;
-static StyleParamFunc sty_b, sty_cb, sty_cf, sty_cs, sty_ds, sty_f, sty_fs, 
-                      sty_i, sty_li, sty_ri, sty_s, sty_sa, sty_saauto, sty_sb, 
+static StyleParamFunc sty_b, sty_cb, sty_cf, sty_cs, sty_dn, sty_ds, sty_f, sty_fi, sty_fs, 
+                      sty_highlight, sty_i, sty_li, sty_ri, sty_s, sty_sa, sty_saauto, sty_sb, 
                       sty_sbauto, sty_scaps, sty_strike, sty_ts, sty_tx, sty_ul, 
-                      sty_uldb, sty_ulwave, sty_v;
+                      sty_uldb, sty_ulwave, sty_up, sty_v;
 
 const ControlWord stylesheet_word_table[] = { 
 	{ "b", OPTIONAL_PARAMETER, TRUE, sty_b, 1 },
@@ -40,10 +40,12 @@ const ControlWord stylesheet_word_table[] = {
 	{ "cf", OPTIONAL_PARAMETER, TRUE, sty_cf, 0 },
 	{ "chcbpat", OPTIONAL_PARAMETER, TRUE, sty_cb, 0 },
 	{ "*cs", REQUIRED_PARAMETER, TRUE, sty_cs },
+	{ "dn", OPTIONAL_PARAMETER, TRUE, sty_dn, 6 },
 	{ "*ds", REQUIRED_PARAMETER, TRUE, sty_ds },
 	{ "f", REQUIRED_PARAMETER, TRUE, sty_f },
+	{ "fi", OPTIONAL_PARAMETER, TRUE, sty_fi, 0 },
 	{ "fs", OPTIONAL_PARAMETER, TRUE, sty_fs, 24 },
-	{ "highlight", REQUIRED_PARAMETER, TRUE, sty_cb }, /* Treat highlighting as background color */
+	{ "highlight", REQUIRED_PARAMETER, TRUE, sty_highlight }, 
 	{ "i", OPTIONAL_PARAMETER, TRUE, sty_i, 1 },
 	{ "li", OPTIONAL_PARAMETER, TRUE, sty_li, 1 },
 	{ "ltrch", NO_PARAMETER, TRUE, sty_ltrch },
@@ -70,6 +72,7 @@ const ControlWord stylesheet_word_table[] = {
 	{ "uldb", OPTIONAL_PARAMETER, TRUE, sty_uldb, 1 },
 	{ "ulnone", NO_PARAMETER, TRUE, sty_ulnone },
 	{ "ulwave", OPTIONAL_PARAMETER, TRUE, sty_ulwave, 1 },
+	{ "up", OPTIONAL_PARAMETER, TRUE, sty_up, 6 },
 	{ "v", OPTIONAL_PARAMETER, TRUE, sty_v, 1 },
 	{ NULL }
 };
@@ -149,6 +152,21 @@ stylesheet_text(ParserContext *ctx)
 		             "tabs", state->attr->tabs,
 		             "tabs-set", TRUE,
 		             NULL);
+	if(state->attr->left_margin)
+		g_object_set(tag,
+		             "left-margin", PANGO_PIXELS(TWIPS_TO_PANGO(state->attr->left_margin)),
+		             "left-margin-set", TRUE,
+		             NULL);
+	if(state->attr->right_margin)
+		g_object_set(tag,
+		             "right-margin", PANGO_PIXELS(TWIPS_TO_PANGO(state->attr->right_margin)),
+		             "right-margin-set", TRUE,
+		             NULL);
+	if(state->attr->indent)
+		g_object_set(tag,
+		             "indent", PANGO_PIXELS(TWIPS_TO_PANGO(state->attr->indent)),
+		             "indent-set", TRUE,
+		             NULL);
 
 	/* Add each character attribute to the tag */
 	if(state->attr->foreground != -1)
@@ -169,6 +187,16 @@ stylesheet_text(ParserContext *ctx)
         g_object_set(tag, 
                      "background", color, 
                      "background-set", TRUE, 
+                     NULL);
+	}
+	if(state->attr->highlight != -1)
+	{
+		gchar *color = g_slist_nth_data(ctx->color_table, state->attr->highlight);
+		/* color must exist, because that was already checked when executing
+		 the \cf command */
+        g_object_set(tag, 
+                     "paragraph-background", color, 
+                     "paragraph-background-set", TRUE, 
                      NULL);
 	}
 	if(state->attr->font != -1)
@@ -233,6 +261,11 @@ stylesheet_text(ParserContext *ctx)
 		             NULL);
 	if(state->attr->chardirection != -1)
 		g_object_set(tag, "direction", state->attr->chardirection, NULL);
+	if(state->attr->rise != 0)
+		g_object_set(tag,
+		             "rise", HALF_POINTS_TO_PANGO(state->attr->rise),
+		             "rise-set", TRUE,
+		             NULL);
        
     gtk_text_tag_table_add(ctx->tags, tag);
 	g_free(tagname);
@@ -276,6 +309,13 @@ sty_cs(ParserContext *ctx, StylesheetState *state, gint32 param, GError **error)
 }
 
 static gboolean
+sty_dn(ParserContext *ctx, StylesheetState *state, gint32 param, GError **error)
+{
+	state->attr->rise = -param;
+	return TRUE;
+}
+
+static gboolean
 sty_ds(ParserContext *ctx, StylesheetState *state, gint32 param, GError **error)
 {
 	state->index = param;
@@ -292,6 +332,18 @@ sty_f(ParserContext *ctx, StylesheetState *state, gint32 param, GError **error)
 		return FALSE;
 	}
 	state->attr->font = param;
+	return TRUE;
+}
+
+static gboolean
+sty_highlight(ParserContext *ctx, StylesheetState *state, gint32 param, GError **error)
+{
+	if(g_slist_nth_data(ctx->color_table, param) == NULL)
+	{
+		g_set_error(error, RTF_ERROR, RTF_ERROR_UNDEFINED_COLOR, _("Color '%i' undefined"), param);
+		return FALSE;
+	}
+	state->attr->highlight = param;
 	return TRUE;
 }
 
@@ -354,11 +406,13 @@ DEFINE_STYLE_FLAG_FUNCTION(sty_v,      invisible)
 		state->attr->attribute = param; \
 		return TRUE; \
 	}
+DEFINE_STYLE_PARAM_FUNCTION(sty_fi, indent)
 DEFINE_STYLE_PARAM_FUNCTION(sty_fs, size)
 DEFINE_STYLE_PARAM_FUNCTION(sty_li, left_margin)
 DEFINE_STYLE_PARAM_FUNCTION(sty_ri, right_margin)
 DEFINE_STYLE_PARAM_FUNCTION(sty_sa, space_after)
 DEFINE_STYLE_PARAM_FUNCTION(sty_sb, space_before)
+DEFINE_STYLE_PARAM_FUNCTION(sty_up, rise)
 
 #define DEFINE_STYLE_VALUE_FUNCTION(name, attribute, value) \
 	static gboolean \
