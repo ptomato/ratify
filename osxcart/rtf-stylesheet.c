@@ -69,8 +69,22 @@ const ControlWord stylesheet_word_table[] = {
 	{ "*ts", REQUIRED_PARAMETER, TRUE, sty_ts },
 	{ "tx", REQUIRED_PARAMETER, FALSE, sty_tx },
 	{ "ul", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 },
+	{ "uld", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 }, /* Treat unsupported types */
+	{ "uldash", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 }, /* of underlining as */
+	{ "uldashd", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 }, /* regular underlining */
+	{ "uldashdd", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 },
 	{ "uldb", OPTIONAL_PARAMETER, TRUE, sty_uldb, 1 },
+	{ "ulhwave", OPTIONAL_PARAMETER, TRUE, sty_ulwave, 1 },
+	{ "ulldash", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 },
 	{ "ulnone", NO_PARAMETER, TRUE, sty_ulnone },
+	{ "ulth", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 },
+	{ "ulthd", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 },
+	{ "ulthdash", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 },
+	{ "ulthdashd", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 },
+	{ "ulthdashdd", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 },
+	{ "ulthldash", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 },
+	{ "ululdbwave", OPTIONAL_PARAMETER, TRUE, sty_ulwave, 1 },
+	{ "ulw", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 },
 	{ "ulwave", OPTIONAL_PARAMETER, TRUE, sty_ulwave, 1 },
 	{ "up", OPTIONAL_PARAMETER, TRUE, sty_up, 6 },
 	{ "v", OPTIONAL_PARAMETER, TRUE, sty_v, 1 },

@@ -121,8 +121,22 @@ extern const DestinationInfo shppict_destination;
 	{ "u", REQUIRED_PARAMETER, FALSE, doc_u }, \
 	{ "uc", REQUIRED_PARAMETER, FALSE, doc_uc }, \
 	{ "ul", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
+	{ "uld", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, /* Treat unsupported types */ \
+	{ "uldash", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, /* of underlining as */ \
+	{ "uldashd", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, /* regular underlining */ \
+	{ "uldashdd", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
 	{ "uldb", OPTIONAL_PARAMETER, TRUE, doc_uldb, 1 }, \
+	{ "ulhwave", OPTIONAL_PARAMETER, TRUE, doc_ulwave, 1 }, \
+	{ "ulldash", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
 	{ "ulnone", NO_PARAMETER, TRUE, doc_ulnone }, \
+	{ "ulth", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
+	{ "ulthd", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
+	{ "ulthdash", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
+	{ "ulthdashd", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
+	{ "ulthdashdd", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
+	{ "ulthldash", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
+	{ "ululdbwave", OPTIONAL_PARAMETER, TRUE, doc_ulwave, 1 }, \
+	{ "ulw", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
 	{ "ulwave", OPTIONAL_PARAMETER, TRUE, doc_ulwave, 1 }, \
 	{ "up", OPTIONAL_PARAMETER, TRUE, doc_up, 6 }, \
 	{ "v", OPTIONAL_PARAMETER, TRUE, doc_v, 1 }
