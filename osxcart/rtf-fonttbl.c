@@ -176,18 +176,7 @@ fcharset_to_codepage(gint charset)
         case 162: return 1254; /* Turkish */
         case 163: return 1258; /* Vietnamese */
         case 177: return 1255; /* Hebrew */
-        case 181: return 862;  /* Hebrew user */
-        case 186: return 1257; /* Baltic */
-        case 204: return 1251; /* Russian */
-        case 222: return 874;  /* Thai */
-        case 238: return 1250; /* Eastern European */
-        case 254: return 437;  /* PC 437 */
-		/* Unsupported? */
-	    case 178:              /* Arabic */
-        case 179:              /* Arabic Traditional */
-        case 180:              /* Arabic user */
-            /*
-             * FIXME: which one?
+		    /* FIXME: which one?
              * 864 Arabic
              * 708 Arabic (ASMO 708)
              * 709 Arabic (ASMO 449+, BCON V4)
@@ -196,8 +185,15 @@ fcharset_to_codepage(gint charset)
              * 720 Arabic (transparent ASMO)
              * 1256 Arabic
              */
-            g_warning(_("Character set %d not supported"), charset);
-            return -1;
+	    case 178:              /* Arabic */
+        case 179:              /* Arabic Traditional */
+        case 180: return 1256; /* Arabic user */
+        case 181: return 862;  /* Hebrew user */
+        case 186: return 1257; /* Baltic */
+        case 204: return 1251; /* Russian */
+        case 222: return 874;  /* Thai */
+        case 238: return 1250; /* Eastern European */
+        case 254: return 437;  /* PC 437 */
         case 255: /* OEM */
         default:
             g_warning(_("Unknown character set %d"), charset);
