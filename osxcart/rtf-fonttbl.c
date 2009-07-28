@@ -163,16 +163,27 @@ fcharset_to_codepage(gint charset)
 {
     switch(charset)
     {
-        case 0:
-        case 1:   return -1;
+        case 0:   return 1252; /* "ANSI" */
+        case 1:   return -1;   /* default */
+		case 2:   return -1;   /* Symbol; only works in Symbol font of course */
+		case 77:  return 10000;/* Mac */
         case 128: return 943;  /* ShiftJIS */
+		case 129: return 949;  /* Hangul */
         case 130: return 1361; /* Johab */
         case 134: return 936;  /* GB2312 */
+		case 136: return 950;  /* Chinese Big5 */
         case 161: return 1253; /* Greek */
         case 162: return 1254; /* Turkish */
         case 163: return 1258; /* Vietnamese */
         case 177: return 1255; /* Hebrew */
-        case 178:              /* Arabic */
+        case 181: return 862;  /* Hebrew user */
+        case 186: return 1257; /* Baltic */
+        case 204: return 1251; /* Russian */
+        case 222: return 874;  /* Thai */
+        case 238: return 1250; /* Eastern European */
+        case 254: return 437;  /* PC 437 */
+		/* Unsupported? */
+	    case 178:              /* Arabic */
         case 179:              /* Arabic Traditional */
         case 180:              /* Arabic user */
             /*
@@ -187,27 +198,7 @@ fcharset_to_codepage(gint charset)
              */
             g_warning(_("Character set %d not supported"), charset);
             return -1;
-        case 181: return 862;  /* Hebrew user */
-        case 186: return 1257; /* Baltic */
-        case 204: return 1251; /* Russian */
-        case 222: return 874;  /* Thai */
-        case 238: return 852;  /* Eastern European ?? 1250 Windows 3.1 (Eastern European) */
-        case 254: return 437;  /* PC 437 */
         case 255: /* OEM */
-            /* FIXME! */
-            /* ...
-             * Other charsets should be recognized here
-             * ...
-             */
-             /*
-              * 819 Windows 3.1 (United States and Western Europe)
-              * 850 IBM multilingual
-              * 860 Portuguese
-              * 863 French Canadian
-              * 865 Norwegian
-              * 866 Soviet Union
-              * 1252 Western European
-              */
         default:
             g_warning(_("Unknown character set %d"), charset);
             return -1;
