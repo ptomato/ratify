@@ -65,6 +65,7 @@ attributes_new(void)
 	
 	attr->background = -1;
 	attr->foreground = -1;
+	attr->highlight = -1;
 	attr->font = -1;
 	attr->size = -1;
 	attr->italic = FALSE;
@@ -125,6 +126,13 @@ apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTe
 		g_free(tagname);
 	}
 
+	if(attr->highlight != -1)
+	{
+		gchar *tagname = g_strdup_printf("osxcart-rtf-highlight-%i", attr->highlight);
+		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
+		g_free(tagname);
+	}
+	
 	if(attr->font != -1)
 	{
 		gchar *tagname = g_strdup_printf("osxcart-rtf-font-%i", attr->font);
@@ -435,6 +443,33 @@ doc_fs(ParserContext *ctx, Attributes *attr, gint32 halfpoints, GError **error)
     g_free(tagname);
     
     attr->size = halfpoints;
+    return TRUE;
+}
+
+gboolean
+doc_highlight(ParserContext *ctx, Attributes *attr, gint32 param, GError **error)
+{
+	gchar *color;
+
+	if((color = g_slist_nth_data(ctx->color_table, param)) == NULL)
+	{
+		g_set_error(error, RTF_ERROR, RTF_ERROR_UNDEFINED_COLOR, _("Color '%i' undefined"), param);
+		return FALSE;
+	}
+	
+	gchar *tagname = g_strdup_printf("osxcart-rtf-highlight-%i", param);
+    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
+    {
+        GtkTextTag *tag = gtk_text_tag_new(tagname);
+        g_object_set(tag, 
+                     "paragraph-background", color, 
+                     "paragraph-background-set", TRUE, 
+                     NULL);
+        gtk_text_tag_table_add(ctx->tags, tag);
+    }
+	g_free(tagname);
+    
+    attr->background = param;
     return TRUE;
 }
 
