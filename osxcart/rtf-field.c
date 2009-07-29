@@ -8,12 +8,28 @@
 
 typedef enum {
 	FIELD_TYPE_HYPERLINK,
-	FIELD_TYPE_INCLUDEPICTURE
+	FIELD_TYPE_INCLUDEPICTURE,
+	FIELD_TYPE_PAGE
 } FieldType;
+
+typedef enum {
+	NUMBER_ALPHABETIC,
+	NUMBER_alphabetic,
+	NUMBER_ARABIC,
+	NUMBER_ARABIC_DASH,
+	NUMBER_CIRCLENUM,
+	NUMBER_DECIMAL_ENCLOSED_PERIOD,
+	NUMBER_DECIMAL_ENCLOSED_PARENTHESES,
+	NUMBER_HEX,
+	NUMBER_ORDINAL,
+	NUMBER_ROMAN,
+	NUMBER_roman
+} GeneralNumberFormat;
 
 typedef struct {
 	GString *scanbuffer;
 	FieldType type;
+	GeneralNumberFormat general_number_format;
 	gchar *argument;
 	gchar *date_format;
 	gchar *numeric_format;
@@ -24,6 +40,7 @@ static FieldInstructionState *fldinst_state_new(void);
 static FieldInstructionState *fldinst_state_copy(FieldInstructionState *state);
 static void fldinst_state_free(FieldInstructionState *state);
 static void field_instruction_end(ParserContext *ctx);
+static gchar *format_integer(gint number, GeneralNumberFormat format);
 
 const ControlWord field_instruction_word_table[] = { 
 	{ "\\", SPECIAL_CHARACTER, FALSE, NULL, 0, "\\" },
@@ -131,6 +148,7 @@ fldinst_state_new(void)
 {
 	FieldInstructionState *retval = g_new0(FieldInstructionState, 1);
 	retval->scanbuffer = g_string_new("");
+	retval->general_number_format = NUMBER_ARABIC;
 	return retval;
 }
 
@@ -298,9 +316,14 @@ static void field_instruction_end(ParserContext *ctx)
 		switches = get_switches(tokenizer, switches, "d", "c", "", "");
 		/* Ignore switches */
 	}
+	else if(strcmp(field_type, "PAGE") == 0)
+	{
+		state->type = FIELD_TYPE_PAGE;
+		/* No switches or arguments */
+	}
 	else
 	{
-		g_warning("'%s' field not supported.", field_type);
+		g_warning(_("'%s' field not supported."), field_type);
 		g_scanner_destroy(tokenizer);
 		return;
 	}
@@ -318,8 +341,30 @@ static void field_instruction_end(ParserContext *ctx)
 		/* Parse a general format consisting of \* and a keyword */
 		else if(strcmp(info->switchname, "*") == 0)
 		{
-			if(strcmp(info->switcharg, "MERGEFORMATINET") == 0)
+			if(strcmp(info->switcharg, "ALPHABETIC") == 0)
+				state->general_number_format = NUMBER_ALPHABETIC;
+			else if(strcmp(info->switcharg, "alphabetic") == 0)
+				state->general_number_format = NUMBER_alphabetic;
+			else if(strcmp(info->switcharg, "Arabic") == 0)
+				state->general_number_format = NUMBER_ARABIC;
+			else if(strcmp(info->switcharg, "ArabicDash") == 0)
+				state->general_number_format = NUMBER_ARABIC_DASH;
+			else if(strcmp(info->switcharg, "CIRCLENUM") == 0)
+				state->general_number_format = NUMBER_CIRCLENUM;
+			else if(strcmp(info->switcharg, "GB1") == 0)
+				state->general_number_format = NUMBER_DECIMAL_ENCLOSED_PERIOD;
+			else if(strcmp(info->switcharg, "GB2") == 0)
+				state->general_number_format = NUMBER_DECIMAL_ENCLOSED_PARENTHESES;
+			else if(strcmp(info->switcharg, "Hex") == 0)
+				state->general_number_format = NUMBER_HEX;
+			else if(strcmp(info->switcharg, "MERGEFORMATINET") == 0)
 				; /* ignore */
+			else if(strcmp(info->switcharg, "Ordinal") == 0)
+				state->general_number_format = NUMBER_ORDINAL;
+			else if(strcmp(info->switcharg, "Roman") == 0)
+				state->general_number_format = NUMBER_ROMAN;
+			else if(strcmp(info->switcharg, "roman") == 0)
+				state->general_number_format = NUMBER_roman;
 			else
 				g_warning(_("Format '%s' not supported."), buffer);
 				/* Just continue */
@@ -349,6 +394,16 @@ static void field_instruction_end(ParserContext *ctx)
 		}
 			break;
 
+		case FIELD_TYPE_PAGE:
+		{
+			gchar *output = format_integer(1, state->general_number_format);
+			g_printerr("Number format: %s\n", output);
+			GtkTextIter iter;
+			gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &iter, ctx->endmark);
+			gtk_text_buffer_insert(ctx->textbuffer, &iter, output, -1);
+			g_free(output);
+		}
+			
 		default:
 			g_assert_not_reached();
 	}
@@ -359,4 +414,74 @@ static void field_instruction_end(ParserContext *ctx)
 	g_slist_foreach(switches, (GFunc)free_switch_info, NULL);
 	g_slist_foreach(formatswitches, (GFunc)free_switch_info, NULL);
 	g_scanner_destroy(tokenizer);
+}
+
+/* Free the return value when done with it */
+static gchar *
+format_integer(gint number, GeneralNumberFormat format)
+{
+	switch(format)
+	{
+		case NUMBER_ALPHABETIC:
+			return g_strnfill(number / 26 + 1, number % 26 + 'A');
+		case NUMBER_alphabetic:
+			return g_strnfill(number / 26 + 1, number % 26 + 'a');
+		case NUMBER_ARABIC_DASH:
+			return g_strdup_printf("- %d -", number);
+		case NUMBER_HEX:
+			return g_strdup_printf("%X", number);
+		case NUMBER_ORDINAL:
+			if(number % 10 == 1 && number % 100 != 11)
+				return g_strdup_printf("%dst", number);
+			if(number % 10 == 2 && number % 100 != 12)
+				return g_strdup_printf("%dnd", number);
+			if(number % 10 == 3 && number % 100 != 13);
+				return g_strdup_printf("%drd", number);
+			return g_strdup_printf("%dth", number);
+		case NUMBER_ROMAN:
+		{
+			const gchar *r_hundred[] = { "", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM" };
+			const gchar *r_ten[] = { "", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC" };
+			const gchar *r_one[] = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX" };
+			gint thousands = number / 1000;
+			gint hundreds = (number % 1000) / 100;
+			gint tens = (number % 100) / 10;
+			gint ones = number % 10;
+			gchar *thousandstring = g_strnfill(thousands, 'M');
+			gchar *retval = g_strconcat(thousandstring, r_hundred[hundreds], r_ten[tens], r_one[ones], NULL);
+			g_free(thousandstring);
+			return retval;
+		}
+		case NUMBER_roman:
+		{
+			const gchar *r_hundred[] = { "", "c", "cc", "ccc", "cd", "d", "dc", "dcc", "dccc", "cm" };
+			const gchar *r_ten[] = { "", "x", "xx", "xxx", "xl", "l", "lx", "lxx", "lxxx", "xc" };
+			const gchar *r_one[] = { "", "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix" };
+			gint thousands = number / 1000;
+			gint hundreds = (number % 1000) / 100;
+			gint tens = (number % 100) / 10;
+			gint ones = number % 10;
+			gchar *thousandstring = g_strnfill(thousands, 'm');
+			gchar *retval = g_strconcat(thousandstring, r_hundred[hundreds], r_ten[tens], r_one[ones], NULL);
+			g_free(thousandstring);
+			return retval;
+		}
+		case NUMBER_CIRCLENUM:
+			if(number >= 1 && number <= 20)
+				return g_strdup_printf("\xE2\x91%c", 0x9F + number);
+			/* fall through to arabic */
+		case NUMBER_DECIMAL_ENCLOSED_PERIOD:
+			if(number >= 1 && number <= 20)
+				return g_strdup_printf("\xE2\x92%c", 0x87 + number);
+			/* fall through to arabic */
+		case NUMBER_DECIMAL_ENCLOSED_PARENTHESES:
+			if(number >= 1 && number <= 12)
+				return g_strdup_printf("\xE2\x91%c", 0xB3 + number);
+			if(number >= 13 && number <= 20)
+				return g_strdup_printf("\xE2\x92%c", 0x73 + number);
+			/* fall through to arabic */
+		case NUMBER_ARABIC:
+		default:
+			return g_strdup_printf("%d", number);
+	}
 }
