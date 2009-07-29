@@ -495,7 +495,7 @@ doc_fs(ParserContext *ctx, Attributes *attr, gint32 halfpoints, GError **error)
 {
 	if(halfpoints < 0)
 	{
-		g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_FONT_SIZE, _("\\fs%d is invalid, negative font sizes not allowed"));
+		g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_FONT_SIZE, _("\\fs%d is invalid, negative font sizes not allowed"), halfpoints);
 		return FALSE; 
 	}
 	
