@@ -113,7 +113,7 @@ const GScannerConfig field_parser = {
 	/* Character sets */
 	" \t\n", /* cset_skip_characters */
 	G_CSET_A_2_Z G_CSET_a_2_z "\\", /* cset_identifier_first */
-	G_CSET_A_2_Z G_CSET_a_2_z "#@*", /* cset_identifier_nth */
+	G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "#@*", /* cset_identifier_nth */
 	NULL, /* cpair_comment_single */
 	
 	/* Should symbol lookup work case sensitive? */
@@ -397,7 +397,6 @@ static void field_instruction_end(ParserContext *ctx)
 		case FIELD_TYPE_PAGE:
 		{
 			gchar *output = format_integer(1, state->general_number_format);
-			g_print("Number format: %s\n", output);
 			GtkTextIter iter;
 			gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &iter, ctx->endmark);
 			gtk_text_buffer_insert(ctx->textbuffer, &iter, output, -1);
