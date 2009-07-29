@@ -16,6 +16,8 @@ typedef enum {
 	RTF_ERROR_INVALID_RTF,       /* The file was not correct RTF */
 	RTF_ERROR_MISSING_PARAMETER, /* A numerical parameter was missing from a
 	                                control word which requires one */
+	RTF_ERROR_MISSING_BRACE,     /* Not all groups were closed before EOF */
+	RTF_ERROR_EXTRA_CHARACTERS,  /* There was junk after the last '}' */
 	RTF_ERROR_BAD_VERSION,       /* The RTF file was an incompatible version */
 	RTF_ERROR_UNDEFINED_COLOR,   /* A color was used which was not defined in
 	                                the color table */

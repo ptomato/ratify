@@ -442,7 +442,11 @@ static gboolean
 parse_rtf(ParserContext *ctx, GError **error)
 {
 	do {
-
+		if(*ctx->pos == '\0')
+		{
+			g_set_error(error, RTF_ERROR, RTF_ERROR_MISSING_BRACE, _("File ended unexpectedly"));
+			return FALSE;
+		}
 		if(*ctx->pos == '{') 
 		{
 			ctx->pos++;
@@ -509,6 +513,15 @@ parse_rtf(ParserContext *ctx, GError **error)
 		}
 
 	} while(ctx->group_nesting_level > 0);
+
+	/* Check that there isn't anything but whitespace after the last brace */
+	while(isspace(*ctx->pos))
+		ctx->pos++;
+	if(*ctx->pos != '\0')
+	{
+		g_set_error(error, RTF_ERROR, RTF_ERROR_EXTRA_CHARACTERS, _("Characters found after final closing brace"));
+		return FALSE;
+	}
 	
 	return TRUE;
 }
