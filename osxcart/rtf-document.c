@@ -255,7 +255,7 @@ apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTe
 
 	if(attr->indent != 0)
 	{
-		gchar *tagname = g_strdup_printf("osxcart-rtf-indent-%i", attr->right_margin);
+		gchar *tagname = g_strdup_printf("osxcart-rtf-indent-%i", attr->indent);
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
 		g_free(tagname);
 	}
