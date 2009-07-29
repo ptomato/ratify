@@ -18,7 +18,12 @@ rtf_parse_pass_case(gconstpointer filename)
 {
 	GError *error = NULL;
 	GtkTextBuffer *buffer = gtk_text_buffer_new(NULL);
-	g_assert(rtf_text_buffer_import(buffer, filename, &error));
+	gboolean success = rtf_text_buffer_import(buffer, filename, &error);
+	if(!success)
+	{
+		g_test_message("Error message: %s", error->message);
+		exit(1);
+	}
 	g_assert(error == NULL);
 	g_object_unref(buffer);
 }
@@ -98,6 +103,58 @@ const gchar *rtfbookexamples[] = {
 	NULL, NULL
 };
 
+const gchar *codeprojectpasscases[] = {
+	"default", "DefaultText.rtf",
+	"minimal", "minimal.rtf",
+	"i0", "RtfInterpreterTest_0.rtf",
+	"i1", "RtfInterpreterTest_1.rtf",
+	"i2", "RtfInterpreterTest_2.rtf",
+	"i3", "RtfInterpreterTest_3.rtf",
+	"i4", "RtfInterpreterTest_4.rtf",
+	"i5", "RtfInterpreterTest_5.rtf",
+	"i6", "RtfInterpreterTest_6.rtf",
+	"i7", "RtfInterpreterTest_7.rtf",
+	"i8", "RtfInterpreterTest_8.rtf",
+	"i9", "RtfInterpreterTest_9.rtf",
+	"i10", "RtfInterpreterTest_10.rtf",
+	"i11", "RtfInterpreterTest_11.rtf",
+	"i12", "RtfInterpreterTest_12.rtf",
+	"i13", "RtfInterpreterTest_13.rtf",
+	"i14", "RtfInterpreterTest_14.rtf",
+	"i15", "RtfInterpreterTest_15.rtf",
+	"i16", "RtfInterpreterTest_16.rtf",
+	"i17", "RtfInterpreterTest_17.rtf",
+	"i18", "RtfInterpreterTest_18.rtf",
+	"i19", "RtfInterpreterTest_19.rtf",
+	"i20", "RtfInterpreterTest_20.rtf",
+	"i21", "RtfInterpreterTest_21.rtf",
+	"i22", "RtfInterpreterTest_22.rtf",
+	"p0", "RtfParserTest_0.rtf",
+	"p1", "RtfParserTest_1.rtf",
+	"p2", "RtfParserTest_2.rtf",
+	"p3", "RtfParserTest_3.rtf",
+	"p4", "RtfParserTest_4.rtf",
+	"p5", "RtfParserTest_5.rtf",
+	"p6", "RtfParserTest_6.rtf",
+	"p7", "RtfParserTest_7.rtf",
+	"p8", "RtfParserTest_8.rtf",
+	NULL, NULL
+};
+const gchar *codeprojectfailcases[] = {
+	"if0", "RtfInterpreterTest_fail_0.rtf",
+	"if1", "RtfInterpreterTest_fail_1.rtf",
+	"if2", "RtfInterpreterTest_fail_2.rtf",
+	"if3", "RtfInterpreterTest_fail_3.rtf",
+	"if4", "RtfInterpreterTest_fail_4.rtf",
+	"pf0", "RtfParserTest_fail_0.rtf",
+	"pf1", "RtfParserTest_fail_1.rtf",
+	"pf2", "RtfParserTest_fail_2.rtf",
+	"pf3", "RtfParserTest_fail_3.rtf",
+	"pf5", "RtfParserTest_fail_5.rtf", /* 4 was just an empty file */
+	"pf6", "RtfParserTest_fail_6.rtf",
+	NULL, NULL
+};
+
 void
 add_rtf_tests(void)
 {
@@ -112,8 +169,30 @@ add_rtf_tests(void)
 	const gchar **ptr = rtfbookexamples;
 	while(*ptr)
 	{
-		gchar *testname = g_strconcat("/rtf/pass/", *ptr++, NULL);
+		gchar *testname = g_strconcat("/rtf/pass/pocketguide/", *ptr++, NULL);
 		g_test_add_data_func(testname, *ptr++, rtf_parse_pass_case);
+		g_free(testname);
+	}
+
+	/* Pass cases, from http://www.codeproject.com/KB/recipes/RtfConverter.aspx */
+	/* FIXME: What is the copyright on these? */
+	/* These must all parse correctly */
+	ptr = codeprojectpasscases;
+	while(*ptr)
+	{
+		gchar *testname = g_strconcat("/rtf/pass/codeproject/", *ptr++, NULL);
+		g_test_add_data_func(testname, *ptr++, rtf_parse_pass_case);
+		g_free(testname);
+	}
+
+	/* Fail cases, from http://www.codeproject.com/KB/recipes/RtfConverter.aspx */
+	/* FIXME: What is the copyright on these? */
+	/* These must all give an error */
+	ptr = codeprojectfailcases;
+	while(*ptr)
+	{
+		gchar *testname = g_strconcat("/rtf/fail/codeproject/", *ptr++, NULL);
+		g_test_add_data_func(testname, *ptr++, rtf_fail_case);
 		g_free(testname);
 	}
 }

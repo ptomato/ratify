@@ -397,12 +397,13 @@ static void field_instruction_end(ParserContext *ctx)
 		case FIELD_TYPE_PAGE:
 		{
 			gchar *output = format_integer(1, state->general_number_format);
-			g_printerr("Number format: %s\n", output);
+			g_print("Number format: %s\n", output);
 			GtkTextIter iter;
 			gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &iter, ctx->endmark);
 			gtk_text_buffer_insert(ctx->textbuffer, &iter, output, -1);
 			g_free(output);
 		}
+			break;
 			
 		default:
 			g_assert_not_reached();
@@ -423,9 +424,13 @@ format_integer(gint number, GeneralNumberFormat format)
 	switch(format)
 	{
 		case NUMBER_ALPHABETIC:
-			return g_strnfill(number / 26 + 1, number % 26 + 'A');
+			if(number < 1)
+				break;
+			return g_strnfill(number / 26 + 1, number % 26 - 1 + 'A');
 		case NUMBER_alphabetic:
-			return g_strnfill(number / 26 + 1, number % 26 + 'a');
+			if(number < 1)
+				break;
+			return g_strnfill(number / 26 + 1, number % 26 - 1 + 'a');
 		case NUMBER_ARABIC_DASH:
 			return g_strdup_printf("- %d -", number);
 		case NUMBER_HEX:
@@ -439,6 +444,8 @@ format_integer(gint number, GeneralNumberFormat format)
 				return g_strdup_printf("%drd", number);
 			return g_strdup_printf("%dth", number);
 		case NUMBER_ROMAN:
+			if(number < 1)
+				break;
 		{
 			const gchar *r_hundred[] = { "", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM" };
 			const gchar *r_ten[] = { "", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC" };
@@ -453,6 +460,8 @@ format_integer(gint number, GeneralNumberFormat format)
 			return retval;
 		}
 		case NUMBER_roman:
+			if(number < 1)
+				break;
 		{
 			const gchar *r_hundred[] = { "", "c", "cc", "ccc", "cd", "d", "dc", "dcc", "dccc", "cm" };
 			const gchar *r_ten[] = { "", "x", "xx", "xxx", "xl", "l", "lx", "lxx", "lxxx", "xc" };
@@ -469,19 +478,20 @@ format_integer(gint number, GeneralNumberFormat format)
 		case NUMBER_CIRCLENUM:
 			if(number >= 1 && number <= 20)
 				return g_strdup_printf("\xE2\x91%c", 0x9F + number);
-			/* fall through to arabic */
+			break;
 		case NUMBER_DECIMAL_ENCLOSED_PERIOD:
 			if(number >= 1 && number <= 20)
 				return g_strdup_printf("\xE2\x92%c", 0x87 + number);
-			/* fall through to arabic */
+			break;
 		case NUMBER_DECIMAL_ENCLOSED_PARENTHESES:
 			if(number >= 1 && number <= 12)
 				return g_strdup_printf("\xE2\x91%c", 0xB3 + number);
 			if(number >= 13 && number <= 20)
 				return g_strdup_printf("\xE2\x92%c", 0x73 + number);
-			/* fall through to arabic */
+			break;
 		case NUMBER_ARABIC:
 		default:
-			return g_strdup_printf("%d", number);
+			break;
 	}
+	return g_strdup_printf("%d", number);
 }

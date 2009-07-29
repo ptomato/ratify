@@ -6,7 +6,7 @@ test_osxcart_CFLAGS = @TEST_CFLAGS@ $(AM_CFLAGS)
 test_osxcart_LDADD = @TEST_LIBS@ ../osxcart/libosxcart.la
 
 check-local: test-osxcart 
-	gtester test-osxcart -o=testlog.xml; \
+	GNOME_DISABLE_CRASH_DIALOG=1 gtester -k test-osxcart -o=testlog.xml; \
 	gtester-report testlog.xml > testlog.html
 
 noinst_PROGRAMS = test-rtfwrite
@@ -92,4 +92,49 @@ EXTRA_DIST = \
 	p085b_table_h_alignment.rtf \
 	p086a_table_all_alignments.rtf \
 	p086b_table_all_alignments_with_borders.rtf \
-	rtfpocketguide.jpeg
+	rtfpocketguide.jpeg \
+	DefaultText.rtf \
+	minimal.rtf \
+	RtfInterpreterTest_0.rtf \
+	RtfInterpreterTest_1.rtf \
+	RtfInterpreterTest_2.rtf \
+	RtfInterpreterTest_3.rtf \
+	RtfInterpreterTest_4.rtf \
+	RtfInterpreterTest_5.rtf \
+	RtfInterpreterTest_6.rtf \
+	RtfInterpreterTest_7.rtf \
+	RtfInterpreterTest_8.rtf \
+	RtfInterpreterTest_9.rtf \
+	RtfInterpreterTest_10.rtf \
+	RtfInterpreterTest_11.rtf \
+	RtfInterpreterTest_12.rtf \
+	RtfInterpreterTest_13.rtf \
+	RtfInterpreterTest_14.rtf \
+	RtfInterpreterTest_15.rtf \
+	RtfInterpreterTest_16.rtf \
+	RtfInterpreterTest_17.rtf \
+	RtfInterpreterTest_18.rtf \
+	RtfInterpreterTest_19.rtf \
+	RtfInterpreterTest_20.rtf \
+	RtfInterpreterTest_21.rtf \
+	RtfInterpreterTest_22.rtf \
+	RtfInterpreterTest_fail_0.rtf \
+	RtfInterpreterTest_fail_1.rtf \
+	RtfInterpreterTest_fail_2.rtf \
+	RtfInterpreterTest_fail_3.rtf \
+	RtfInterpreterTest_fail_4.rtf \
+	RtfParserTest_0.rtf \
+	RtfParserTest_1.rtf \
+	RtfParserTest_2.rtf \
+	RtfParserTest_3.rtf \
+	RtfParserTest_4.rtf \
+	RtfParserTest_5.rtf \
+	RtfParserTest_6.rtf \
+	RtfParserTest_7.rtf \
+	RtfParserTest_8.rtf \
+	RtfParserTest_fail_0.rtf \
+	RtfParserTest_fail_1.rtf \
+	RtfParserTest_fail_2.rtf \
+	RtfParserTest_fail_3.rtf \
+	RtfParserTest_fail_5.rtf \
+	RtfParserTest_fail_6.rtf
