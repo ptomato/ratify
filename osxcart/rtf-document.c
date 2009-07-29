@@ -493,6 +493,12 @@ doc_footnote(ParserContext *ctx, Attributes *attr, GError **error)
 gboolean
 doc_fs(ParserContext *ctx, Attributes *attr, gint32 halfpoints, GError **error)
 {
+	if(halfpoints < 0)
+	{
+		g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_FONT_SIZE, _("\\fs%d is invalid, negative font sizes not allowed"));
+		return FALSE; 
+	}
+	
     gchar *tagname = g_strdup_printf("osxcart-rtf-fontsize-%i", halfpoints);
     if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
     {
@@ -575,6 +581,9 @@ doc_lang(ParserContext *ctx, Attributes *attr, gint32 language, GError **error)
 gboolean
 doc_li(ParserContext *ctx, Attributes *attr, gint32 twips, GError **error)
 {
+	if(twips < 0)
+		return TRUE; /* Silently ignore, not supported in GtkTextBuffer */
+	
     gchar *tagname = g_strdup_printf("osxcart-rtf-left-margin-%i", twips);
     if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
     {
@@ -754,6 +763,9 @@ doc_qr(ParserContext *ctx, Attributes *attr, GError **error)
 gboolean
 doc_ri(ParserContext *ctx, Attributes *attr, gint32 twips, GError **error)
 {
+	if(twips < 0)
+		return TRUE; /* Silently ignore, not supported in GtkTextBuffer */
+	
     gchar *tagname = g_strdup_printf("osxcart-rtf-right-margin-%i", twips);
     if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
     {
@@ -825,6 +837,9 @@ doc_s(ParserContext *ctx, Attributes *attr, gint32 param, GError **error)
 gboolean
 doc_sa(ParserContext *ctx, Attributes *attr, gint32 twips, GError **error)
 {
+	if(twips < 0)
+		return TRUE; /* Silently ignore, not supported in GtkTextBuffer */
+	
     gchar *tagname = g_strdup_printf("osxcart-rtf-space-after-%i", twips);
     if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
     {
@@ -851,6 +866,9 @@ doc_saauto(ParserContext *ctx, Attributes *attr, gint32 param, GError **error)
 gboolean
 doc_sb(ParserContext *ctx, Attributes *attr, gint32 twips, GError **error)
 {
+	if(twips < 0)
+		return TRUE; /* Silently ignore, not supported in GtkTextBuffer */
+	
     gchar *tagname = g_strdup_printf("osxcart-rtf-space-before-%i", twips);
     if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
     {

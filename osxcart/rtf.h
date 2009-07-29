@@ -27,7 +27,8 @@ typedef enum {
 	                                the stylesheet */
 	RTF_ERROR_BAD_HEX_CODE,      /* Incorrect characters were encountered when
 	                                expecting hexadecimal digits (0-9, A-F) */
-	RTF_ERROR_BAD_PICT_TYPE      /* An invalid type of bitmap was specified */
+	RTF_ERROR_BAD_PICT_TYPE,     /* An invalid type of bitmap was specified */
+	RTF_ERROR_BAD_FONT_SIZE      /* A negative font size was specified */
 } RtfError;
 
 /**
