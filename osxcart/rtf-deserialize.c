@@ -141,6 +141,8 @@ get_charset_for_codepage(int codepage)
         { 943, "SJIS" },
         { 950, "BIG5" },
         { 709, "ASMO_449" },
+		{ 10000, "MAC" },
+		{ 10001, "SJIS" }, /* approximation? */
         { 0, NULL }
     };
     
@@ -489,6 +491,11 @@ parse_rtf(ParserContext *ctx, GError **error)
                 charset = get_charset_for_codepage(codepage);
                 if(charset == NULL)
                     charset = get_charset_for_codepage(ctx->default_codepage);
+				if(charset == NULL)
+				{
+					g_set_error(error, RTF_ERROR, RTF_ERROR_UNSUPPORTED_CHARSET, _("Character set %d is not supported."), (ctx->default_codepage == -1)? codepage : ctx->default_codepage);
+					return FALSE;
+				}
 
 				/* Now see if there was any incompletely converted text left over from before */
 				if(ctx->convertbuffer->len)

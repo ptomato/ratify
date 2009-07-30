@@ -12,23 +12,25 @@ G_BEGIN_DECLS
  * The different codes which can be thrown in the #RTF_ERROR domain.
  */
 typedef enum {
-	RTF_ERROR_FAILED,            /* Generic error */
-	RTF_ERROR_INVALID_RTF,       /* The file was not correct RTF */
-	RTF_ERROR_MISSING_PARAMETER, /* A numerical parameter was missing from a
-	                                control word which requires one */
-	RTF_ERROR_MISSING_BRACE,     /* Not all groups were closed before EOF */
-	RTF_ERROR_EXTRA_CHARACTERS,  /* There was junk after the last '}' */
-	RTF_ERROR_BAD_VERSION,       /* The RTF file was an incompatible version */
-	RTF_ERROR_UNDEFINED_COLOR,   /* A color was used which was not defined in
-	                                the color table */
-	RTF_ERROR_UNDEFINED_FONT,    /* A font was used which was not defined in the
-	                                font table */
-	RTF_ERROR_UNDEFINED_STYLE,   /* A style was used which was not defined in
-	                                the stylesheet */
-	RTF_ERROR_BAD_HEX_CODE,      /* Incorrect characters were encountered when
-	                                expecting hexadecimal digits (0-9, A-F) */
-	RTF_ERROR_BAD_PICT_TYPE,     /* An invalid type of bitmap was specified */
-	RTF_ERROR_BAD_FONT_SIZE      /* A negative font size was specified */
+	RTF_ERROR_FAILED,              /* Generic error */
+	RTF_ERROR_INVALID_RTF,         /* The file was not correct RTF */
+	RTF_ERROR_MISSING_PARAMETER,   /* A numerical parameter was missing from a
+	                                  control word which requires one */
+	RTF_ERROR_MISSING_BRACE,       /* Not all groups were closed before EOF */
+	RTF_ERROR_EXTRA_CHARACTERS,    /* There was junk after the last '}' */
+	RTF_ERROR_BAD_VERSION,         /* The RTF file was an incompatible version*/
+	RTF_ERROR_UNDEFINED_COLOR,     /* A color was used which was not defined in
+	                                  the color table */
+	RTF_ERROR_UNDEFINED_FONT,      /* A font was used which was not defined in
+	                                  the font table */
+	RTF_ERROR_UNDEFINED_STYLE,     /* A style was used which was not defined in
+	                                  the stylesheet */
+	RTF_ERROR_BAD_HEX_CODE,        /* Incorrect characters were encountered when
+	                                  expecting hexadecimal digits (0-9, A-F) */
+	RTF_ERROR_BAD_PICT_TYPE,       /* An invalid type of bitmap was specified */
+	RTF_ERROR_BAD_FONT_SIZE,       /* A negative font size was specified */
+	RTF_ERROR_UNSUPPORTED_CHARSET  /* A character set with no iconv equivalent
+	                                  was specified */
 } RtfError;
 
 /**
