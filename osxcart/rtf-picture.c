@@ -109,8 +109,11 @@ pict_text(ParserContext *ctx)
 		"image/x-emf", "image/png", "image/jpeg", "image/x-pict", 
 		"not supported", "image/x-wmf", "image/x-bmp", "image-x-bmp"
 	};
-	
+
 	if(state->error)
+		return;
+
+	if(strlen(ctx->text->str) == 0)
 		return;
 	
 	if(!state->loader)
@@ -119,13 +122,13 @@ pict_text(ParserContext *ctx)
 		GSList *iter;
 	 	GdkPixbufFormat *info;
 		gchar **mimes;
-
+		
 	 	for(iter = formats; iter && !state->loader; iter = g_slist_next(iter)) 
 		{
 			int i;
 			info = (GdkPixbufFormat *)iter->data;
 			mimes = gdk_pixbuf_format_get_mime_types(info);
- 	
+			
 		 	for(i = 0; mimes[i] != NULL; i++)
 		 	if(g_ascii_strcasecmp(mimes[i], mimetypes[state->type]) == 0) 
 			{
@@ -151,9 +154,6 @@ pict_text(ParserContext *ctx)
 
 		adjust_loader_size(state);
 	}
-
-	if(strlen(ctx->text->str) == 0)
-		return;
 	
 	writebuffer = g_new0(guchar, strlen(ctx->text->str));
 	for(count = 0; ctx->text->str[count * 2] && ctx->text->str[count * 2 + 1]; count++)
