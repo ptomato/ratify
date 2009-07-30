@@ -83,6 +83,7 @@ attributes_new(void)
 	attr->rise = 0;
 	
 	attr->unicode_skip = 1;
+	attr->unicode_ignore = FALSE;
 	
     return attr;
 }
@@ -306,17 +307,19 @@ document_text(ParserContext *ctx)
 	if(!ctx->group_nesting_level && text[length] == '\n')
 		text[length] = '\0';
 
-	gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &end, ctx->endmark); /* shouldn't invalidate end, but it does? */
-	gtk_text_buffer_insert(ctx->textbuffer, &end, text, -1);
-	gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &start, ctx->startmark);
-	gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &end, ctx->endmark);
+	if(!attr->unicode_ignore)
+	{
+		gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &end, ctx->endmark); /* shouldn't invalidate end, but it does? */
+		gtk_text_buffer_insert(ctx->textbuffer, &end, text, -1);
+		gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &start, ctx->startmark);
+		gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &end, ctx->endmark);
 
-	apply_attributes(ctx, attr, &start, &end);
-	
+		apply_attributes(ctx, attr, &start, &end);
+
+		/* Move the two marks back together again */
+		gtk_text_buffer_move_mark(ctx->textbuffer, ctx->startmark, &end);
+	}	
 	g_string_truncate(ctx->text, 0);
-	
-	/* Move the two marks back together again */
-	gtk_text_buffer_move_mark(ctx->textbuffer, ctx->startmark, &end);
 }
 
 gint 
@@ -1024,6 +1027,13 @@ doc_uc(ParserContext *ctx, Attributes *attr, gint32 skip, GError **error)
 }
 
 gboolean
+doc_ud(ParserContext *ctx, Attributes *attr, GError **error)
+{
+	attr->unicode_ignore = FALSE;
+	return TRUE;
+}
+
+gboolean
 doc_ul(ParserContext *ctx, Attributes *attr, gint32 param, GError **error)
 {
     if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-underline-single"))
@@ -1097,6 +1107,13 @@ doc_up(ParserContext *ctx, Attributes *attr, gint32 halfpoints, GError **error)
 	}
 
 	attr->rise = halfpoints;
+	return TRUE;
+}
+
+gboolean
+doc_upr(ParserContext *ctx, Attributes *attr, GError **error)
+{
+	attr->unicode_ignore = TRUE;
 	return TRUE;
 }
 

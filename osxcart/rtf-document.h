@@ -45,6 +45,8 @@ typedef struct {
 
 	/* Number of characters to skip after \u */
 	gint unicode_skip;
+	/* Skip characters within \upr but not \*ud */
+	gboolean unicode_ignore;
 } Attributes;
 
 Attributes *attributes_new(void);
@@ -60,7 +62,7 @@ typedef gboolean DocParamFunc(ParserContext *, Attributes *, gint32, GError **);
 /* Document destination functions usable in other destinations */
 DocFunc doc_chftn, doc_ltrch, doc_ltrpar, doc_nosupersub, doc_pard, doc_plain, 
         doc_qc, doc_qj, doc_ql, doc_qr, doc_rtlch, doc_rtlpar, doc_sub, 
-        doc_super, doc_ulnone;
+        doc_super, doc_ud, doc_ulnone, doc_upr;
 DocParamFunc doc_b, doc_cb, doc_cf, doc_dn, doc_f, doc_fi, doc_fs, 
              doc_highlight, doc_i, doc_lang, doc_li, doc_ri, doc_s, doc_sa, 
              doc_saauto, doc_sb, doc_sbauto, doc_scaps, doc_strike, doc_tx, 
@@ -134,6 +136,7 @@ extern const DestinationInfo shppict_destination;
 	{ "tx", REQUIRED_PARAMETER, FALSE, doc_tx }, \
 	{ "u", REQUIRED_PARAMETER, FALSE, doc_u }, \
 	{ "uc", REQUIRED_PARAMETER, FALSE, doc_uc }, \
+	{ "*ud", NO_PARAMETER, TRUE, doc_ud }, \
 	{ "ul", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
 	{ "uld", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, /* Treat unsupported types */ \
 	{ "uldash", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, /* of underlining as */ \
@@ -153,6 +156,7 @@ extern const DestinationInfo shppict_destination;
 	{ "ulw", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
 	{ "ulwave", OPTIONAL_PARAMETER, TRUE, doc_ulwave, 1 }, \
 	{ "up", OPTIONAL_PARAMETER, TRUE, doc_up, 6 }, \
+	{ "upr", NO_PARAMETER, TRUE, doc_upr }, \
 	{ "v", OPTIONAL_PARAMETER, TRUE, doc_v, 1 }, \
 	{ "zwbo", SPECIAL_CHARACTER, FALSE, NULL, 0, "\xE2\x80\x8B" }, /* U+200B zero width space */ \
 	{ "zwj", SPECIAL_CHARACTER, FALSE, NULL, 0, "\xE2\x80\x8D" }, /* U+200D zero width joiner */ \
