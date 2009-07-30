@@ -26,6 +26,7 @@ static void font_table_text(ParserContext *ctx);
 static FontTableState *fonttbl_state_new(void);
 static FontTableState *fonttbl_state_copy(FontTableState *state);
 static void fonttbl_state_free(FontTableState *state);
+static gint font_table_get_codepage(ParserContext *ctx);
 
 typedef gboolean FontFunc(ParserContext *, FontTableState *, GError **);
 typedef gboolean FontParamFunc(ParserContext *, FontTableState *, gint32, GError **);
@@ -55,7 +56,9 @@ const DestinationInfo fonttbl_destination = {
     font_table_text,
     (StateNewFunc *)fonttbl_state_new,
     (StateCopyFunc *)fonttbl_state_copy,
-    (StateFreeFunc *)fonttbl_state_free
+    (StateFreeFunc *)fonttbl_state_free,
+	NULL, /* cleanup */
+	font_table_get_codepage
 };
 
 static void
@@ -205,6 +208,13 @@ fcharset_to_codepage(gint charset)
             g_warning(_("Unknown character set %d"), charset);
             return -1;
     }
+}
+
+static gint 
+font_table_get_codepage(ParserContext *ctx)
+{
+	FontTableState *state = (FontTableState *)get_state(ctx);
+	return state->codepage;
 }
 
 static gboolean
