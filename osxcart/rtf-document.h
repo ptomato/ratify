@@ -69,6 +69,7 @@ extern const DestinationInfo shppict_destination;
 
 #define DOCUMENT_TEXT_CONTROL_WORDS \
 	{ "\n", SPECIAL_CHARACTER, FALSE, NULL, 0, "\n" }, \
+	{ "\r", SPECIAL_CHARACTER, FALSE, NULL, 0, "\n" }, \
 	{ "-", SPECIAL_CHARACTER, FALSE, NULL, 0, "\xC2\xAD" }, /* U+00AD Soft hyphen */ \
 	{ "\\", SPECIAL_CHARACTER, FALSE, NULL, 0, "\\" }, \
 	{ "_", SPECIAL_CHARACTER, FALSE, NULL, 0, "\xE2\x80\x91" }, /* U+2011 NBhyphen */ \

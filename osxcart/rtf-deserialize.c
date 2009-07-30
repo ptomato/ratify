@@ -195,7 +195,7 @@ parse_control_word(ParserContext *ctx, gchar **word, GError **error)
 		*word = g_strconcat("*", destword, NULL);
 		g_free(destword);
 	}
-	else if(g_ascii_ispunct(*ctx->pos) || *ctx->pos == '\n')
+	else if(g_ascii_ispunct(*ctx->pos) || *ctx->pos == '\n' || *ctx->pos == '\r')
 	{
 		/* Control symbol */
 		*word = g_strndup(ctx->pos, 1);
