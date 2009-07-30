@@ -39,7 +39,7 @@ struct _ParserContext {
 	/* Text information */
 	const gchar *rtftext;
 	const gchar *pos;
-	GString *plaintext;
+	GString *convertbuffer;
 	/* Text waiting for insertion */
 	GString *text;
 
@@ -57,6 +57,7 @@ struct _DestinationInfo {
 	StateCopyFunc *state_copy;
 	StateFreeFunc *state_free;
 	void (*cleanup)(ParserContext *);
+	gint (*get_codepage)(ParserContext *);
 };
 
 typedef enum {

@@ -17,7 +17,8 @@ const DestinationInfo footnote_destination = {
     (StateNewFunc *)attributes_new,
     (StateCopyFunc *)attributes_copy,
     (StateFreeFunc *)attributes_free,
-	footnote_end
+	footnote_end,
+	document_get_codepage
 };
 
 static void
@@ -40,8 +41,6 @@ footnote_text(ParserContext *ctx)
 	length = strlen(text) - 1;
 	if(!ctx->group_nesting_level && text[length] == '\n')
 		text[length] = '\0';
-
-	g_string_append(ctx->plaintext, text);
 
 	gtk_text_buffer_get_end_iter(ctx->textbuffer, &end);
 	placeholder = gtk_text_buffer_create_mark(ctx->textbuffer, NULL, &end, TRUE);

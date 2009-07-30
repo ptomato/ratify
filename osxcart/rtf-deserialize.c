@@ -35,9 +35,9 @@ parser_context_new(const gchar *rtftext, GtkTextBuffer *textbuffer, GtkTextIter 
 	ctx->color_table = NULL;
 	ctx->font_table = NULL;
 	ctx->footnote_number = 1;
-	ctx->plaintext = g_string_new("");
 	ctx->rtftext = rtftext;
 	ctx->pos = rtftext;
+	ctx->convertbuffer = g_string_new("");
 	ctx->text = g_string_new("");
 
 	ctx->textbuffer = textbuffer;
@@ -79,7 +79,7 @@ static void
 parser_context_free(ParserContext *ctx) 
 {
     g_assert(ctx != NULL);
-    g_string_free(ctx->plaintext, FALSE);
+    g_string_free(ctx->convertbuffer, FALSE);
 
 	g_slist_foreach(ctx->color_table, (GFunc)g_free, NULL);
     g_slist_free(ctx->color_table);
@@ -462,8 +462,10 @@ parse_rtf(ParserContext *ctx, GError **error)
 		    /* Special case: \' doesn't follow the regular syntax */
 		    if(ctx->pos[1] == '\'')
 		    {
-		        gchar *hexcode, ch, *converted_text, *charset;
+		        gchar *hexcode, ch, *text_to_convert, *converted_text, *charset;
+				gint codepage = -1;
 		        GError *converterror = NULL;
+				Destination *dest;
 		        
 		        if(!(isxdigit(ctx->pos[2]) && isxdigit(ctx->pos[3])))
 		        {
@@ -476,14 +478,39 @@ parse_rtf(ParserContext *ctx, GError **error)
 		        ctx->pos += 4;
 		        
 		        /* Convert to UTF-8 and add to current string */
-                charset = get_charset_for_codepage(ctx->codepage);
+				/* First see if the current destination diverts us to another 
+				 codepage (e.g., \fcharset) */
+				dest = (Destination *)g_queue_peek_head(ctx->destination_stack);
+				codepage = -1;
+				if(dest->info->get_codepage)
+					codepage = dest->info->get_codepage(ctx);
+				if(codepage == -1)
+					codepage = ctx->codepage;
+                charset = get_charset_for_codepage(codepage);
                 if(charset == NULL)
                     charset = get_charset_for_codepage(ctx->default_codepage);
-                converted_text = g_convert_with_fallback(&ch, 1, "UTF-8", charset, "?", NULL, NULL, &converterror);
+
+				/* Now see if there was any incompletely converted text left over from before */
+				if(ctx->convertbuffer->len)
+				{
+					g_string_append_c(ctx->convertbuffer, ch);
+					text_to_convert = g_strdup(ctx->convertbuffer->str);
+					g_string_truncate(ctx->convertbuffer, 0);
+				}
+				else
+					text_to_convert = g_strndup(&ch, 1);
+					
+                converted_text = g_convert_with_fallback(text_to_convert, -1, "UTF-8", charset, "?", NULL, NULL, &converterror);
                 g_free(charset);
                 if(converterror)
                 {
-                    g_warning(_("Conversion error: %s"), converterror->message);
+					/* If there is a "partial input" error, then save the text
+					 in the convert buffer and retrieve it if there is another
+					 consecutive \'xx code */
+					if(converterror->code == G_CONVERT_ERROR_PARTIAL_INPUT)
+						g_string_append(ctx->convertbuffer, text_to_convert);
+					else
+                    	g_warning(_("Conversion error: %s"), converterror->message);
                     g_clear_error(&converterror);
                 }
                 else
@@ -491,6 +518,7 @@ parse_rtf(ParserContext *ctx, GError **error)
                     g_string_append(ctx->text, converted_text);
                     g_free(converted_text);
                 }
+				g_free(text_to_convert);
 		    }
 		    else
 		    {
@@ -511,6 +539,13 @@ parse_rtf(ParserContext *ctx, GError **error)
 		{
             /* Add character to current string */
             g_string_append_c(ctx->text, *ctx->pos);
+			/* If there is any partial wide character in the convert buffer, then
+			 there was an error in the document */
+			if(ctx->convertbuffer->len)
+			{
+				g_warning(_("Conversion error: Partial character sequence"));
+				g_string_truncate(ctx->convertbuffer, 0);
+			}
 			ctx->pos++;
 		}
 

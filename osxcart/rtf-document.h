@@ -52,6 +52,7 @@ Attributes *attributes_copy(Attributes *attr);
 void attributes_free(Attributes *attr);
 void apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTextIter *end);
 void document_text(ParserContext *ctx);
+gint document_get_codepage(ParserContext *ctx);
 
 typedef gboolean DocFunc(ParserContext *, Attributes *, GError **);
 typedef gboolean DocParamFunc(ParserContext *, Attributes *, gint32, GError **);

@@ -106,7 +106,7 @@ const gchar *rtfbookexamples[] = {
 const gchar *codeprojectpasscases[] = {
 	"default", "DefaultText.rtf",
 	"minimal", "minimal.rtf",
-	"i0", "RtfInterpreterTest_0.rtf",
+	"Hello World", "RtfInterpreterTest_0.rtf",
 	"i1", "RtfInterpreterTest_1.rtf",
 	"i2", "RtfInterpreterTest_2.rtf",
 	"i3", "RtfInterpreterTest_3.rtf",
@@ -118,7 +118,7 @@ const gchar *codeprojectpasscases[] = {
 	"i9", "RtfInterpreterTest_9.rtf",
 	"i10", "RtfInterpreterTest_10.rtf",
 	"i11", "RtfInterpreterTest_11.rtf",
-	"i12", "RtfInterpreterTest_12.rtf",
+	"Wide characters and font charsets", "RtfInterpreterTest_12.rtf",
 	"i13", "RtfInterpreterTest_13.rtf",
 	"i14", "RtfInterpreterTest_14.rtf",
 	"i15", "RtfInterpreterTest_15.rtf",

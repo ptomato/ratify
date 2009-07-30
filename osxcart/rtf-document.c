@@ -44,7 +44,9 @@ const DestinationInfo document_destination = {
     document_text,
     (StateNewFunc *)attributes_new,
     (StateCopyFunc *)attributes_copy,
-    (StateFreeFunc *)attributes_free
+    (StateFreeFunc *)attributes_free,
+	NULL, /* cleanup */
+	document_get_codepage
 };
 
 Attributes *
@@ -304,8 +306,6 @@ document_text(ParserContext *ctx)
 	if(!ctx->group_nesting_level && text[length] == '\n')
 		text[length] = '\0';
 
-	g_string_append(ctx->plaintext, text);
-
 	gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &end, ctx->endmark); /* shouldn't invalidate end, but it does? */
 	gtk_text_buffer_insert(ctx->textbuffer, &end, text, -1);
 	gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &start, ctx->startmark);
@@ -317,6 +317,19 @@ document_text(ParserContext *ctx)
 	
 	/* Move the two marks back together again */
 	gtk_text_buffer_move_mark(ctx->textbuffer, ctx->startmark, &end);
+}
+
+gint 
+document_get_codepage(ParserContext *ctx)
+{
+	Attributes *attr = (Attributes *)get_state(ctx);
+	if(attr->font != -1)
+	{
+		FontProperties *fontprop = get_font_properties(ctx, attr->font);
+		g_assert(fontprop);
+		return fontprop->codepage;
+	}
+	return -1;
 }
 
 static gboolean
