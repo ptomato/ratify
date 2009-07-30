@@ -182,6 +182,7 @@ pict_text(ParserContext *ctx)
 	}
 
 	g_free(writebuffer);
+	g_string_truncate(ctx->text, 0);
 }
 
 static PictState *
