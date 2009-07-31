@@ -107,7 +107,7 @@ pict_text(ParserContext *ctx)
 	gint count;
 	const char *mimetypes[] = {
 		"image/x-emf", "image/png", "image/jpeg", "image/x-pict", 
-		"not supported", "image/x-wmf", "image/x-bmp", "image-x-bmp"
+		"OS/2 Presentation Manager", "image/x-wmf", "image/x-bmp", "image-x-bmp"
 	};
 
 	if(state->error)
@@ -175,7 +175,6 @@ pict_text(ParserContext *ctx)
 		writebuffer[count] = byte;
 	}
 
-	g_printerr("Wrote %d bytes\n", count);
 	if(!gdk_pixbuf_loader_write(state->loader, writebuffer, count, &error))
 	{
 		g_warning(_("Error reading \\pict data: %s"), error->message);

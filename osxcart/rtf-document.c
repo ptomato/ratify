@@ -319,7 +319,7 @@ document_text(ParserContext *ctx)
 
 		/* Move the two marks back together again */
 		gtk_text_buffer_move_mark(ctx->textbuffer, ctx->startmark, &end);
-	}	
+	}
 	g_string_truncate(ctx->text, 0);
 }
 

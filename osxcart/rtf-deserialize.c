@@ -330,7 +330,7 @@ skip_character_or_control_word(ParserContext *ctx, GError **error)
 		if(*ctx->pos == '{' || *ctx->pos == '}')
 			return TRUE; /* Skippable data ends before scope delimiter */
 
-		else if(*ctx->pos == '\\') 
+		else if(*ctx->pos == '\\')
 		{
 		    /* Special case: \' doesn't follow the regular syntax */
 		    if(ctx->pos[1] == '\'')
@@ -482,6 +482,12 @@ pop_state(ParserContext *ctx)
 			dest->info->cleanup(ctx);
 		dest->info->state_free(g_queue_pop_head(dest->state_stack));
 	    destination_free(g_queue_pop_head(ctx->destination_stack));
+
+		/* Also pop the state of the destination that called this one, since
+		 the opening brace was before the destination control word */
+		dest = (Destination *)g_queue_peek_head(ctx->destination_stack);
+		dest->info->flush(ctx);
+		dest->info->state_free(g_queue_pop_head(dest->state_stack));
 	}
 	else
 		dest->info->state_free(g_queue_pop_head(dest->state_stack));
@@ -493,7 +499,7 @@ push_state(ParserContext *ctx)
 	Destination *dest;
 	
 	g_assert(ctx != NULL);
-
+	
 	dest = (Destination *)g_queue_peek_head(ctx->destination_stack);
 	dest->info->flush(ctx);
 	ctx->group_nesting_level++;
