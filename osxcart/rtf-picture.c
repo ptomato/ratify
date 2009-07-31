@@ -263,7 +263,7 @@ pic_dibitmap(ParserContext *ctx, PictState *state, gint32 param, GError **error)
 static gboolean
 pic_emfblip(ParserContext *ctx, PictState *state, GError **error)
 {
-	state->type = PICT_TYPE_PNG;
+	state->type = PICT_TYPE_EMF;
 	return TRUE;
 }
 
