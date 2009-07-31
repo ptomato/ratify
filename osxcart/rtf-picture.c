@@ -174,7 +174,8 @@ pict_text(ParserContext *ctx)
 		}
 		writebuffer[count] = byte;
 	}
-	
+
+	g_printerr("Wrote %d bytes\n", count);
 	if(!gdk_pixbuf_loader_write(state->loader, writebuffer, count, &error))
 	{
 		g_warning(_("Error reading \\pict data: %s"), error->message);
@@ -222,6 +223,8 @@ pict_end(ParserContext *ctx)
 
 	if(!state->error)
 	{
+		if(state->loader && !gdk_pixbuf_loader_close(state->loader, &error))
+			g_warning(_("Error closing pixbuf loader: %s"), error->message);
 		GdkPixbuf *picture = gdk_pixbuf_loader_get_pixbuf(state->loader);
 		if(!picture)
 			g_warning(_("Error loading picture"));
@@ -242,8 +245,6 @@ pict_end(ParserContext *ctx)
 			gtk_text_buffer_insert_pixbuf(ctx->textbuffer, &iter, picture);
 		}
 	}
-	if(state->loader && !gdk_pixbuf_loader_close(state->loader, &error))
-		g_warning(_("Error closing pixbuf loader: %s"), error->message);
 }
 
 static gboolean
