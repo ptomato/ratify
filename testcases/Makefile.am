@@ -33,7 +33,6 @@ EXTRA_DIST = \
 	oneofeach.plist \
 	wrong_attribute.fail.plist \
 	wrong_version.fail.plist \
-	simple_example.rtf \
 	p004_hello_world.rtf \
 	p005a_hello_world.rtf \
 	p005b_hello_world.rtf \
@@ -127,11 +126,6 @@ EXTRA_DIST = \
 	RtfParserTest_1.rtf \
 	RtfParserTest_2.rtf \
 	RtfParserTest_3.rtf \
-	RtfParserTest_4.rtf \
-	RtfParserTest_5.rtf \
-	RtfParserTest_6.rtf \
-	RtfParserTest_7.rtf \
-	RtfParserTest_8.rtf \
 	RtfParserTest_fail_0.rtf \
 	RtfParserTest_fail_1.rtf \
 	RtfParserTest_fail_2.rtf \

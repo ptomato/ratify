@@ -104,54 +104,49 @@ const gchar *rtfbookexamples[] = {
 };
 
 const gchar *codeprojectpasscases[] = {
-	"default", "DefaultText.rtf",
-	"minimal", "minimal.rtf",
-	"Hello World", "RtfInterpreterTest_0.rtf",
-	"i1", "RtfInterpreterTest_1.rtf",
-	"i2", "RtfInterpreterTest_2.rtf",
-	"i3", "RtfInterpreterTest_3.rtf",
-	"i4", "RtfInterpreterTest_4.rtf",
-	"i5", "RtfInterpreterTest_5.rtf",
-	"i6", "RtfInterpreterTest_6.rtf",
-	"i7", "RtfInterpreterTest_7.rtf",
-	"i8", "RtfInterpreterTest_8.rtf",
-	"i9", "RtfInterpreterTest_9.rtf",
-	"i10", "RtfInterpreterTest_10.rtf",
-	"i11", "RtfInterpreterTest_11.rtf",
-	"Wide characters and font charsets", "RtfInterpreterTest_12.rtf",
-	"i13", "RtfInterpreterTest_13.rtf",
-	"i14", "RtfInterpreterTest_14.rtf",
-	"i15", "RtfInterpreterTest_15.rtf",
-	"i16", "RtfInterpreterTest_16.rtf",
-	"i17", "RtfInterpreterTest_17.rtf",
-	"i18", "RtfInterpreterTest_18.rtf",
-	"i19", "RtfInterpreterTest_19.rtf",
-	"i20", "RtfInterpreterTest_20.rtf",
-	"i21", "RtfInterpreterTest_21.rtf",
-	"i22", "RtfInterpreterTest_22.rtf",
-	"p0", "RtfParserTest_0.rtf",
-	"p1", "RtfParserTest_1.rtf",
-	"p2", "RtfParserTest_2.rtf",
-	"p3", "RtfParserTest_3.rtf",
-	"p4", "RtfParserTest_4.rtf",
-	"p5", "RtfParserTest_5.rtf",
-	"p6", "RtfParserTest_6.rtf",
-	"p7", "RtfParserTest_7.rtf",
-	"p8", "RtfParserTest_8.rtf",
+	"Formatting 1", "DefaultText.rtf",
+	"Bare minimum file", "minimal.rtf",
+	"Hello World 1", "RtfInterpreterTest_0.rtf",
+	"High-bit characters", "RtfInterpreterTest_1.rtf",
+	"Formatting and unicode", "RtfInterpreterTest_2.rtf",
+	"Justification", "RtfInterpreterTest_3.rtf",
+	"JPEG image", "RtfInterpreterTest_4.rtf",
+	"PNG image", "RtfInterpreterTest_5.rtf",
+	"WMF image 1", "RtfInterpreterTest_6.rtf",
+	"EMF image 1", "RtfInterpreterTest_7.rtf",
+	"EMF image 2", "RtfInterpreterTest_8.rtf",
+	"Lists", "RtfInterpreterTest_9.rtf",
+	"Nested lists", "RtfInterpreterTest_10.rtf",
+	"Formatting 2", "RtfInterpreterTest_11.rtf",
+	"Wide characters 1", "RtfInterpreterTest_12.rtf",
+	"Wide characters 2", "RtfInterpreterTest_13.rtf",
+	"Wide characters 3", "RtfInterpreterTest_14.rtf",
+	"Single letter 'a'", "RtfInterpreterTest_15.rtf",
+	"Japanese Test 1", "RtfInterpreterTest_16.rtf",
+	"Japanese Test 2", "RtfInterpreterTest_17.rtf",
+	"Wide characters 4", "RtfInterpreterTest_18.rtf",
+	"Unicode and PNG image", "RtfInterpreterTest_19.rtf",
+	"Formatting 3", "RtfInterpreterTest_20.rtf",
+	"Wide characters 5", "RtfInterpreterTest_21.rtf",
+	"WMF image 2", "RtfInterpreterTest_22.rtf",
+	"Hello World 2", "RtfParserTest_0.rtf",
+	"Hello World 3", "RtfParserTest_1.rtf",
+	"Hello World 4", "RtfParserTest_2.rtf",
+	"Hello World 5", "RtfParserTest_3.rtf",
 	NULL, NULL
 };
 const gchar *codeprojectfailcases[] = {
-	"if0", "RtfInterpreterTest_fail_0.rtf",
-	"if1", "RtfInterpreterTest_fail_1.rtf",
-	"if2", "RtfInterpreterTest_fail_2.rtf",
-	"if3", "RtfInterpreterTest_fail_3.rtf",
-	"if4", "RtfInterpreterTest_fail_4.rtf",
-	"pf0", "RtfParserTest_fail_0.rtf",
-	"pf1", "RtfParserTest_fail_1.rtf",
-	"pf2", "RtfParserTest_fail_2.rtf",
-	"pf3", "RtfParserTest_fail_3.rtf",
-	"pf5", "RtfParserTest_fail_5.rtf", /* 4 was just an empty file */
-	"pf6", "RtfParserTest_fail_6.rtf",
+	"Empty document group", "RtfInterpreterTest_fail_0.rtf",
+	"Missing version", "RtfInterpreterTest_fail_1.rtf",
+	"Unsupported version", "RtfInterpreterTest_fail_2.rtf",
+	"No \\rtf control word", "RtfInterpreterTest_fail_3.rtf",
+	"Unknown version", "RtfInterpreterTest_fail_4.rtf",
+	"Text before document group", "RtfParserTest_fail_0.rtf",
+	"Text after document group", "RtfParserTest_fail_1.rtf",
+	"Too many closing braces", "RtfParserTest_fail_2.rtf",
+	"Not enough closing braces", "RtfParserTest_fail_3.rtf",
+	"No document group 1", "RtfParserTest_fail_5.rtf", /* 4 was just an empty file */
+	"No document group 2", "RtfParserTest_fail_6.rtf",
 	NULL, NULL
 };
 
@@ -160,9 +155,6 @@ add_rtf_tests(void)
 {
 	/* Nonexistent filename case */
 	g_test_add_data_func("/rtf/fail/Nonexistent filename", "", rtf_fail_case);
-	/* Fail cases with badly formed files */
-	g_test_add_data_func("/rtf/fail/RTF version not specified", "missing_version.fail.rtf", rtf_fail_case);
-	g_test_add_data_func("/rtf/fail/Invalid RTF version", "wrong_version.fail.rtf", rtf_fail_case);
 
 	/* Pass cases, all examples from 'RTF Pocket Guide' by Sean M. Burke */
 	/* These must all parse correctly */
