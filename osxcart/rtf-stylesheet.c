@@ -219,8 +219,14 @@ stylesheet_text(ParserContext *ctx)
 		GtkTextTag *fonttag = gtk_text_tag_table_lookup(ctx->tags, tagname);
 		PangoFontDescription *fontdesc;
 
-		g_object_get(fonttag, "font", &fontdesc, NULL); /* do not free */
-		g_object_set(tag, "font", fontdesc, NULL);
+		g_object_get(fonttag, "font-desc", &fontdesc, NULL); /* do not free */
+		if(fontdesc && pango_font_description_get_family(fontdesc))
+		{
+			g_object_set(tag, 
+			             "family", g_strdup(pango_font_description_get_family(fontdesc)), 
+			             "family-set", TRUE,
+			             NULL);
+		}
 		g_free(tagname);
 	}
 	if(state->attr->size != -1)
