@@ -199,7 +199,7 @@ convert_hex_to_utf8(ParserContext *ctx, gchar ch, GError **error)
         charset = get_charset_for_codepage(ctx->default_codepage);
 	if(charset == NULL)
 	{
-		g_set_error(error, RTF_ERROR, RTF_ERROR_UNSUPPORTED_CHARSET, _("Character set %d is not supported."), (ctx->default_codepage == -1)? codepage : ctx->default_codepage);
+		g_set_error(error, RTF_ERROR, RTF_ERROR_UNSUPPORTED_CHARSET, _("Character set %d is not supported"), (ctx->default_codepage == -1)? codepage : ctx->default_codepage);
 		return FALSE;
 	}
 

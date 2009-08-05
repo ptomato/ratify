@@ -323,7 +323,7 @@ static void field_instruction_end(ParserContext *ctx)
 	}
 	else
 	{
-		g_warning(_("'%s' field not supported."), field_type);
+		g_warning(_("'%s' field not supported"), field_type);
 		g_scanner_destroy(tokenizer);
 		return;
 	}
