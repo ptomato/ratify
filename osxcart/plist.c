@@ -62,6 +62,8 @@ plist_object_new(const PlistObjectType type)
 			the keys and values get freed automatically when destroyed */
 			retval->dict.val = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)plist_object_free);
 			break;
+		default:
+		    ;
 	}
 	
 	return retval;
@@ -96,6 +98,8 @@ plist_object_free(PlistObject *object)
 		case PLIST_OBJECT_DATA:
 			g_free(object->data.val);
 			break;
+		default:
+		    ;
 	}
 	
 	g_slice_free(PlistObject, object);
