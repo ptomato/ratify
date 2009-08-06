@@ -12,6 +12,9 @@
 #define PANGO_TO_TWIPS(pango) (20 * pango / PANGO_SCALE)
 
 struct _WriterContext {
+    GtkTextBuffer *textbuffer;
+    const GtkTextIter *start, *end;
+    
     /* Tag information */
     GHashTable *tag_codes;
     GList *font_table;
@@ -331,21 +334,137 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
     g_hash_table_insert(ctx->tag_codes, tag, g_string_free(code, FALSE));
 }
 
-static void
-dump(GtkTextTag *tag, const gchar *code)
-{
-    const gchar *name;
-    g_object_get(tag, "name", &name, NULL);
-    g_printerr("Tag name: '%s' - RTF code: '%s'\n", name, code);
-}
-
 static void 
 analyze_buffer(WriterContext *ctx, GtkTextBuffer *textbuffer, const GtkTextIter *start, const GtkTextIter *end)
 {
     GtkTextTagTable *tagtable = gtk_text_buffer_get_tag_table(textbuffer);
     gtk_text_tag_table_foreach(tagtable, (GtkTextTagTableForeach)convert_tag_to_code, ctx);
+    
+    ctx->textbuffer = textbuffer;
+    ctx->start = start;
+    ctx->end = end;
+}
 
-    g_hash_table_foreach(ctx->tag_codes, (GHFunc)dump, NULL);
+static void
+write_rtf_text(GString *output, const gchar *text)
+{
+    const gchar *ptr;
+    for(ptr = text; *ptr; ptr = g_utf8_next_char(ptr))
+    {
+        gunichar ch = g_utf8_get_char(ptr);
+        if(ch == 0x09)
+            g_string_append(output, "\\tab");
+        else if(ch == 0x5C)
+            g_string_append(output, "\\\\");
+        else if(ch == 0x7B)
+            g_string_append(output, "\\{");
+        else if(ch == 0x7D)
+            g_string_append(output, "\\}");
+        else if(ch > 0 && ch < 0x80)
+            g_string_append_c(output, (gchar)ch);
+        else if(ch == 0xA0)
+            g_string_append(output, "\\~");
+        else if(ch == 0xAD)
+            g_string_append(output, "\\-");
+        else if(ch >= 0xA1 && ch <= 0xFF)
+            g_string_append_printf(output, "\\'%2X", ch);
+        else if(ch == 0x2002)
+            g_string_append(output, "\\enspace");
+        else if(ch == 0x2003)
+            g_string_append(output, "\\emspace");
+        else if(ch == 0x2005)
+            g_string_append(output, "\\qmspace");
+        else if(ch == 0x200B)
+            g_string_append(output, "\\zwbo");
+        else if(ch == 0x200C)
+            g_string_append(output, "\\zwnj");
+        else if(ch == 0x200D)
+            g_string_append(output, "\\zwj");
+        else if(ch == 0x200E)
+            g_string_append(output, "\\ltrmark");
+        else if(ch == 0x200F)
+            g_string_append(output, "\\rtlmark");
+        else if(ch == 0x2011)
+            g_string_append(output, "\\_");
+        else if(ch == 0x2013)
+            g_string_append(output, "\\endash");
+        else if(ch == 0x2014)
+            g_string_append(output, "\\emdash");
+        else if(ch == 0x2018)
+            g_string_append(output, "\\lquote");
+        else if(ch == 0x2019)
+            g_string_append(output, "\\rquote");
+        else if(ch == 0x201C)
+            g_string_append(output, "\\ldblquote");
+        else if(ch == 0x201D)
+            g_string_append(output, "\\rdblquote");
+        else if(ch == 0x2022)
+            g_string_append(output, "\\bullet");
+        else if(ch == 0x2028)
+            g_string_append(output, "\\line");
+        else
+            g_string_append_printf(output, "\\u%d", ch);
+    }
+}
+        
+static void
+write_rtf_paragraphs(WriterContext *ctx, GString *output)
+{
+    GtkTextIter start, end, linestart, lineend;
+    GSList *taglist, *iter;
+
+    linestart = *(ctx->start);
+    lineend = linestart;
+    
+    while(gtk_text_iter_in_range(&lineend, ctx->start, ctx->end))
+    {
+        g_string_append(output, "{\\pard ");
+        gtk_text_iter_forward_to_line_end(&lineend);
+        if(gtk_text_iter_compare(&lineend, ctx->end) > 0)
+            lineend = *(ctx->end);
+        taglist = gtk_text_iter_get_tags(&linestart);
+        for(iter = taglist; iter; iter = g_slist_next(iter))
+            g_string_append(output, g_hash_table_lookup(ctx->tag_codes, iter->data));
+        g_string_append_c(output, ' ');
+            
+        start = linestart;
+        end = start;
+        while(gtk_text_iter_in_range(&end, &linestart, &lineend))
+        {
+            gtk_text_iter_forward_to_tag_toggle(&end, NULL);
+            if(gtk_text_iter_compare(&end, &lineend) > 0)
+                end = lineend;
+            
+            gchar *text = gtk_text_buffer_get_text(ctx->textbuffer, &start, &end, TRUE);
+            write_rtf_text(output, text);
+            g_free(text);
+            start = end;
+            
+            if(gtk_text_iter_ends_tag(&start, NULL))
+            {
+                g_string_append(output, "}{");
+                taglist = gtk_text_iter_get_tags(&start);
+            }
+            else
+                taglist = gtk_text_iter_get_toggled_tags(&start, TRUE);
+            
+            for(iter = taglist; iter; iter = g_slist_next(iter))
+                g_string_append(output, g_hash_table_lookup(ctx->tag_codes, iter->data));
+            g_string_append_c(output, ' ');
+        }
+        
+        while(gtk_text_iter_ends_line(&lineend))
+        {
+            /* skip over any paragraph separators */
+            g_string_append(output, "\\par");
+            if(!gtk_text_iter_forward_char(&lineend))
+                break;
+            if(gtk_text_iter_compare(&lineend, ctx->end) > 0)
+                break;
+        }
+        linestart = lineend;
+        g_string_append(output, "}\n");   
+    }
 }
 
 static void
@@ -384,7 +503,11 @@ write_rtf(WriterContext *ctx)
     g_string_append_printf(output, "{\\*\\generator %s %s}\n", PACKAGE_NAME, PACKAGE_VERSION);
     
     /* Preliminary formatting */
-    g_string_append(output, "\\deflang1033\\plain\\widowctrl\\hyphauto\n");
+    g_string_append_printf(output, "\\deflang%d", language_to_wincode(pango_language_to_string(pango_language_get_default())));
+    g_string_append(output, "\\plain\\widowctrl\\hyphauto\n");
+    
+    /* Document body */
+    write_rtf_paragraphs(ctx, output);
     
     g_string_append_c(output, '}');
     return g_string_free(output, FALSE);
