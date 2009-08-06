@@ -8,9 +8,6 @@ typedef struct {
 
 /* These are from the RTF spec. */
 IsoLangCode isolangcodes[] = {
-	{ 0x0000, "zxx" }, /* None */
-	{ 0x0009, "en" }, /* English? */
-	{ 0x0013, "nl" }, /* "Dutch Preferred"? */
 	{ 0x0400, "zxx" }, /* None */
 	{ 0x0401, "ar-sa" }, /* Arabic (Saudi Arabia) */
 	{ 0x0402, "bg" }, /* Bulgarian */
@@ -262,6 +259,11 @@ IsoLangCode isolangcodes[] = {
 	{ 0x4C0A, "es-ni" }, /* Spanish (Nicaragua) */
 	{ 0x500A, "es-pr" }, /* Spanish (Puerto Rico) */
 	{ 0x540A, "es-us" }, /* Spanish (United States) */
+	/* Aliases */
+    { 0x0000, "zxx" }, /* None */
+	{ 0x0009, "en" }, /* English? */
+	{ 0x0013, "nl" }, /* "Dutch Preferred"? */
+	{ 0x0409, "c" }, /* C/POSIX locale = English? */
 	NULL
 };
 
