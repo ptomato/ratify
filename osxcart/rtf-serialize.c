@@ -1,6 +1,9 @@
 #include <string.h>
+#include <time.h>
 #include <glib.h>
+#include <gdk/gdk.h>
 #include <gtk/gtk.h>
+#include "config.h"
 #include "rtf-langcode.h"
 
 /* Change this later FIXME */
@@ -11,8 +14,8 @@
 struct _WriterContext {
     /* Tag information */
     GHashTable *tag_codes;
-    GSList *font_table;
-    GSList *color_table;
+    GList *font_table;
+    GList *color_table;
 };
 typedef struct _WriterContext WriterContext;
 
@@ -21,6 +24,8 @@ writer_context_new(void)
 {
     WriterContext *ctx = g_slice_new0(WriterContext);
     ctx->tag_codes = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
+    ctx->font_table = NULL;
+    ctx->color_table = g_list_prepend(NULL, g_strdup("")); /* Color 0 always black */
     return ctx;
 }
 
@@ -28,15 +33,42 @@ static void
 writer_context_free(WriterContext *ctx)
 {
     g_hash_table_unref(ctx->tag_codes);
+    g_list_foreach(ctx->color_table, (GFunc)g_free, NULL);
+    g_list_free(ctx->color_table);
     g_slice_free(WriterContext, ctx);
+}
+
+static gint
+get_color_from_gdk_color(GdkColor *color, WriterContext *ctx)
+{
+    GList *link;
+    gint colornum;
+    gchar *colorcode;
+    
+    if(color->red == 0 && color->green == 0 && color->blue == 0)
+	    return 0; /* Color 0 always black in this implementation */
+    
+    colorcode = g_strdup_printf("\\red%d\\green%d\\blue%d", color->red >> 8, color->green >> 8, color->blue >> 8);
+    if(!(link = g_list_find_custom(ctx->color_table, colorcode, (GCompareFunc)strcmp)))
+    {
+        colornum = g_list_length(ctx->color_table);
+        ctx->color_table = g_list_append(ctx->color_table, g_strdup(colorcode));   
+    }
+    else
+        colornum = g_list_position(ctx->color_table, link);
+    g_free(colorcode);
+    
+    g_assert(colornum > 0 && colornum < 256);
+    return colornum;
 }
 
 static void 
 convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
 {
     gboolean val;
-    gint pixels, pango;
+    gint pixels, pango, colornum;
     gdouble factor, points;
+    GdkColor *color;
 	const gchar *name;
     GString *code;
     
@@ -57,11 +89,44 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
 	/* Otherwise, read the attributes one by one and add RTF code for them */
 	code = g_string_new("");
 	
+	g_object_get(tag, "background-set", &val, NULL);
+	if(val)
+	{
+	    g_object_get(tag, "background-gdk", &color, NULL);
+	    colornum = get_color_from_gdk_color(color, ctx);
+	    g_string_append_printf(code, "\\chshdng0\\chcbpat%d\\cb%d", colornum, colornum);
+	}
+	
+	g_object_get(tag, "family-set", &val, NULL);
+	if(val)
+	{
+	    const gchar *family;
+	    GList *link;
+	    gint fontnum;
+	    g_object_get(tag, "family", &family, NULL);
+	    if(!(link = g_list_find_custom(ctx->font_table, family, (GCompareFunc)strcmp)))
+        {
+            fontnum = g_list_length(ctx->font_table);
+            ctx->font_table = g_list_append(ctx->font_table, g_strdup(family));   
+        }
+        else
+            fontnum = g_list_position(ctx->font_table, link);
+        g_string_append_printf(code, "\\f%d", fontnum);
+    }
+	
+	g_object_get(tag, "foreground-set", &val, NULL);
+	if(val)
+	{
+	    g_object_get(tag, "foreground-gdk", &color, NULL);
+	    colornum = get_color_from_gdk_color(color, ctx);
+	    g_string_append_printf(code, "\\cf%d", colornum);
+	}
+	
     g_object_get(tag, "indent-set", &val, NULL);
     if(val)
     {
         g_object_get(tag, "indent", &pixels, NULL);
-        g_string_append_printf(code, "\fi%d", PIXELS_TO_TWIPS(pixels));
+        g_string_append_printf(code, "\\fi%d", PIXELS_TO_TWIPS(pixels));
     }
         
     g_object_get(tag, "invisible-set", &val, NULL);
@@ -111,6 +176,14 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
         g_object_get(tag, "left-margin", &pixels, NULL);
         g_string_append_printf(code, "\\li%d", PIXELS_TO_TWIPS(pixels));
     }
+    
+    g_object_get(tag, "paragraph-background-set", &val, NULL);
+	if(val)
+	{
+	    g_object_get(tag, "paragraph-background-gdk", &color, NULL);
+	    colornum = get_color_from_gdk_color(color, ctx);
+	    g_string_append_printf(code, "\\highlight%d", colornum);
+	}
     
     g_object_get(tag, "pixels-above-lines-set", &val, NULL);
     if(val)
@@ -271,8 +344,50 @@ analyze_buffer(WriterContext *ctx, GtkTextBuffer *textbuffer, const GtkTextIter 
 {
     GtkTextTagTable *tagtable = gtk_text_buffer_get_tag_table(textbuffer);
     gtk_text_tag_table_foreach(tagtable, (GtkTextTagTableForeach)convert_tag_to_code, ctx);
-    
+
     g_hash_table_foreach(ctx->tag_codes, (GHFunc)dump, NULL);
+}
+
+static void
+write_color_table_entry(const gchar *colorcode, GString *output)
+{
+    g_string_append_printf(output, "%s;\n", colorcode);
+}
+
+static gchar *
+write_rtf(WriterContext *ctx)
+{
+    /* Header */
+    GString *output = g_string_new("{\\rtf1\\ansi\\deff0\\uc0\n{\\fonttbl\n");
+    GList *iter;
+    int count;
+    
+    /* Font table */
+    for(count = 0, iter = ctx->font_table; iter; iter = g_list_next(iter), count++)
+    {
+        gchar **fontnames = g_strsplit(iter->data, ",", 2);
+        g_string_append_printf(output, "{\\f%d\\fnil %s;}\n", count, fontnames[0]);
+        g_strfreev(fontnames);
+    }
+    
+    /* Color table */
+    g_string_append(output, "}\n{\\colortbl\n");
+    g_list_foreach(ctx->color_table, (GFunc)write_color_table_entry, output);
+    
+    /* Metadata (provide default values because Word will overwrite if missing) */
+    g_string_append(output, "}\n{\\info\n{\\author .}\n{\\company .}\n{\\title .}\n");
+    gchar buffer[29];
+    time_t timer = time(NULL);
+    if(strftime(buffer, 29, "\\yr%Y\\mo%m\\dy%d\\hr%H\\min%M", localtime(&timer)))
+        g_string_append_printf(output, "{\\creatim%s}\n", buffer);
+    g_string_append_printf(output, "{\\doccomm\nCreated by %s %s on %s}\n}\n", PACKAGE_NAME, PACKAGE_VERSION, ctime(&timer));
+    g_string_append_printf(output, "{\\*\\generator %s %s}\n", PACKAGE_NAME, PACKAGE_VERSION);
+    
+    /* Preliminary formatting */
+    g_string_append(output, "\\deflang1033\\plain\\widowctrl\\hyphauto\n");
+    
+    g_string_append_c(output, '}');
+    return g_string_free(output, FALSE);
 }
 
 guint8 *
@@ -280,9 +395,8 @@ rtf_serialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, con
 {
     WriterContext *ctx = writer_context_new();
     analyze_buffer(ctx, content_buffer, start, end);
-/*	gchar *contents = write_rtf(ctx);
-	*length = strlen(contents);*/
+	gchar *contents = write_rtf(ctx);
+	*length = strlen(contents);
 	writer_context_free(ctx);
-/*	return (guint8 *)contents;*/
-	return NULL;
+	return (guint8 *)contents;
 }
