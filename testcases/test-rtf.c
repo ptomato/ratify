@@ -19,14 +19,10 @@ rtf_parse_pass_case(gconstpointer filename)
 {
 	GError *error = NULL;
 	GtkTextBuffer *buffer = gtk_text_buffer_new(NULL);
-	gboolean success = rtf_text_buffer_import(buffer, filename, &error);
-	if(!success)
-	{
+	if(!rtf_text_buffer_import(buffer, filename, &error))
 		g_test_message("Error message: %s", error->message);
-		exit(1);
-	}
-	g_assert(error == NULL);
 	g_object_unref(buffer);
+	g_assert(error == NULL);
 }
 
 #if 0
@@ -41,6 +37,34 @@ rtf_parse_pass_case(gconstpointer filename)
 	gtk_widget_show_all(window);
 	gtk_main();
 #endif
+
+static void
+rtf_write_pass_case(gconstpointer filename)
+{
+    GError *error = NULL;
+    GtkTextBuffer *buffer1 = gtk_text_buffer_new(NULL);
+    GtkTextBuffer *buffer2 = gtk_text_buffer_new(NULL);
+	if(!rtf_text_buffer_import(buffer1, filename, &error))
+	    g_test_message("Import error message: %s", error->message);
+	g_assert(error == NULL);
+	gchar *string = rtf_text_buffer_export_to_string(buffer1);
+	if(!rtf_text_buffer_import_from_string(buffer2, string, &error))
+	    g_test_message("Export error message: %s", error->message);
+	g_assert(error == NULL);
+	    
+	GtkTextIter start, end;
+	gtk_text_buffer_get_bounds(buffer1, &start, &end);
+	gchar *text1 = gtk_text_buffer_get_text(buffer1, &start, &end, TRUE);
+	gtk_text_buffer_get_bounds(buffer2, &start, &end);
+	gchar *text2 = gtk_text_buffer_get_text(buffer2, &start, &end, TRUE);
+	g_assert_cmpstr(text1, ==, text2);
+	
+	g_free(text1);
+	g_free(text2);
+	g_object_unref(buffer1);
+	g_object_unref(buffer2);
+	g_free(string);
+}
 
 const gchar *rtfbookexamples[] = {
 	"Hello world 1", "p004_hello_world.rtf",
@@ -155,37 +179,51 @@ void
 add_rtf_tests(void)
 {
 	/* Nonexistent filename case */
-	g_test_add_data_func("/rtf/fail/Nonexistent filename", "", rtf_fail_case);
+	g_test_add_data_func("/rtf/parse/fail/Nonexistent filename", "", rtf_fail_case);
 
 	/* Pass cases, all examples from 'RTF Pocket Guide' by Sean M. Burke */
 	/* These must all parse correctly */
 	const gchar **ptr = rtfbookexamples;
 	while(*ptr)
 	{
-		gchar *testname = g_strconcat("/rtf/pass/pocketguide/", *ptr++, NULL);
+		gchar *testname = g_strconcat("/rtf/parse/pass/pocketguide/", *ptr++, NULL);
 		g_test_add_data_func(testname, *ptr++, rtf_parse_pass_case);
 		g_free(testname);
 	}
 
 	/* Pass cases, from http://www.codeproject.com/KB/recipes/RtfConverter.aspx */
-	/* FIXME: What is the copyright on these? */
 	/* These must all parse correctly */
 	ptr = codeprojectpasscases;
 	while(*ptr)
 	{
-		gchar *testname = g_strconcat("/rtf/pass/codeproject/", *ptr++, NULL);
+		gchar *testname = g_strconcat("/rtf/parse/pass/codeproject/", *ptr++, NULL);
 		g_test_add_data_func(testname, *ptr++, rtf_parse_pass_case);
 		g_free(testname);
 	}
 
 	/* Fail cases, from http://www.codeproject.com/KB/recipes/RtfConverter.aspx */
-	/* FIXME: What is the copyright on these? */
 	/* These must all give an error */
 	ptr = codeprojectfailcases;
 	while(*ptr)
 	{
-		gchar *testname = g_strconcat("/rtf/fail/codeproject/", *ptr++, NULL);
+		gchar *testname = g_strconcat("/rtf/parse/fail/codeproject/", *ptr++, NULL);
 		g_test_add_data_func(testname, *ptr++, rtf_fail_case);
+		g_free(testname);
+	}
+	
+	/* Now export the RTF to a string and re-import it */
+	ptr = rtfbookexamples;
+	while(*ptr)
+	{
+		gchar *testname = g_strconcat("/rtf/write/pocketguide/", *ptr++, NULL);
+		g_test_add_data_func(testname, *ptr++, rtf_write_pass_case);
+		g_free(testname);
+	}
+	ptr = codeprojectpasscases;
+	while(*ptr)
+	{
+		gchar *testname = g_strconcat("/rtf/write/codeproject/", *ptr++, NULL);
+		g_test_add_data_func(testname, *ptr++, rtf_write_pass_case);
 		g_free(testname);
 	}
 }

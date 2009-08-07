@@ -353,7 +353,9 @@ write_rtf_text(GString *output, const gchar *text)
     {
         gunichar ch = g_utf8_get_char(ptr);
         if(ch == 0x09)
-            g_string_append(output, "\\tab");
+            g_string_append(output, "\\tab ");
+        else if(ch == '\n') /* whatever value that is */
+            g_string_append(output, "\\par ");
         else if(ch == 0x5C)
             g_string_append(output, "\\\\");
         else if(ch == 0x7B)
@@ -369,41 +371,41 @@ write_rtf_text(GString *output, const gchar *text)
         else if(ch >= 0xA1 && ch <= 0xFF)
             g_string_append_printf(output, "\\'%2X", ch);
         else if(ch == 0x2002)
-            g_string_append(output, "\\enspace");
+            g_string_append(output, "\\enspace ");
         else if(ch == 0x2003)
-            g_string_append(output, "\\emspace");
+            g_string_append(output, "\\emspace ");
         else if(ch == 0x2005)
-            g_string_append(output, "\\qmspace");
+            g_string_append(output, "\\qmspace ");
         else if(ch == 0x200B)
-            g_string_append(output, "\\zwbo");
+            g_string_append(output, "\\zwbo ");
         else if(ch == 0x200C)
-            g_string_append(output, "\\zwnj");
+            g_string_append(output, "\\zwnj ");
         else if(ch == 0x200D)
-            g_string_append(output, "\\zwj");
+            g_string_append(output, "\\zwj ");
         else if(ch == 0x200E)
-            g_string_append(output, "\\ltrmark");
+            g_string_append(output, "\\ltrmark ");
         else if(ch == 0x200F)
-            g_string_append(output, "\\rtlmark");
+            g_string_append(output, "\\rtlmark ");
         else if(ch == 0x2011)
             g_string_append(output, "\\_");
         else if(ch == 0x2013)
-            g_string_append(output, "\\endash");
+            g_string_append(output, "\\endash ");
         else if(ch == 0x2014)
-            g_string_append(output, "\\emdash");
+            g_string_append(output, "\\emdash ");
         else if(ch == 0x2018)
-            g_string_append(output, "\\lquote");
+            g_string_append(output, "\\lquote ");
         else if(ch == 0x2019)
-            g_string_append(output, "\\rquote");
+            g_string_append(output, "\\rquote ");
         else if(ch == 0x201C)
-            g_string_append(output, "\\ldblquote");
+            g_string_append(output, "\\ldblquote ");
         else if(ch == 0x201D)
-            g_string_append(output, "\\rdblquote");
+            g_string_append(output, "\\rdblquote ");
         else if(ch == 0x2022)
-            g_string_append(output, "\\bullet");
+            g_string_append(output, "\\bullet ");
         else if(ch == 0x2028)
-            g_string_append(output, "\\line");
+            g_string_append(output, "\\line ");
         else
-            g_string_append_printf(output, "\\u%d", ch);
+            g_string_append_printf(output, "\\u%d ", ch);
     }
 }
         
@@ -418,15 +420,22 @@ write_rtf_paragraphs(WriterContext *ctx, GString *output)
     
     while(gtk_text_iter_in_range(&lineend, ctx->start, ctx->end))
     {
+        /* Begin the paragraph by resetting the paragraph properties */
         g_string_append(output, "{\\pard ");
+        
+        /* Get the next paragraph of text */
         gtk_text_iter_forward_to_line_end(&lineend);
+        /* Skip to the end of any clump of paragraph separators */
+        while(gtk_text_iter_ends_line(&lineend) && !gtk_text_iter_is_end(&lineend))
+            gtk_text_iter_forward_char(&lineend);
         if(gtk_text_iter_compare(&lineend, ctx->end) > 0)
             lineend = *(ctx->end);
         taglist = gtk_text_iter_get_tags(&linestart);
         for(iter = taglist; iter; iter = g_slist_next(iter))
             g_string_append(output, g_hash_table_lookup(ctx->tag_codes, iter->data));
-        g_string_append_c(output, ' ');
-            
+        if(taglist)
+            g_string_append_c(output, ' ');
+        
         start = linestart;
         end = start;
         while(gtk_text_iter_in_range(&end, &linestart, &lineend))
@@ -450,18 +459,10 @@ write_rtf_paragraphs(WriterContext *ctx, GString *output)
             
             for(iter = taglist; iter; iter = g_slist_next(iter))
                 g_string_append(output, g_hash_table_lookup(ctx->tag_codes, iter->data));
-            g_string_append_c(output, ' ');
+            if(taglist)
+                g_string_append_c(output, ' ');
         }
         
-        while(gtk_text_iter_ends_line(&lineend))
-        {
-            /* skip over any paragraph separators */
-            g_string_append(output, "\\par");
-            if(!gtk_text_iter_forward_char(&lineend))
-                break;
-            if(gtk_text_iter_compare(&lineend, ctx->end) > 0)
-                break;
-        }
         linestart = lineend;
         g_string_append(output, "}\n");   
     }
