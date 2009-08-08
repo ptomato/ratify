@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Osxcart 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-08-05 15:38-0400\n"
-"PO-Revision-Date: 2009-08-05 15:40-0500\n"
+"POT-Creation-Date: 2009-08-08 00:06-0400\n"
+"PO-Revision-Date: 2009-08-08 00:13-0500\n"
 "Last-Translator: P. F. Chimento <philip.chimento@gmail.com>\n"
 "Language-Team: Osxcart <philip.chimento@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -255,4 +255,9 @@ msgstr "Ongeldig bitmaptype '%i' in \\dibitmap commando"
 #, c-format
 msgid "Invalid bitmap type '%i' for \\wbitmap"
 msgstr "Ongeldig bitmaptype '%i' in \\wbitmap commando"
+
+#: ../osxcart/rtf-serialize.c:458
+#, c-format
+msgid "Could not serialize picture, skipping: %s"
+msgstr "Serialisatie van afbeelding mislukt; de afbeelding wordt overgeslagen: %s"
 
