@@ -226,4 +226,8 @@ add_rtf_tests(void)
 		g_test_add_data_func(testname, *ptr++, rtf_write_pass_case);
 		g_free(testname);
 	}
+	
+    /* RTFD tests */
+    g_test_add_data_func("/rtf/parse/pass/rtfd/RTFD test", "rtfdtest.rtfd", rtf_parse_pass_case);
+    g_test_add_data_func("/rtf/write/pass/rtfd/RTFD test", "rtfdtest.rtfd", rtf_write_pass_case);
 }

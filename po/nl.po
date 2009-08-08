@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Osxcart 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-08-08 00:06-0400\n"
+"POT-Creation-Date: 2009-08-08 17:04-0400\n"
 "PO-Revision-Date: 2009-08-08 00:13-0500\n"
 "Last-Translator: P. F. Chimento <philip.chimento@gmail.com>\n"
 "Language-Team: Osxcart <philip.chimento@gmail.com>\n"
@@ -39,8 +39,7 @@ msgstr "<%s> mag geen inhoud hebben, maar heeft '%s'"
 msgid "Could not parse date '%s'"
 msgstr "Kan datum '%s' niet verwerken"
 
-#: ../osxcart/plist-parser-oldglib.c:89
-#: ../osxcart/plist-parser.c:109
+#: ../osxcart/plist-parser-oldglib.c:89 ../osxcart/plist-parser.c:109
 #, c-format
 msgid "<key> element found outside of <dict>"
 msgstr "<key> element gevonden buiten <dict>"
@@ -55,96 +54,114 @@ msgstr "Onbekend element <%s>"
 msgid "Unexpected object <%s>"
 msgstr "Onverwacht object <%s>"
 
-#: ../osxcart/plist-parser-oldglib.c:167
-#: ../osxcart/plist-parser.c:82
+#: ../osxcart/plist-parser-oldglib.c:167 ../osxcart/plist-parser.c:82
 #, c-format
 msgid "Missing <key> for object <%s> in <dict>"
 msgstr "Object <%s> heeft geen <key> in <dict>"
 
-#: ../osxcart/plist-parser-oldglib.c:214
-#: ../osxcart/plist-parser.c:194
+#: ../osxcart/plist-parser-oldglib.c:214 ../osxcart/plist-parser.c:194
 #, c-format
 msgid "No objects found within <plist> root element"
 msgstr "Geen objecten gevonden binnen <plist> wortelelement"
 
 #: ../osxcart/plist-parser.c:77
 #, c-format
-msgid "Unexpected object <%s>; subsequent objects ought to be enclosed in an <array> or <dict>"
-msgstr "Onverwacht object <%s>; opeenvolgende objecten moeten binnen een <array> of <dict> worden geplaatst"
+msgid ""
+"Unexpected object <%s>; subsequent objects ought to be enclosed in an "
+"<array> or <dict>"
+msgstr ""
+"Onverwacht object <%s>; opeenvolgende objecten moeten binnen een <array> of "
+"<dict> worden geplaatst"
 
 #: ../osxcart/plist-parser.c:149
 #, c-format
 msgid "Unknown object <%s>"
 msgstr "Onbekend object <%s>"
 
-#: ../osxcart/rtf-deserialize.c:202
+#: ../osxcart/rtf.c:143
+#, fuzzy, c-format
+msgid "Could not access current directory: %s"
+msgstr "Kan datum '%s' niet verwerken"
+
+#: ../osxcart/rtf.c:148
+#, fuzzy, c-format
+msgid "Could not change directory to '%s': %s"
+msgstr "Kan datum '%s' niet verwerken"
+
+#: ../osxcart/rtf.c:172
+#, fuzzy, c-format
+msgid "Could not restore current directory: %s"
+msgstr ""
+"Serialisatie van afbeelding mislukt; de afbeelding wordt overgeslagen: %s"
+
+#: ../osxcart/rtf.c:174
+#, c-format
+msgid "Could not close current directory: %s"
+msgstr ""
+
+#: ../osxcart/rtf-deserialize.c:203
 #, c-format
 msgid "Character set %d is not supported"
 msgstr "Geen ondersteuning voor tekenset %d"
 
-#: ../osxcart/rtf-deserialize.c:226
+#: ../osxcart/rtf-deserialize.c:227
 #, c-format
 msgid "Conversion error: %s"
 msgstr "Fout bij omzetten: %s"
 
-#: ../osxcart/rtf-deserialize.c:275
+#: ../osxcart/rtf-deserialize.c:276
 #, c-format
 msgid "Backslash encountered without control word"
 msgstr "Omgekeerde schuine streep gevonden zonder opvolgend commando"
 
-#: ../osxcart/rtf-deserialize.c:340
-#: ../osxcart/rtf-deserialize.c:537
+#: ../osxcart/rtf-deserialize.c:341 ../osxcart/rtf-deserialize.c:538
 #, c-format
 msgid "Expected a two-character hexadecimal code after \\'"
 msgstr "Hexadecimale code van twee tekens verwacht na \\'"
 
-#: ../osxcart/rtf-deserialize.c:412
+#: ../osxcart/rtf-deserialize.c:413
 #, c-format
 msgid "Expected a number after control word '\\%s'"
 msgstr "Getal verwacht na commando '\\%s'"
 
-#: ../osxcart/rtf-deserialize.c:515
+#: ../osxcart/rtf-deserialize.c:516
 #, c-format
 msgid "File ended unexpectedly"
 msgstr "Onverwacht einde bestand"
 
-#: ../osxcart/rtf-deserialize.c:586
+#: ../osxcart/rtf-deserialize.c:587
 #, c-format
 msgid "Characters found after final closing brace"
 msgstr "Tekens gevonden na sluitaccolade"
 
-#: ../osxcart/rtf-deserialize.c:601
+#: ../osxcart/rtf-deserialize.c:602
 #, c-format
 msgid "RTF format must begin with '{\\rtf'"
 msgstr "RTF-formaat moet beginnen met '{\\rtf'"
 
-#: ../osxcart/rtf-document.c:373
-#: ../osxcart/rtf-document.c:400
-#: ../osxcart/rtf-document.c:542
-#: ../osxcart/rtf-stylesheet.c:303
-#: ../osxcart/rtf-stylesheet.c:315
-#: ../osxcart/rtf-stylesheet.c:362
+#: ../osxcart/rtf-document.c:375 ../osxcart/rtf-document.c:402
+#: ../osxcart/rtf-document.c:544 ../osxcart/rtf-stylesheet.c:303
+#: ../osxcart/rtf-stylesheet.c:315 ../osxcart/rtf-stylesheet.c:362
 #, c-format
 msgid "Color '%i' undefined"
 msgstr "Ongedefinieerde kleur '%i'"
 
-#: ../osxcart/rtf-document.c:470
-#: ../osxcart/rtf-stylesheet.c:350
+#: ../osxcart/rtf-document.c:472 ../osxcart/rtf-stylesheet.c:350
 #, c-format
 msgid "Font '%i' undefined"
 msgstr "Ongedefinieerd lettertype '%i'"
 
-#: ../osxcart/rtf-document.c:515
+#: ../osxcart/rtf-document.c:517
 #, c-format
 msgid "\\fs%d is invalid, negative font sizes not allowed"
 msgstr "\\fs%d is ongeldig, negatieve lettertypegroottes zijn niet toegestaan"
 
-#: ../osxcart/rtf-document.c:807
+#: ../osxcart/rtf-document.c:809
 #, c-format
 msgid "Unsupported RTF version '%i'"
 msgstr "Geen ondersteuning voor RTF-versie '%i'"
 
-#: ../osxcart/rtf-document.c:845
+#: ../osxcart/rtf-document.c:847
 #, c-format
 msgid "Style '%i' undefined"
 msgstr "Ongedefinieerde stijl '%i'"
@@ -217,47 +234,52 @@ msgstr "Geen ondersteuning voor tekenset %d"
 msgid "Unknown character set %d"
 msgstr "Onbekend tekenset %d"
 
-#: ../osxcart/rtf-picture.c:138
+#: ../osxcart/rtf-picture.c:178
 #, c-format
 msgid "Error loading picture of MIME type '%s': %s"
 msgstr "Fout bij inladen afbeelding met MIME-type '%s': %s"
 
-#: ../osxcart/rtf-picture.c:146
+#: ../osxcart/rtf-picture.c:186
 #, c-format
 msgid "Module for loading MIME type '%s' not found"
 msgstr "Module niet gevonden voor inladen MIME-type '%s'"
 
-#: ../osxcart/rtf-picture.c:170
+#: ../osxcart/rtf-picture.c:210
 #, c-format
 msgid "Error in \\pict data: '%s'"
 msgstr "Ongeldige \\pict gegevens: '%s'"
 
-#: ../osxcart/rtf-picture.c:180
+#: ../osxcart/rtf-picture.c:220
 #, c-format
 msgid "Error reading \\pict data: %s"
 msgstr "Fout bij inlezen \\pict gegevens: %s"
 
-#: ../osxcart/rtf-picture.c:226
+#: ../osxcart/rtf-picture.c:266
 #, c-format
 msgid "Error closing pixbuf loader: %s"
 msgstr "Fout bij sluiten pixbuflader: %s"
 
-#: ../osxcart/rtf-picture.c:229
+#: ../osxcart/rtf-picture.c:269
 msgid "Error loading picture"
 msgstr "Fout bij inlezen afbeelding"
 
-#: ../osxcart/rtf-picture.c:254
+#: ../osxcart/rtf-picture.c:291
 #, c-format
 msgid "Invalid bitmap type '%i' for \\dibitmap"
 msgstr "Ongeldig bitmaptype '%i' in \\dibitmap commando"
 
-#: ../osxcart/rtf-picture.c:349
+#: ../osxcart/rtf-picture.c:386
 #, c-format
 msgid "Invalid bitmap type '%i' for \\wbitmap"
 msgstr "Ongeldig bitmaptype '%i' in \\wbitmap commando"
 
+#: ../osxcart/rtf-picture.c:442
+#, fuzzy, c-format
+msgid "Error loading picture from file '%s': %s"
+msgstr "Fout bij inezen afbeelding '%s': %s"
+
 #: ../osxcart/rtf-serialize.c:458
 #, c-format
 msgid "Could not serialize picture, skipping: %s"
-msgstr "Serialisatie van afbeelding mislukt; de afbeelding wordt overgeslagen: %s"
-
+msgstr ""
+"Serialisatie van afbeelding mislukt; de afbeelding wordt overgeslagen: %s"

@@ -134,7 +134,7 @@ get_charset_for_codepage(int codepage)
     int i = 0;
     struct codepage_to_locale {
         int codepage;
-        gchar* locale;
+        const gchar* locale;
     };
     
     static struct codepage_to_locale ansicpgs[] = {
@@ -143,6 +143,7 @@ get_charset_for_codepage(int codepage)
         { 709, "ASMO_449" },
 		{ 10000, "MAC" },
 		{ 10001, "SJIS" }, /* approximation? */
+		{ 65001, "UTF-8" },
         { 0, NULL }
     };
     

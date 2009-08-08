@@ -35,19 +35,30 @@ typedef struct {
 	gint yscale;
 } PictState;
 
+typedef struct {
+    glong width;
+    glong height;
+} NeXTGraphicState;
+
 static void pict_text(ParserContext *ctx);
 static PictState *pict_state_new(void);
 static PictState *pict_state_copy(PictState *state);
 static void pict_state_free(PictState *state);
 static void pict_end(ParserContext *ctx);
+static void nextgraphic_text(ParserContext *ctx);
+static NeXTGraphicState *nextgraphic_state_new(void);
+static NeXTGraphicState *nextgraphic_state_copy(NeXTGraphicState *state);
+static void nextgraphic_state_free(NeXTGraphicState *state);
+static void nextgraphic_end(ParserContext *ctx);
+static gint nextgraphic_get_codepage(ParserContext *ctx);
 
 typedef gboolean PictFunc(ParserContext *, PictState *, GError **);
 typedef gboolean PictParamFunc(ParserContext *, PictState *, gint32, GError **);
 
 static PictFunc pic_emfblip, pic_jpegblip, pic_macpict, pic_pngblip;
 static PictParamFunc pic_dibitmap, pic_pich, pic_pichgoal, pic_picscalex,
-                     pic_picscaley, pic_picw, 
-                     pic_picwgoal, pic_pmmetafile, pic_wbitmap, pic_wmetafile;
+                     pic_picscaley, pic_picw, pic_picwgoal, pic_pmmetafile,
+                     pic_wbitmap, pic_wmetafile;
 
 const ControlWord pict_word_table[] = {
 	{ "dibitmap", REQUIRED_PARAMETER, FALSE, pic_dibitmap },
@@ -76,6 +87,26 @@ const DestinationInfo pict_destination = {
 	pict_end
 };
 
+typedef gboolean NeXTGraphicParamFunc(ParserContext *, NeXTGraphicState *, gint32, GError **);
+
+static NeXTGraphicParamFunc ng_height, ng_width;
+
+const ControlWord nextgraphic_word_table[] = {
+    { "height", REQUIRED_PARAMETER, FALSE, ng_height },
+    { "width", REQUIRED_PARAMETER, FALSE, ng_width },
+    { NULL }
+};
+
+const DestinationInfo nextgraphic_destination = {
+    nextgraphic_word_table,
+    nextgraphic_text,
+    (StateNewFunc *)nextgraphic_state_new,
+    (StateCopyFunc *)nextgraphic_state_copy,
+    (StateFreeFunc *)nextgraphic_state_free,
+    nextgraphic_end,
+    nextgraphic_get_codepage
+};
+
 const ControlWord shppict_word_table[] = {
 	{ "pict", DESTINATION, FALSE, NULL, 0, NULL, &pict_destination },
 	{ NULL }
@@ -88,6 +119,15 @@ const DestinationInfo shppict_destination = {
 	ignore_state_copy,
 	ignore_state_free
 };
+
+/* Insert picture into text buffer */
+static void
+insert_picture_into_textbuffer(ParserContext *ctx, GdkPixbuf *pixbuf)
+{
+    GtkTextIter iter;
+    gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &iter, ctx->endmark);
+    gtk_text_buffer_insert_pixbuf(ctx->textbuffer, &iter, pixbuf);
+}
 
 static void
 adjust_loader_size(PictState *state)
@@ -238,10 +278,7 @@ pict_end(ParserContext *ctx)
 				g_object_unref(picture);
 				picture = newpicture;
 			}
-			/* Insert picture into text buffer */
-			GtkTextIter iter;
-			gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &iter, ctx->endmark);
-			gtk_text_buffer_insert_pixbuf(ctx->textbuffer, &iter, picture);
+			insert_picture_into_textbuffer(ctx, picture);
 		}
 	}
 }
@@ -360,4 +397,72 @@ pic_wmetafile(ParserContext *ctx, PictState *state, gint32 param, GError **error
 	state->type = PICT_TYPE_WMF;
 	state->type_param = param;
 	return TRUE;
+}
+
+static void
+nextgraphic_text(ParserContext *ctx)
+{
+}
+
+static NeXTGraphicState *
+nextgraphic_state_new(void)
+{
+    NeXTGraphicState *retval = g_new0(NeXTGraphicState, 1);
+    retval->width = -1;
+    retval->height = -1;
+    return retval;
+}
+
+static NeXTGraphicState *
+nextgraphic_state_copy(NeXTGraphicState *state)
+{
+    NeXTGraphicState *retval = nextgraphic_state_new();
+    *retval = *state;
+    return retval;
+}
+
+static void 
+nextgraphic_state_free(NeXTGraphicState *state)
+{
+    g_free(state);
+}
+
+static void
+nextgraphic_end(ParserContext *ctx)
+{
+    GdkPixbuf *pixbuf;
+    gchar *filename = g_strstrip(g_strdup(ctx->text->str));
+    NeXTGraphicState *state = (NeXTGraphicState *)get_state(ctx);
+    GError *error = NULL;
+    
+    g_string_truncate(ctx->text, 0);
+    pixbuf = gdk_pixbuf_new_from_file_at_scale(filename, state->width, state->height, FALSE /* preserve aspect ratio */, &error);
+    if(!pixbuf)
+    {
+        g_warning(_("Error loading picture from file '%s': %s"), filename, error->message);
+        return;
+    }
+    g_free(filename);
+    
+    insert_picture_into_textbuffer(ctx, pixbuf);
+}
+
+static gint
+nextgraphic_get_codepage(ParserContext *ctx)
+{
+    return 65001; /* UTF-8 */
+}
+
+static gboolean
+ng_height(ParserContext *ctx, NeXTGraphicState *state, gint32 twips, GError **error)
+{
+    state->height = PANGO_PIXELS(TWIPS_TO_PANGO(twips));
+    return TRUE;
+}
+
+static gboolean
+ng_width(ParserContext *ctx, NeXTGraphicState *state, gint32 twips, GError **error)
+{
+    state->width = PANGO_PIXELS(TWIPS_TO_PANGO(twips));
+    return TRUE;
 }

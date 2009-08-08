@@ -1,5 +1,11 @@
 #include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
 #include <glib.h>
+#include <glib/gstdio.h>
+#include <config.h>
+#include <glib/gi18n-lib.h>
 #include <gdk/gdk.h>
 #include <gtk/gtk.h>
 #include <osxcart/rtf.h>
@@ -103,8 +109,9 @@ rtf_register_deserialize_format(GtkTextBuffer *buffer)
  * rtf_register_deserialize_format().
  *
  * <note><para>
- *  This function does not support OS X and NeXTSTEP's RTFD packages, but this
- *  is planned for the near future.
+ *  This function also supports OS X and NeXTSTEP's RTFD packages. If @filename
+ *  ends in <quote>.rtfd</quote>, is a directory, and contains a file called
+ *  <quote>TXT.rtf</quote>, then it is assumed to be an RTFD package.
  * </para></note>
  *
  * Returns: %TRUE if the operation was successful, %FALSE if not, in which case
@@ -113,7 +120,8 @@ rtf_register_deserialize_format(GtkTextBuffer *buffer)
 gboolean
 rtf_text_buffer_import(GtkTextBuffer *buffer, const gchar *filename, GError **error)
 {
-	gchar *contents;
+	gchar *contents, *tmpstr, *realfilename;
+	int cwd = -1;
 	gboolean retval;
 
 	osxcart_init();
@@ -123,10 +131,50 @@ rtf_text_buffer_import(GtkTextBuffer *buffer, const gchar *filename, GError **er
 	g_return_val_if_fail(filename != NULL, FALSE);
 	g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
-	if(!g_file_get_contents(filename, &contents, NULL, error))
+    /* Check whether this is an RTFD package */
+    tmpstr = g_ascii_strdown(filename, -1);
+    realfilename = g_build_filename(filename, "TXT.rtf", NULL);
+    if(g_str_has_suffix(tmpstr, ".rtfd") && g_file_test(filename, G_FILE_TEST_IS_DIR) && g_file_test(realfilename, G_FILE_TEST_EXISTS))
+    {
+        /* Change the current directory to the package */
+        cwd = g_open(".", O_RDONLY, 0); /* Save directory for later */
+        if(cwd == -1)
+        {
+            g_set_error(error, G_FILE_ERROR, g_file_error_from_errno(errno), _("Could not access current directory: %s"), g_strerror(errno));
+            return FALSE;
+        }
+        if(g_chdir(filename) == -1)
+        {
+            g_set_error(error, G_FILE_ERROR, g_file_error_from_errno(errno), _("Could not change directory to '%s': %s"), filename, g_strerror(errno));
+            return FALSE;
+        }
+        g_free(realfilename);
+        realfilename = g_strdup("TXT.rtf");
+    }
+    else
+    {
+        g_free(realfilename);
+        realfilename = g_strdup(filename);
+    }
+    g_free(tmpstr);
+
+	if(!g_file_get_contents(realfilename, &contents, NULL, error))
+	{
+	    g_free(realfilename);
 		return FALSE;
+    }
 	retval = rtf_text_buffer_import_from_string(buffer, contents, error);
+	
+	/* Change the directory back */
+	if(cwd != -1)
+	{
+	    if(fchdir(cwd) == -1)
+	        g_warning(_("Could not restore current directory: %s"), g_strerror(errno));
+	    if(close(cwd) == -1)
+	        g_warning(_("Could not close current directory: %s"), g_strerror(errno));
+	}
 	g_free(contents);
+	g_free(realfilename);
 	return retval;
 }
 

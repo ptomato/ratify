@@ -15,7 +15,8 @@ static DocParamFunc doc_ansicpg, doc_deff, doc_deflang, doc_rtf;
 
 extern const DestinationInfo colortbl_destination, field_destination,
                              fonttbl_destination, footnote_destination,
-                             pict_destination, stylesheet_destination;
+                             nextgraphic_destination, pict_destination,
+                             stylesheet_destination;
 
 const ControlWord document_word_table[] = {
 	DOCUMENT_TEXT_CONTROL_WORDS,
@@ -31,6 +32,7 @@ const ControlWord document_word_table[] = {
 	{ "header", DESTINATION, FALSE, NULL, 0, NULL, &ignore_destination },
 	{ "info", DESTINATION, FALSE, NULL, 0, NULL, &ignore_destination },
 	{ "mac", NO_PARAMETER, FALSE, doc_mac },
+	{ "NeXTGraphic", DESTINATION, FALSE, NULL, 0, NULL, &nextgraphic_destination },
 	{ "pc", NO_PARAMETER, FALSE, doc_pc },
 	{ "pca", NO_PARAMETER, FALSE, doc_pca },
 	{ "pict", DESTINATION, FALSE, NULL, 0, NULL, &pict_destination },
