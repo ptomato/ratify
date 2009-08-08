@@ -1,7 +1,10 @@
 #include <string.h>
 #include <time.h>
 #include <glib.h>
+#include <config.h>
+#include <glib/gi18n-lib.h>
 #include <gdk/gdk.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gtk/gtk.h>
 #include "config.h"
 #include "rtf-langcode.h"
@@ -408,6 +411,55 @@ write_rtf_text(GString *output, const gchar *text)
             g_string_append_printf(output, "\\u%d ", ch);
     }
 }
+
+/* Analyze a segment of text in which there are no tag flips, but possibly embedded pictures */
+static void
+write_rtf_text_and_pictures(WriterContext *ctx, const GtkTextIter *start, const GtkTextIter *end, GString *output)
+{
+    GtkTextIter iter;
+    GdkPixbuf *pixbuf = NULL;
+    gchar *text, *pngbuffer;
+    gsize bufsize;
+    GError *error = NULL;
+
+    for(iter = *start; !gtk_text_iter_equal(&iter, end); gtk_text_iter_forward_char(&iter))
+    {
+        if((pixbuf = gtk_text_iter_get_pixbuf(&iter)))
+            break;
+    }
+    
+    if(!pixbuf)
+    {
+        text = gtk_text_buffer_get_text(ctx->textbuffer, start, end, TRUE);
+        write_rtf_text(output, text);
+        g_free(text);
+        return;
+    }
+
+    /* Write the text before the pixbuf, insert a \pict destination into the document, and recurse on the text after */
+    text = gtk_text_buffer_get_text(ctx->textbuffer, start, &iter, TRUE);
+    write_rtf_text(output, text);
+    g_free(text);
+    
+    if(gdk_pixbuf_save_to_buffer(pixbuf, &pngbuffer, &bufsize, "png", &error, "compression", "9", NULL))
+    {
+        int count;
+        g_string_append_printf(output, "{\\pict\\pngblip\\picw%d\\pich%d", gdk_pixbuf_get_width(pixbuf), gdk_pixbuf_get_height(pixbuf));
+        for(count = 0; count < bufsize; count++)
+        {
+            if(count % 40 == 0)
+                g_string_append_c(output, '\n');
+            g_string_append_printf(output, "%02X", (unsigned char)pngbuffer[count]);
+        }
+        g_string_append(output, "\n}");
+        g_free(pngbuffer);
+    }
+    else
+        g_warning(_("Could not serialize picture, skipping: %s"), error->message);
+    
+    gtk_text_iter_forward_char(&iter);
+    write_rtf_text_and_pictures(ctx, &iter, end, output);
+}
         
 static void
 write_rtf_paragraphs(WriterContext *ctx, GString *output)
@@ -445,7 +497,7 @@ write_rtf_paragraphs(WriterContext *ctx, GString *output)
                 end = lineend;
             
             gchar *text = gtk_text_buffer_get_text(ctx->textbuffer, &start, &end, TRUE);
-            write_rtf_text(output, text);
+            write_rtf_text_and_pictures(ctx, &start, &end, output);
             g_free(text);
             start = end;
             

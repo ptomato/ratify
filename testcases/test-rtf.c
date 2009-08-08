@@ -54,9 +54,9 @@ rtf_write_pass_case(gconstpointer filename)
 	    
 	GtkTextIter start, end;
 	gtk_text_buffer_get_bounds(buffer1, &start, &end);
-	gchar *text1 = gtk_text_buffer_get_text(buffer1, &start, &end, TRUE);
+	gchar *text1 = gtk_text_buffer_get_slice(buffer1, &start, &end, TRUE);
 	gtk_text_buffer_get_bounds(buffer2, &start, &end);
-	gchar *text2 = gtk_text_buffer_get_text(buffer2, &start, &end, TRUE);
+	gchar *text2 = gtk_text_buffer_get_slice(buffer2, &start, &end, TRUE);
 	g_assert_cmpstr(text1, ==, text2);
 	
 	g_free(text1);

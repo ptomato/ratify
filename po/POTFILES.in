@@ -8,5 +8,6 @@ osxcart/rtf-document.c
 osxcart/rtf-field.c
 osxcart/rtf-fonttbl.c
 osxcart/rtf-picture.c
+osxcart/rtf-serialize.c
 osxcart/rtf-stylesheet.c
 
