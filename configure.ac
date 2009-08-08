@@ -44,6 +44,7 @@ AC_SUBST(GTK_REQUIRED_VERSION)
 ### HEADER FILES ###############################################################
 
 AC_CHECK_HEADERS([stdlib.h string.h])
+AC_CHECK_FUNCS([strchr strtol])
 
 # COMPILER CHARACTERISTICS #####################################################
 
