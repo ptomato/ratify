@@ -369,7 +369,7 @@ static void field_instruction_end(ParserContext *ctx)
 			g_strfreev(pathcomponents);
 			GdkPixbuf *picture = gdk_pixbuf_new_from_file(realfilename, &error);
 			if(!picture)
-				g_warning(_("Error loading picture '%s': %s"), realfilename, error->message);
+				g_warning(_("Error loading picture from file '%s': %s"), realfilename, error->message);
 			else
 			{
 				/* Insert picture into text buffer */
