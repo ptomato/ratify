@@ -87,23 +87,6 @@ static void
 field_instruction_text(ParserContext *ctx)
 {
 	FieldInstructionState *state = get_state(ctx);
-	int count;
-	gboolean in_string = FALSE;
-	
-	/* There is no option in GScanner not to interpret strings as escaped, so
-	 we must first escape backslashes within double quotes */
-	for(count = 0; ctx->text->str[count]; count++)
-	{
-		switch(ctx->text->str[count])
-		{
-			case '"':
-				in_string = !in_string;
-				break;
-			case '\\':
-				if(in_string)
-					g_string_insert_c(ctx->text, ++count, '\\');
-		}
-	}
 	
 	g_string_append(state->scanbuffer, ctx->text->str);
 	g_string_truncate(ctx->text, 0);
@@ -380,9 +363,13 @@ static void field_instruction_end(ParserContext *ctx)
 		case FIELD_TYPE_INCLUDEPICTURE:
 		{
 			GError *error = NULL;
-			GdkPixbuf *picture = gdk_pixbuf_new_from_file(state->argument, &error);
+			gchar **pathcomponents = g_strsplit(state->argument, "\\", 0);
+			gchar *realfilename = g_build_filenamev(pathcomponents);
+			
+			g_strfreev(pathcomponents);
+			GdkPixbuf *picture = gdk_pixbuf_new_from_file(realfilename, &error);
 			if(!picture)
-				g_warning(_("Error loading picture '%s': %s"), state->argument, error->message);
+				g_warning(_("Error loading picture '%s': %s"), realfilename, error->message);
 			else
 			{
 				/* Insert picture into text buffer */
@@ -391,6 +378,7 @@ static void field_instruction_end(ParserContext *ctx)
 				gtk_text_buffer_insert_pixbuf(ctx->textbuffer, &iter, picture);
 				g_object_unref(picture);
 			}
+			g_free(realfilename);
 		}
 			break;
 
