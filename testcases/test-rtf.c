@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <string.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gtk/gtk.h>
 #include <osxcart/rtf.h>
 
@@ -178,52 +180,70 @@ const gchar *codeprojectfailcases[] = {
 void
 add_rtf_tests(void)
 {
+    const gchar **ptr;
+    gboolean have_wmf = FALSE;
+    gboolean have_emf = FALSE;
+    GSList *iter, *formats = gdk_pixbuf_get_formats();
+    
+    /* Determine whether WMF and EMF support were compiled into our GdkPixbuf */
+    for(iter = formats; iter; iter = g_slist_next(iter))
+    {
+        if(strcmp(gdk_pixbuf_format_get_name(iter->data), "wmf") == 0)
+            have_wmf = TRUE;
+        else if(strcmp(gdk_pixbuf_format_get_name(iter->data), "emf") == 0)
+            have_emf = TRUE;
+    }
+    g_slist_free(formats);
+    
 	/* Nonexistent filename case */
 	g_test_add_data_func("/rtf/parse/fail/Nonexistent filename", "", rtf_fail_case);
 
 	/* Pass cases, all examples from 'RTF Pocket Guide' by Sean M. Burke */
 	/* These must all parse correctly */
-	const gchar **ptr = rtfbookexamples;
-	while(*ptr)
+	for(ptr = rtfbookexamples; *ptr; ptr += 2)
 	{
-		gchar *testname = g_strconcat("/rtf/parse/pass/pocketguide/", *ptr++, NULL);
-		g_test_add_data_func(testname, *ptr++, rtf_parse_pass_case);
+		gchar *testname = g_strconcat("/rtf/parse/pass/pocketguide/", ptr[0], NULL);
+		g_test_add_data_func(testname, ptr[1], rtf_parse_pass_case);
 		g_free(testname);
 	}
 
 	/* Pass cases, from http://www.codeproject.com/KB/recipes/RtfConverter.aspx */
 	/* These must all parse correctly */
-	ptr = codeprojectpasscases;
-	while(*ptr)
+	for(ptr = codeprojectpasscases; *ptr; ptr += 2)
 	{
-		gchar *testname = g_strconcat("/rtf/parse/pass/codeproject/", *ptr++, NULL);
-		g_test_add_data_func(testname, *ptr++, rtf_parse_pass_case);
+	    if(strstr(ptr[0], "WMF") && !have_wmf)
+	        continue;
+	    if(strstr(ptr[0], "EMF") && !have_emf)
+	        continue;
+		gchar *testname = g_strconcat("/rtf/parse/pass/codeproject/", ptr[0], NULL);
+		g_test_add_data_func(testname, ptr[1], rtf_parse_pass_case);
 		g_free(testname);
 	}
 
 	/* Fail cases, from http://www.codeproject.com/KB/recipes/RtfConverter.aspx */
 	/* These must all give an error */
-	ptr = codeprojectfailcases;
-	while(*ptr)
+	for(ptr = codeprojectfailcases; *ptr; ptr += 2)
 	{
-		gchar *testname = g_strconcat("/rtf/parse/fail/codeproject/", *ptr++, NULL);
-		g_test_add_data_func(testname, *ptr++, rtf_fail_case);
+		gchar *testname = g_strconcat("/rtf/parse/fail/codeproject/", ptr[0], NULL);
+		g_test_add_data_func(testname, ptr[1], rtf_fail_case);
 		g_free(testname);
 	}
 	
 	/* Now export the RTF to a string and re-import it */
-	ptr = rtfbookexamples;
-	while(*ptr)
+	for(ptr = rtfbookexamples; *ptr; ptr += 2)
 	{
-		gchar *testname = g_strconcat("/rtf/write/pocketguide/", *ptr++, NULL);
-		g_test_add_data_func(testname, *ptr++, rtf_write_pass_case);
+		gchar *testname = g_strconcat("/rtf/write/pocketguide/", ptr[0], NULL);
+		g_test_add_data_func(testname, ptr[1], rtf_write_pass_case);
 		g_free(testname);
 	}
-	ptr = codeprojectpasscases;
-	while(*ptr)
+	for(ptr = codeprojectpasscases; *ptr; ptr += 2)
 	{
-		gchar *testname = g_strconcat("/rtf/write/codeproject/", *ptr++, NULL);
-		g_test_add_data_func(testname, *ptr++, rtf_write_pass_case);
+	    if(strstr(ptr[0], "WMF") && !have_wmf)
+	        continue;
+	    if(strstr(ptr[0], "EMF") && !have_emf)
+	        continue;
+		gchar *testname = g_strconcat("/rtf/write/codeproject/", ptr[0], NULL);
+		g_test_add_data_func(testname, ptr[1], rtf_write_pass_case);
 		g_free(testname);
 	}
 	
