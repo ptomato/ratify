@@ -205,6 +205,13 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
         g_string_append_printf(code, "\\sa%d", PIXELS_TO_TWIPS(pixels));
     }
     
+    g_object_get(tag, "pixels-inside-wrap-set", &val, NULL);
+    if(val)
+    {
+        g_object_get(tag, "pixels-inside-wrap", &pixels, NULL);
+        g_string_append_printf(code, "\\slleading%d", PIXELS_TO_TWIPS(pixels));
+    }
+    
     g_object_get(tag, "right-margin-set", &val, NULL);
     if(val)
     {

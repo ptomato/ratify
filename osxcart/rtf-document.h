@@ -23,6 +23,7 @@ typedef struct {
 	gint left_margin;
 	gint right_margin;
 	gint indent;
+	gint leading;
 	
 	/* Character formatting */
 	
@@ -65,8 +66,9 @@ DocFunc doc_chftn, doc_ltrch, doc_ltrpar, doc_nosupersub, doc_pard, doc_plain,
         doc_super, doc_ud, doc_ulnone, doc_upr;
 DocParamFunc doc_b, doc_cb, doc_cf, doc_dn, doc_f, doc_fi, doc_fs, doc_fsmilli,
              doc_highlight, doc_i, doc_lang, doc_li, doc_ri, doc_s, doc_sa,
-             doc_saauto, doc_sb, doc_sbauto, doc_scaps, doc_strike, doc_tx, 
-             doc_u, doc_uc, doc_ul, doc_uldb, doc_ulwave, doc_up, doc_v;
+             doc_saauto, doc_sb, doc_sbauto, doc_scaps, doc_slleading, 
+             doc_strike, doc_tx, doc_u, doc_uc, doc_ul, doc_uldb, doc_ulwave,
+             doc_up, doc_v;
 
 extern const DestinationInfo shppict_destination;
 
@@ -129,6 +131,7 @@ extern const DestinationInfo shppict_destination;
 	{ "sbauto", OPTIONAL_PARAMETER, TRUE, doc_sbauto, 0 }, \
 	{ "scaps", OPTIONAL_PARAMETER, TRUE, doc_scaps, 1 }, \
 	{ "*shppict", DESTINATION, TRUE, NULL, 0, NULL, &shppict_destination }, \
+	{ "slleading", OPTIONAL_PARAMETER, TRUE, doc_slleading, 0 }, \
 	{ "strike", OPTIONAL_PARAMETER, TRUE, doc_strike, 1 }, \
 	{ "sub", NO_PARAMETER, TRUE, doc_sub }, \
 	{ "super", NO_PARAMETER, TRUE, doc_super }, \

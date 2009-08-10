@@ -29,10 +29,11 @@ typedef gboolean StyleParamFunc(ParserContext *, StylesheetState *, gint32, GErr
 
 static StyleFunc sty_ltrch, sty_ltrpar, sty_qc, sty_qj, sty_ql,
                  sty_qr, sty_rtlch, sty_rtlpar, sty_sub, sty_super, sty_ulnone;
-static StyleParamFunc sty_b, sty_cb, sty_cf, sty_cs, sty_dn, sty_ds, sty_f, sty_fi, sty_fs, sty_fsmilli,
-                      sty_highlight, sty_i, sty_li, sty_ri, sty_s, sty_sa, sty_saauto, sty_sb, 
-                      sty_sbauto, sty_scaps, sty_strike, sty_ts, sty_tx, sty_ul, 
-                      sty_uldb, sty_ulwave, sty_up, sty_v;
+static StyleParamFunc sty_b, sty_cb, sty_cf, sty_cs, sty_dn, sty_ds, sty_f,
+                      sty_fi, sty_fs, sty_fsmilli, sty_highlight, sty_i, sty_li,
+                      sty_ri, sty_s, sty_sa, sty_saauto, sty_sb, sty_sbauto, 
+                      sty_scaps, sty_slleading, sty_strike, sty_ts, sty_tx, 
+                      sty_ul, sty_uldb, sty_ulwave, sty_up, sty_v;
 
 const ControlWord stylesheet_word_table[] = { 
 	{ "b", OPTIONAL_PARAMETER, TRUE, sty_b, 1 },
@@ -64,6 +65,7 @@ const ControlWord stylesheet_word_table[] = {
 	{ "sb", OPTIONAL_PARAMETER, TRUE, sty_sb, 0 },
 	{ "sbauto", OPTIONAL_PARAMETER, TRUE, sty_sbauto, 0 },
 	{ "scaps", OPTIONAL_PARAMETER, TRUE, sty_scaps, 1 },
+	{ "slleading", OPTIONAL_PARAMETER, TRUE, sty_slleading, 0 },
 	{ "strike", OPTIONAL_PARAMETER, TRUE, sty_strike, 1 },
 	{ "sub", NO_PARAMETER, TRUE, sty_sub },
 	{ "super", NO_PARAMETER, TRUE, sty_super },
@@ -450,12 +452,13 @@ DEFINE_STYLE_FLAG_FUNCTION(sty_v,      invisible)
 		state->attr->attribute = param; \
 		return TRUE; \
 	}
-DEFINE_STYLE_PARAM_FUNCTION(sty_fi, indent)
-DEFINE_STYLE_PARAM_FUNCTION(sty_li, left_margin)
-DEFINE_STYLE_PARAM_FUNCTION(sty_ri, right_margin)
-DEFINE_STYLE_PARAM_FUNCTION(sty_sa, space_after)
-DEFINE_STYLE_PARAM_FUNCTION(sty_sb, space_before)
-DEFINE_STYLE_PARAM_FUNCTION(sty_up, rise)
+DEFINE_STYLE_PARAM_FUNCTION(sty_fi,        indent)
+DEFINE_STYLE_PARAM_FUNCTION(sty_li,        left_margin)
+DEFINE_STYLE_PARAM_FUNCTION(sty_ri,        right_margin)
+DEFINE_STYLE_PARAM_FUNCTION(sty_sa,        space_after)
+DEFINE_STYLE_PARAM_FUNCTION(sty_sb,        space_before)
+DEFINE_STYLE_PARAM_FUNCTION(sty_slleading, leading)
+DEFINE_STYLE_PARAM_FUNCTION(sty_up,        rise)
 
 #define DEFINE_STYLE_VALUE_FUNCTION(name, attribute, value) \
 	static gboolean \

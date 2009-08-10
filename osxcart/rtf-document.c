@@ -86,6 +86,7 @@ set_default_paragraph_attributes(Attributes *attr)
 	attr->left_margin = 0;
 	attr->right_margin = 0;
 	attr->indent = 0;
+	attr->leading = 0;
 }
 
 Attributes *
@@ -291,6 +292,13 @@ apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTe
 			g_strdup_printf("osxcart-rtf-down-%i", -attr->rise);
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
 		g_free(tagname);
+	}
+	
+	if(attr->leading != 0)
+	{
+	    gchar *tagname = g_strdup_printf("osxcart-rtf-leading-%i", attr->leading);
+	    gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
+	    g_free(tagname);
 	}
 }
 
@@ -946,6 +954,28 @@ doc_scaps(ParserContext *ctx, Attributes *attr, gint32 param, GError **error)
 	}
 	attr->smallcaps = (param != 0);
 	return TRUE;
+}
+
+gboolean
+doc_slleading(ParserContext *ctx, Attributes *attr, gint32 twips, GError **error)
+{
+    if(twips < 0)
+		return TRUE; /* Silently ignore, not supported in GtkTextBuffer */
+	
+    gchar *tagname = g_strdup_printf("osxcart-rtf-leading-%i", twips);
+    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
+    {
+        GtkTextTag *tag = gtk_text_tag_new(tagname);
+        g_object_set(tag, 
+                     "pixels-inside-wrap", PANGO_PIXELS(TWIPS_TO_PANGO(twips)), 
+                     "pixels-inside-wrap-set", TRUE,
+                     NULL);
+        gtk_text_tag_table_add(ctx->tags, tag);
+    }
+    g_free(tagname);
+    
+    attr->leading = twips;
+    return TRUE;
 }
 
 gboolean
