@@ -52,23 +52,10 @@ const DestinationInfo document_destination = {
 	document_get_codepage
 };
 
-Attributes *
-attributes_new(void)
+static void
+set_default_character_attributes(Attributes *attr)
 {
-    Attributes *attr = g_new0(Attributes, 1);
-	attr->style = -1;
-
-	attr->justification = -1;
-	attr->pardirection = -1;
-	attr->space_before = 0;
-	attr->space_after = 0;
-	attr->ignore_space_before = FALSE;
-	attr->ignore_space_after = FALSE;
-	attr->tabs = NULL;
-	attr->left_margin = 0;
-	attr->right_margin = 0;
-	attr->indent = 0;
-	
+    attr->style = -1;
 	attr->background = -1;
 	attr->foreground = -1;
 	attr->highlight = -1;
@@ -84,10 +71,31 @@ attributes_new(void)
 	attr->chardirection = -1;
 	attr->language = 1024;
 	attr->rise = 0;
-	
+}
+
+static void
+set_default_paragraph_attributes(Attributes *attr)
+{
+    attr->justification = -1;
+	attr->pardirection = -1;
+	attr->space_before = 0;
+	attr->space_after = 0;
+	attr->ignore_space_before = FALSE;
+	attr->ignore_space_after = FALSE;
+	attr->tabs = NULL;
+	attr->left_margin = 0;
+	attr->right_margin = 0;
+	attr->indent = 0;
+}
+
+Attributes *
+attributes_new(void)
+{
+    Attributes *attr = g_new0(Attributes, 1);
+	set_default_paragraph_attributes(attr);
+	set_default_character_attributes(attr);
 	attr->unicode_skip = 1;
 	attr->unicode_ignore = FALSE;
-	
     return attr;
 }
 
@@ -156,7 +164,7 @@ apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTe
 	
 	if(attr->size != 0.0) 
 	{
-		gchar *tagname = g_strdup_printf("osxcart-rtf-fontsize-%f", attr->size);
+		gchar *tagname = g_strdup_printf("osxcart-rtf-fontsize-%.3f", attr->size);
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
 		g_free(tagname);
 	}
@@ -519,7 +527,7 @@ doc_fs(ParserContext *ctx, Attributes *attr, gint32 halfpoints, GError **error)
 	}
 	
 	gdouble points = halfpoints / 2.0;
-    gchar *tagname = g_strdup_printf("osxcart-rtf-fontsize-%f", points);
+    gchar *tagname = g_strdup_printf("osxcart-rtf-fontsize-%.3f", points);
     if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
     {
         GtkTextTag *tag = gtk_text_tag_new(tagname);
@@ -545,7 +553,7 @@ doc_fsmilli(ParserContext *ctx, Attributes *attr, gint32 milli, GError **error)
 	}
 	
 	gdouble points = milli / 1000.0;
-    gchar *tagname = g_strdup_printf("osxcart-rtf-fontsize-%f", points);
+    gchar *tagname = g_strdup_printf("osxcart-rtf-fontsize-%.3f", points);
     if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
     {
         GtkTextTag *tag = gtk_text_tag_new(tagname);
@@ -723,22 +731,8 @@ doc_pca(ParserContext *ctx, Attributes *attr, GError **error)
 gboolean
 doc_plain(ParserContext *ctx, Attributes *attr, GError **error)
 {
-	attr->style = -1;
-	attr->background = -1;
-	attr->foreground = -1;
-	attr->highlight = -1;
-	attr->font = -1;
-	attr->size = -1;
-	attr->italic = FALSE;
-	attr->bold = FALSE;
-	attr->smallcaps = FALSE;
-	attr->strikethrough = FALSE;
-	attr->subscript = FALSE;
-	attr->superscript = FALSE;
-	attr->underline = PANGO_UNDERLINE_NONE;
-	attr->chardirection = -1;
-	attr->language = ctx->default_language;
-	attr->rise = 0;
+	set_default_character_attributes(attr);
+	attr->language = ctx->default_language; /* Override "1024" */
 	return TRUE;
 }
 
