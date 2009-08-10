@@ -1127,6 +1127,19 @@ doc_ulnone(ParserContext *ctx, Attributes *attr, GError **error)
 }
 
 gboolean
+doc_ulstyle(ParserContext *ctx, Attributes *attr, gint32 param, GError **error)
+{
+    switch(param & 0xF)
+    {
+        case 1:
+            return doc_ul(ctx, attr, 1, error);
+        case 9:
+            return doc_uldb(ctx, attr, 1, error);
+    }
+    return doc_ulnone(ctx, attr, error);
+}
+
+gboolean
 doc_ulwave(ParserContext *ctx, Attributes *attr, gint32 param, GError **error)
 {
     if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-underline-wave"))

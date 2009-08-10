@@ -33,7 +33,7 @@ static StyleParamFunc sty_b, sty_cb, sty_cf, sty_cs, sty_dn, sty_ds, sty_f,
                       sty_fi, sty_fs, sty_fsmilli, sty_highlight, sty_i, sty_li,
                       sty_ri, sty_s, sty_sa, sty_saauto, sty_sb, sty_sbauto, 
                       sty_scaps, sty_slleading, sty_strike, sty_ts, sty_tx, 
-                      sty_ul, sty_uldb, sty_ulwave, sty_up, sty_v;
+                      sty_ul, sty_uldb, styl_ulstyle, sty_ulwave, sty_up, sty_v;
 
 const ControlWord stylesheet_word_table[] = { 
 	{ "b", OPTIONAL_PARAMETER, TRUE, sty_b, 1 },
@@ -428,6 +428,19 @@ sty_tx(ParserContext *ctx, StylesheetState *state, gint32 twips, GError **error)
     pango_tab_array_set_tab(state->attr->tabs, tab_index, PANGO_TAB_LEFT, TWIPS_TO_PANGO(twips));
         
     return TRUE;
+}
+
+static gboolean
+sty_ulstyle(ParserContext *ctx, StylesheetState *state, gint32 param, GError **error)
+{
+    switch(param & 0xF)
+    {
+        case 1:
+            return sty_ul(ctx, state, 1, error);
+        case 9:
+            return sty_uldb(ctx, state, 1, error);
+    }
+    return sty_ulnone(ctx, state, error);
 }
 
 #define DEFINE_STYLE_FLAG_FUNCTION(name, attribute) \

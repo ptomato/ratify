@@ -67,8 +67,8 @@ DocFunc doc_chftn, doc_ltrch, doc_ltrpar, doc_nosupersub, doc_pard, doc_plain,
 DocParamFunc doc_b, doc_cb, doc_cf, doc_dn, doc_f, doc_fi, doc_fs, doc_fsmilli,
              doc_highlight, doc_i, doc_lang, doc_li, doc_ri, doc_s, doc_sa,
              doc_saauto, doc_sb, doc_sbauto, doc_scaps, doc_slleading, 
-             doc_strike, doc_tx, doc_u, doc_uc, doc_ul, doc_uldb, doc_ulwave,
-             doc_up, doc_v;
+             doc_strike, doc_tx, doc_u, doc_uc, doc_ul, doc_uldb, doc_ulstyle,
+             doc_ulwave, doc_up, doc_v;
 
 extern const DestinationInfo shppict_destination;
 
@@ -150,6 +150,7 @@ extern const DestinationInfo shppict_destination;
 	{ "ulhwave", OPTIONAL_PARAMETER, TRUE, doc_ulwave, 1 }, \
 	{ "ulldash", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
 	{ "ulnone", NO_PARAMETER, TRUE, doc_ulnone }, \
+	{ "ulstyle", REQUIRED_PARAMETER, TRUE, doc_ulstyle }, \
 	{ "ulth", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
 	{ "ulthd", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
 	{ "ulthdash", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
