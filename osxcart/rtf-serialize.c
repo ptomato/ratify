@@ -243,6 +243,11 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
     {
         g_object_get(tag, "size-points", &points, NULL);
         g_string_append_printf(code, "\\fs%d", (gint)(points * 2));
+        /* Override with an \fsmilli command if the font size is not a multiple 
+        of 1/2 point */
+        gint milli = (gint)(points * 1000);
+        if(milli % 500 != 0)
+            g_string_append_printf(code, "\\fsmilli%d", milli);
     }
         
     g_object_get(tag, "strikethrough-set", &val, NULL);

@@ -24,8 +24,8 @@ main(int argc, char **argv)
 	gtk_main();
 	
 /*	gchar *string = rtf_text_buffer_export_to_string(buffer);
+    g_object_unref(buffer);
 	g_print("%s\n", string);
-	g_object_unref(buffer);
 	g_free(string);*/
 	return 0;
 }
