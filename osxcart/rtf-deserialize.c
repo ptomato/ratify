@@ -559,7 +559,7 @@ parse_rtf(ParserContext *ctx, GError **error)
 		else if(*ctx->pos == '\n' || *ctx->pos == '\r') 
 			ctx->pos++;
 		/* Ignore high characters (they should be encoded with \'xx) */
-		else if(*ctx->pos < 0 || *ctx->pos > 127)
+		else if(*ctx->pos < 0)
 			ctx->pos++;
 		else 
 		{
