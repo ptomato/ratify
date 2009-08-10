@@ -30,7 +30,7 @@ typedef struct {
 	gint background;
 	gint highlight;
 	gint font; /* Index into the font table */
-	gint size;
+	gdouble size;
 	gboolean italic;
 	gboolean bold;
 	gboolean smallcaps;
@@ -63,8 +63,8 @@ typedef gboolean DocParamFunc(ParserContext *, Attributes *, gint32, GError **);
 DocFunc doc_chftn, doc_ltrch, doc_ltrpar, doc_nosupersub, doc_pard, doc_plain, 
         doc_qc, doc_qj, doc_ql, doc_qr, doc_rtlch, doc_rtlpar, doc_sub, 
         doc_super, doc_ud, doc_ulnone, doc_upr;
-DocParamFunc doc_b, doc_cb, doc_cf, doc_dn, doc_f, doc_fi, doc_fs, 
-             doc_highlight, doc_i, doc_lang, doc_li, doc_ri, doc_s, doc_sa, 
+DocParamFunc doc_b, doc_cb, doc_cf, doc_dn, doc_f, doc_fi, doc_fs, doc_fsmilli,
+             doc_highlight, doc_i, doc_lang, doc_li, doc_ri, doc_s, doc_sa,
              doc_saauto, doc_sb, doc_sbauto, doc_scaps, doc_strike, doc_tx, 
              doc_u, doc_uc, doc_ul, doc_uldb, doc_ulwave, doc_up, doc_v;
 
@@ -95,6 +95,7 @@ extern const DestinationInfo shppict_destination;
 	{ "f", REQUIRED_PARAMETER, TRUE, doc_f }, \
 	{ "fi", OPTIONAL_PARAMETER, TRUE, doc_fi, 0 }, \
 	{ "fs", OPTIONAL_PARAMETER, TRUE, doc_fs, 24 }, \
+	{ "fsmilli", REQUIRED_PARAMETER, TRUE, doc_fsmilli }, \
 	{ "highlight", REQUIRED_PARAMETER, TRUE, doc_highlight }, \
 	{ "i", OPTIONAL_PARAMETER, TRUE, doc_i, 1 }, \
 	{ "lang", REQUIRED_PARAMETER, TRUE, doc_lang }, \

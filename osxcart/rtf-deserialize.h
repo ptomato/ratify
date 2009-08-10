@@ -14,7 +14,7 @@ typedef gpointer StateNewFunc(void);
 typedef gpointer StateCopyFunc(gpointer);
 typedef void StateFreeFunc(gpointer);
 
-#define POINTS_TO_PANGO(pts) (pts * PANGO_SCALE)
+#define POINTS_TO_PANGO(pts) ((gint)(pts * PANGO_SCALE))
 #define HALF_POINTS_TO_PANGO(halfpts) (halfpts * PANGO_SCALE / 2)
 #define TWIPS_TO_PANGO(twips) (twips * PANGO_SCALE / 20)
 

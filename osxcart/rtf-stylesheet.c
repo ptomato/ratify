@@ -29,7 +29,7 @@ typedef gboolean StyleParamFunc(ParserContext *, StylesheetState *, gint32, GErr
 
 static StyleFunc sty_ltrch, sty_ltrpar, sty_qc, sty_qj, sty_ql,
                  sty_qr, sty_rtlch, sty_rtlpar, sty_sub, sty_super, sty_ulnone;
-static StyleParamFunc sty_b, sty_cb, sty_cf, sty_cs, sty_dn, sty_ds, sty_f, sty_fi, sty_fs, 
+static StyleParamFunc sty_b, sty_cb, sty_cf, sty_cs, sty_dn, sty_ds, sty_f, sty_fi, sty_fs, sty_fsmilli,
                       sty_highlight, sty_i, sty_li, sty_ri, sty_s, sty_sa, sty_saauto, sty_sb, 
                       sty_sbauto, sty_scaps, sty_strike, sty_ts, sty_tx, sty_ul, 
                       sty_uldb, sty_ulwave, sty_up, sty_v;
@@ -45,6 +45,7 @@ const ControlWord stylesheet_word_table[] = {
 	{ "f", REQUIRED_PARAMETER, TRUE, sty_f },
 	{ "fi", OPTIONAL_PARAMETER, TRUE, sty_fi, 0 },
 	{ "fs", OPTIONAL_PARAMETER, TRUE, sty_fs, 24 },
+	{ "fsmilli", REQUIRED_PARAMETER, TRUE, sty_fsmilli },
 	{ "highlight", REQUIRED_PARAMETER, TRUE, sty_highlight }, 
 	{ "i", OPTIONAL_PARAMETER, TRUE, sty_i, 1 },
 	{ "li", OPTIONAL_PARAMETER, TRUE, sty_li, 1 },
@@ -229,9 +230,9 @@ stylesheet_text(ParserContext *ctx)
 		}
 		g_free(tagname);
 	}
-	if(state->attr->size != -1)
+	if(state->attr->size != 0.0)
 		g_object_set(tag,
-		             "size", HALF_POINTS_TO_PANGO(state->attr->size),
+		             "size", POINTS_TO_PANGO(state->attr->size),
 		             "size-set", TRUE,
 		             NULL);
 	if(state->attr->italic)
@@ -354,6 +355,30 @@ sty_f(ParserContext *ctx, StylesheetState *state, gint32 param, GError **error)
 	return TRUE;
 }
 
+static gboolean 
+sty_fs(ParserContext *ctx, StylesheetState *state, gint32 halfpoints, GError **error)
+{
+    if(halfpoints <= 0)
+	{
+		g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_FONT_SIZE, _("\\fs%d is invalid, negative or zero font sizes not allowed"), halfpoints);
+		return FALSE; 
+	}
+    state->attr->size = halfpoints / 2.0;
+    return TRUE;
+}
+
+static gboolean 
+sty_fsmilli(ParserContext *ctx, StylesheetState *state, gint32 milli, GError **error)
+{
+    if(milli <= 0)
+	{
+		g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_FONT_SIZE, _("\\fsmilli%d is invalid, negative or zero font sizes not allowed"), milli);
+		return FALSE; 
+	}
+    state->attr->size = milli / 1000.0;
+    return TRUE;
+}
+
 static gboolean
 sty_highlight(ParserContext *ctx, StylesheetState *state, gint32 param, GError **error)
 {
@@ -426,7 +451,6 @@ DEFINE_STYLE_FLAG_FUNCTION(sty_v,      invisible)
 		return TRUE; \
 	}
 DEFINE_STYLE_PARAM_FUNCTION(sty_fi, indent)
-DEFINE_STYLE_PARAM_FUNCTION(sty_fs, size)
 DEFINE_STYLE_PARAM_FUNCTION(sty_li, left_margin)
 DEFINE_STYLE_PARAM_FUNCTION(sty_ri, right_margin)
 DEFINE_STYLE_PARAM_FUNCTION(sty_sa, space_after)

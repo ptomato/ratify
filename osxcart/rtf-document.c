@@ -73,7 +73,7 @@ attributes_new(void)
 	attr->foreground = -1;
 	attr->highlight = -1;
 	attr->font = -1;
-	attr->size = -1;
+	attr->size = 0.0;
 	attr->italic = FALSE;
 	attr->bold = FALSE;
 	attr->smallcaps = FALSE;
@@ -154,9 +154,9 @@ apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTe
 		g_free(tagname);
 	}
 	
-	if(attr->size != -1) 
+	if(attr->size != 0.0) 
 	{
-		gchar *tagname = g_strdup_printf("osxcart-rtf-fontsize-%i", attr->size);
+		gchar *tagname = g_strdup_printf("osxcart-rtf-fontsize-%f", attr->size);
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
 		g_free(tagname);
 	}
@@ -512,25 +512,52 @@ doc_footnote(ParserContext *ctx, Attributes *attr, GError **error)
 gboolean
 doc_fs(ParserContext *ctx, Attributes *attr, gint32 halfpoints, GError **error)
 {
-	if(halfpoints < 0)
+	if(halfpoints <= 0)
 	{
-		g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_FONT_SIZE, _("\\fs%d is invalid, negative font sizes not allowed"), halfpoints);
+		g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_FONT_SIZE, _("\\fs%d is invalid, negative or zero font sizes not allowed"), halfpoints);
 		return FALSE; 
 	}
 	
-    gchar *tagname = g_strdup_printf("osxcart-rtf-fontsize-%i", halfpoints);
+	gdouble points = halfpoints / 2.0;
+    gchar *tagname = g_strdup_printf("osxcart-rtf-fontsize-%f", points);
     if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
     {
         GtkTextTag *tag = gtk_text_tag_new(tagname);
         g_object_set(tag, 
-                     "size", HALF_POINTS_TO_PANGO(halfpoints), 
+                     "size", POINTS_TO_PANGO(points), 
                      "size-set", TRUE,
                      NULL);
         gtk_text_tag_table_add(ctx->tags, tag);
     }
     g_free(tagname);
     
-    attr->size = halfpoints;
+    attr->size = points;
+    return TRUE;
+}
+
+gboolean
+doc_fsmilli(ParserContext *ctx, Attributes *attr, gint32 milli, GError **error)
+{
+	if(milli <= 0)
+	{
+		g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_FONT_SIZE, _("\\fsmilli%d is invalid, negative or zero font sizes not allowed"), milli);
+		return FALSE; 
+	}
+	
+	gdouble points = milli / 1000.0;
+    gchar *tagname = g_strdup_printf("osxcart-rtf-fontsize-%f", points);
+    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
+    {
+        GtkTextTag *tag = gtk_text_tag_new(tagname);
+        g_object_set(tag, 
+                     "size", POINTS_TO_PANGO(points), 
+                     "size-set", TRUE,
+                     NULL);
+        gtk_text_tag_table_add(ctx->tags, tag);
+    }
+    g_free(tagname);
+    
+    attr->size = points;
     return TRUE;
 }
 
