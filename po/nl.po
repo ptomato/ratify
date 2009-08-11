@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Osxcart 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-08-08 18:16-0400\n"
-"PO-Revision-Date: 2009-08-08 18:19-0500\n"
+"POT-Creation-Date: 2009-08-11 11:48-0400\n"
+"PO-Revision-Date: 2009-08-11 12:17-0500\n"
 "Last-Translator: P. F. Chimento <philip.chimento@gmail.com>\n"
 "Language-Team: Osxcart <philip.chimento@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -138,33 +138,40 @@ msgstr "Tekens gevonden na sluitaccolade"
 msgid "RTF format must begin with '{\\rtf'"
 msgstr "RTF-formaat moet beginnen met '{\\rtf'"
 
-#: ../osxcart/rtf-document.c:375
-#: ../osxcart/rtf-document.c:402
-#: ../osxcart/rtf-document.c:544
-#: ../osxcart/rtf-stylesheet.c:303
-#: ../osxcart/rtf-stylesheet.c:315
-#: ../osxcart/rtf-stylesheet.c:362
+#: ../osxcart/rtf-document.c:316
+#: ../osxcart/rtf-document.c:343
+#: ../osxcart/rtf-document.c:512
+#: ../osxcart/rtf-stylesheet.c:306
+#: ../osxcart/rtf-stylesheet.c:318
+#: ../osxcart/rtf-stylesheet.c:389
 #, c-format
 msgid "Color '%i' undefined"
 msgstr "Ongedefinieerde kleur '%i'"
 
-#: ../osxcart/rtf-document.c:472
-#: ../osxcart/rtf-stylesheet.c:350
+#: ../osxcart/rtf-document.c:413
+#: ../osxcart/rtf-stylesheet.c:353
 #, c-format
 msgid "Font '%i' undefined"
 msgstr "Ongedefinieerd lettertype '%i'"
 
-#: ../osxcart/rtf-document.c:517
+#: ../osxcart/rtf-document.c:458
+#: ../osxcart/rtf-stylesheet.c:365
 #, c-format
-msgid "\\fs%d is invalid, negative font sizes not allowed"
-msgstr "\\fs%d is ongeldig, negatieve lettertypegroottes zijn niet toegestaan"
+msgid "\\fs%d is invalid, negative or zero font sizes not allowed"
+msgstr "\\fs%d is ongeldig, lettergrootte nul of negatieve lettergroottes zijn niet toegestaan"
 
-#: ../osxcart/rtf-document.c:809
+#: ../osxcart/rtf-document.c:484
+#: ../osxcart/rtf-stylesheet.c:377
+#, c-format
+msgid "\\fsmilli%d is invalid, negative or zero font sizes not allowed"
+msgstr "\\fsmilli%d is ongeldig, lettergrootte nul of negatieve lettergroottes zijn niet toegestaan"
+
+#: ../osxcart/rtf-document.c:763
 #, c-format
 msgid "Unsupported RTF version '%i'"
 msgstr "Geen ondersteuning voor RTF-versie '%i'"
 
-#: ../osxcart/rtf-document.c:847
+#: ../osxcart/rtf-document.c:801
 #, c-format
 msgid "Style '%i' undefined"
 msgstr "Ongedefinieerde stijl '%i'"
@@ -277,7 +284,7 @@ msgstr "Ongeldig bitmaptype '%i' in \\dibitmap commando"
 msgid "Invalid bitmap type '%i' for \\wbitmap"
 msgstr "Ongeldig bitmaptype '%i' in \\wbitmap commando"
 
-#: ../osxcart/rtf-serialize.c:458
+#: ../osxcart/rtf-serialize.c:470
 #, c-format
 msgid "Could not serialize picture, skipping: %s"
 msgstr "Serialisatie van afbeelding mislukt; de afbeelding wordt overgeslagen: %s"
