@@ -27,18 +27,53 @@ rtf_parse_pass_case(gconstpointer filename)
 	g_assert(error == NULL);
 }
 
-#if 0
-	GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_widget_set_size_request(window, 500, 300);
-	g_signal_connect(window, "delete-event", gtk_main_quit, NULL);
-	GtkWidget *scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
-	GtkWidget *textview = gtk_text_view_new_with_buffer(buffer);
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), GTK_WRAP_WORD);
-	gtk_container_add(GTK_CONTAINER(scrolledwindow), textview);
-	gtk_container_add(GTK_CONTAINER(window), scrolledwindow);
-	gtk_widget_show_all(window);
-	gtk_main();
-#endif
+static void
+rtf_parse_human_approval_case(gconstpointer filename)
+{
+    GError *error = NULL;
+	
+	GtkWidget *label = gtk_label_new("Is the RTF code rendered correctly?");
+	GtkWidget *pane = gtk_hpaned_new();
+	GtkWidget *codescroll = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(codescroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	GtkWidget *codeview = gtk_text_view_new();
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(codeview), GTK_WRAP_CHAR);
+	GtkWidget *rtfscroll = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(rtfscroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	GtkWidget *rtfview = gtk_text_view_new();
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(rtfview), GTK_WRAP_WORD);
+	
+	gtk_container_add(GTK_CONTAINER(codescroll), codeview);
+	gtk_container_add(GTK_CONTAINER(rtfscroll), rtfview);
+	gtk_paned_add1(GTK_PANED(pane), codescroll);
+	gtk_paned_add2(GTK_PANED(pane), rtfscroll);
+	
+	GtkWidget *dialog = gtk_dialog_new_with_buttons(filename, NULL, 0,
+	    GTK_STOCK_YES, GTK_RESPONSE_YES,
+	    GTK_STOCK_NO,  GTK_RESPONSE_NO,
+	    NULL);
+	gtk_window_set_default_size(GTK_WINDOW(dialog), 1000, 400);
+	GtkWidget *vbox = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+	gtk_box_pack_start(GTK_BOX(vbox), pane, TRUE, TRUE, 6);
+	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 6);
+	gtk_paned_set_position(GTK_PANED(pane), 500);
+	gtk_widget_show_all(vbox);
+	
+	gchar *text;
+	if(!g_file_get_contents(filename, &text, NULL, &error))
+	    g_test_message("Error message: %s", error->message);
+	gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(codeview)), text, -1);
+	g_assert(error == NULL);
+    if(!rtf_text_buffer_import_from_string(gtk_text_view_get_buffer(GTK_TEXT_VIEW(rtfview)), text, &error))
+	    g_test_message("Error message: %s", error->message);
+	g_free(text);
+	g_assert(error == NULL);
+	
+	gint response = gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
+	
+	g_assert(response == GTK_RESPONSE_YES);
+}
 
 static void
 rtf_write_pass_case(gconstpointer filename)
@@ -250,4 +285,29 @@ add_rtf_tests(void)
     /* RTFD tests */
     g_test_add_data_func("/rtf/parse/pass/rtfd/RTFD test", "rtfdtest.rtfd", rtf_parse_pass_case);
     g_test_add_data_func("/rtf/write/pass/rtfd/RTFD test", "rtfdtest.rtfd", rtf_write_pass_case);
+    
+    /* Human tests -- only on thorough testing */
+    if(g_test_thorough())
+    {
+        for(ptr = rtfbookexamples; *ptr; ptr += 2)
+        {
+            gchar *testname = g_strconcat("/rtf/parse/human/pocketguide/", ptr[0], NULL);
+            g_test_add_data_func(testname, ptr[1], rtf_parse_human_approval_case);
+            g_free(testname);
+        }
+    
+        /* Pass cases, from http://www.codeproject.com/KB/recipes/RtfConverter.aspx */
+        /* These must all parse correctly */
+        for(ptr = codeprojectpasscases; *ptr; ptr += 2)
+        {
+            if(strstr(ptr[0], "WMF") && !have_wmf)
+                continue;
+            if(strstr(ptr[0], "EMF") && !have_emf)
+                continue;
+            gchar *testname = g_strconcat("/rtf/parse/human/codeproject/", ptr[0], NULL);
+            g_test_add_data_func(testname, ptr[1], rtf_parse_human_approval_case);
+            g_free(testname);
+        }
+    }
+    
 }

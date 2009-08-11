@@ -67,8 +67,8 @@ font_table_text(ParserContext *ctx)
 	gchar *name, *semicolon;
 	FontProperties *fontprop;
 	FontTableState *state = (FontTableState *)get_state(ctx);
-	static gchar *font_suggestions[] = { /* From RTF spec */
-		"", 
+	static gchar *font_suggestions[] = {
+		"Sans", /* Default font for \fnil */
 		"Serif,Times New Roman,Palatino",
 		"Sans,Arial,Helvetica",
 		"Monospace,Courier New,Pica",

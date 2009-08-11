@@ -1,15 +1,25 @@
 AM_CFLAGS = -Wall
 
-check_PROGRAMS = test-osxcart
+noinst_PROGRAMS = test-osxcart test-rtfwrite
 test_osxcart_SOURCES = test-plist.c test-rtf.c test.c
 test_osxcart_CFLAGS = @TEST_CFLAGS@ $(AM_CFLAGS)
 test_osxcart_LDADD = @TEST_LIBS@ ../osxcart/libosxcart.la
 
-check-local: test-osxcart 
+check-local: test-report
+
+.PHONY: test test-report perf-report full-report
+test: test-osxcart
+	GNOME_DISABLE_CRASH_DIALOG=1 gtester test-osxcart
+test-report: test-osxcart 
 	GNOME_DISABLE_CRASH_DIALOG=1 gtester -k test-osxcart -o=testlog.xml; \
 	gtester-report testlog.xml > testlog.html
+perf-report: test-osxcart
+	GNOME_DISABLE_CRASH_DIALOG=1 gtester -k -m=perf test-osxcart -o=testlog.xml; \
+	gtester-report testlog.xml > testlog.html
+full-report: test-osxcart
+	GNOME_DISABLE_CRASH_DIALOG=1 gtester -k -m=perf -m=thorough test-osxcart -o=testlog.xml; \
+	gtester-report testlog.xml > testlog.html
 
-noinst_PROGRAMS = test-rtfwrite
 test_rtfwrite_SOURCES = test-rtfwrite.c
 test_rtfwrite_CFLAGS = @TEST_CFLAGS@ $(AM_CFLAGS)
 test_rtfwrite_LDADD = @TEST_LIBS@ ../osxcart/libosxcart.la
