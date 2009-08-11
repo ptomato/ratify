@@ -1,4 +1,5 @@
 #include <string.h>
+#include <ctype.h>
 #include <time.h>
 #include <glib.h>
 #include <config.h>
@@ -17,6 +18,8 @@
 struct _WriterContext {
     GtkTextBuffer *textbuffer;
     const GtkTextIter *start, *end;
+    GString *output;
+    GtkTextBuffer *linebuffer;
     
     /* Tag information */
     GHashTable *tag_codes;
@@ -29,6 +32,7 @@ static WriterContext *
 writer_context_new(void)
 {
     WriterContext *ctx = g_slice_new0(WriterContext);
+    ctx->output = g_string_new("");
     ctx->tag_codes = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
     ctx->font_table = NULL;
     ctx->color_table = g_list_prepend(NULL, g_strdup("")); /* Color 0 always black */
@@ -361,72 +365,114 @@ analyze_buffer(WriterContext *ctx, GtkTextBuffer *textbuffer, const GtkTextIter 
 }
 
 static void
-write_rtf_text(GString *output, const gchar *text)
+write_space_or_newline(WriterContext *ctx)
+{
+    int linelength = strlen(strrchr(ctx->output->str, '\n'));
+    g_string_append_c(ctx->output, (linelength > 60)? '\n' : ' ');
+}
+
+static void
+write_rtf_text(WriterContext *ctx, const gchar *text)
 {
     const gchar *ptr;
+    
+
     for(ptr = text; *ptr; ptr = g_utf8_next_char(ptr))
     {
         gunichar ch = g_utf8_get_char(ptr);
+        
         if(ch == 0x09)
-            g_string_append(output, "\\tab ");
+            g_string_append(ctx->output, "\\tab");
         else if(ch == '\n') /* whatever value that is */
-            g_string_append(output, "\\par ");
+            g_string_append(ctx->output, "\\par");
+        else if(ch == ' ')
+        {
+            if(strlen(strrchr(ctx->output->str, '\n')) > 60)
+                g_string_append_c(ctx->output, '\n');
+            g_string_append_c(ctx->output, ' ');
+            continue;
+        }
         else if(ch == 0x5C)
-            g_string_append(output, "\\\\");
+        {
+            g_string_append(ctx->output, "\\\\");
+            continue;
+        }
         else if(ch == 0x7B)
-            g_string_append(output, "\\{");
+        {
+            g_string_append(ctx->output, "\\{");
+            continue;
+        }
         else if(ch == 0x7D)
-            g_string_append(output, "\\}");
+        {
+            g_string_append(ctx->output, "\\}");
+            continue;
+        }
         else if(ch > 0 && ch < 0x80)
-            g_string_append_c(output, (gchar)ch);
+        {
+            g_string_append_c(ctx->output, (gchar)ch);
+            continue;
+        }
         else if(ch == 0xA0)
-            g_string_append(output, "\\~");
+        {
+            g_string_append(ctx->output, "\\~");
+            continue;
+        }
         else if(ch == 0xAD)
-            g_string_append(output, "\\-");
+        {
+            g_string_append(ctx->output, "\\-");
+            continue;
+        }
         else if(ch >= 0xA1 && ch <= 0xFF)
-            g_string_append_printf(output, "\\'%2X", ch);
+        {
+            g_string_append_printf(ctx->output, "\\'%2X", ch);
+            continue;
+        }
         else if(ch == 0x2002)
-            g_string_append(output, "\\enspace ");
+            g_string_append(ctx->output, "\\enspace");
         else if(ch == 0x2003)
-            g_string_append(output, "\\emspace ");
+            g_string_append(ctx->output, "\\emspace");
         else if(ch == 0x2005)
-            g_string_append(output, "\\qmspace ");
+            g_string_append(ctx->output, "\\qmspace");
         else if(ch == 0x200B)
-            g_string_append(output, "\\zwbo ");
+            g_string_append(ctx->output, "\\zwbo");
         else if(ch == 0x200C)
-            g_string_append(output, "\\zwnj ");
+            g_string_append(ctx->output, "\\zwnj");
         else if(ch == 0x200D)
-            g_string_append(output, "\\zwj ");
+            g_string_append(ctx->output, "\\zwj");
         else if(ch == 0x200E)
-            g_string_append(output, "\\ltrmark ");
+            g_string_append(ctx->output, "\\ltrmark");
         else if(ch == 0x200F)
-            g_string_append(output, "\\rtlmark ");
+            g_string_append(ctx->output, "\\rtlmark");
         else if(ch == 0x2011)
-            g_string_append(output, "\\_");
+        {
+            g_string_append(ctx->output, "\\_");
+            continue;
+        }
         else if(ch == 0x2013)
-            g_string_append(output, "\\endash ");
+            g_string_append(ctx->output, "\\endash");
         else if(ch == 0x2014)
-            g_string_append(output, "\\emdash ");
+            g_string_append(ctx->output, "\\emdash");
         else if(ch == 0x2018)
-            g_string_append(output, "\\lquote ");
+            g_string_append(ctx->output, "\\lquote");
         else if(ch == 0x2019)
-            g_string_append(output, "\\rquote ");
+            g_string_append(ctx->output, "\\rquote");
         else if(ch == 0x201C)
-            g_string_append(output, "\\ldblquote ");
+            g_string_append(ctx->output, "\\ldblquote");
         else if(ch == 0x201D)
-            g_string_append(output, "\\rdblquote ");
+            g_string_append(ctx->output, "\\rdblquote");
         else if(ch == 0x2022)
-            g_string_append(output, "\\bullet ");
+            g_string_append(ctx->output, "\\bullet");
         else if(ch == 0x2028)
-            g_string_append(output, "\\line ");
+            g_string_append(ctx->output, "\\line");
         else
-            g_string_append_printf(output, "\\u%d ", ch);
+            g_string_append_printf(ctx->output, "\\u%d", ch);
+        write_space_or_newline(ctx);
     }
 }
 
 /* Analyze a segment of text in which there are no tag flips, but possibly embedded pictures */
 static void
-write_rtf_text_and_pictures(WriterContext *ctx, const GtkTextIter *start, const GtkTextIter *end, GString *output)
+write_rtf_text_and_pictures(WriterContext *ctx, const GtkTextIter *start, const GtkTextIter *end)
 {
     GtkTextIter iter;
     GdkPixbuf *pixbuf = NULL;
@@ -442,140 +488,193 @@ write_rtf_text_and_pictures(WriterContext *ctx, const GtkTextIter *start, const 
     
     if(!pixbuf)
     {
-        text = gtk_text_buffer_get_text(ctx->textbuffer, start, end, TRUE);
-        write_rtf_text(output, text);
+        text = gtk_text_buffer_get_text(ctx->linebuffer, start, end, TRUE);
+        write_rtf_text(ctx, text);
         g_free(text);
         return;
     }
 
     /* Write the text before the pixbuf, insert a \pict destination into the document, and recurse on the text after */
-    text = gtk_text_buffer_get_text(ctx->textbuffer, start, &iter, TRUE);
-    write_rtf_text(output, text);
+    text = gtk_text_buffer_get_text(ctx->linebuffer, start, &iter, TRUE);
+    write_rtf_text(ctx, text);
     g_free(text);
     
     if(gdk_pixbuf_save_to_buffer(pixbuf, &pngbuffer, &bufsize, "png", &error, "compression", "9", NULL))
     {
         int count;
-        g_string_append_printf(output, "{\\pict\\pngblip\\picw%d\\pich%d", gdk_pixbuf_get_width(pixbuf), gdk_pixbuf_get_height(pixbuf));
+        g_string_append_printf(ctx->output, "{\\pict\\pngblip\\picw%d\\pich%d", gdk_pixbuf_get_width(pixbuf), gdk_pixbuf_get_height(pixbuf));
         for(count = 0; count < bufsize; count++)
         {
             if(count % 40 == 0)
-                g_string_append_c(output, '\n');
-            g_string_append_printf(output, "%02X", (unsigned char)pngbuffer[count]);
+                g_string_append_c(ctx->output, '\n');
+            g_string_append_printf(ctx->output, "%02X", (unsigned char)pngbuffer[count]);
         }
-        g_string_append(output, "\n}");
+        g_string_append(ctx->output, "\n}");
         g_free(pngbuffer);
     }
     else
         g_warning(_("Could not serialize picture, skipping: %s"), error->message);
     
     gtk_text_iter_forward_char(&iter);
-    write_rtf_text_and_pictures(ctx, &iter, end, output);
+    write_rtf_text_and_pictures(ctx, &iter, end);
 }
-        
-static void
-write_rtf_paragraphs(WriterContext *ctx, GString *output)
-{
-    GtkTextIter start, end, linestart, lineend;
-    GSList *taglist, *iter;
 
-    linestart = *(ctx->start);
-    lineend = linestart;
+static void
+write_rtf_paragraphs(WriterContext *ctx)
+{
+    GSList *taglist, *ptr;
+    GtkTextIter start, end, tagend, linestart = *(ctx->start), lineend = linestart;
     
     while(gtk_text_iter_in_range(&lineend, ctx->start, ctx->end))
     {
         /* Begin the paragraph by resetting the paragraph properties */
-        g_string_append(output, "{\\pard ");
+        g_string_append(ctx->output, "{\\pard\\plain");
         
-        /* Get the next paragraph of text */
+        /* Get two iterators around the next paragraph of text */
         gtk_text_iter_forward_to_line_end(&lineend);
         /* Skip to the end of any clump of paragraph separators */
         while(gtk_text_iter_ends_line(&lineend) && !gtk_text_iter_is_end(&lineend))
             gtk_text_iter_forward_char(&lineend);
         if(gtk_text_iter_compare(&lineend, ctx->end) > 0)
             lineend = *(ctx->end);
-        taglist = gtk_text_iter_get_tags(&linestart);
-        for(iter = taglist; iter; iter = g_slist_next(iter))
-            g_string_append(output, g_hash_table_lookup(ctx->tag_codes, iter->data));
-        if(taglist)
-            g_string_append_c(output, ' ');
         
-        start = linestart;
+        /* Copy the entire paragraph to a separate buffer */
+        ctx->linebuffer = gtk_text_buffer_new(gtk_text_buffer_get_tag_table(ctx->textbuffer));
+        gtk_text_buffer_get_start_iter(ctx->linebuffer, &start);
+        gtk_text_buffer_insert_range(ctx->linebuffer, &start, &linestart, &lineend);
+        gtk_text_buffer_get_bounds(ctx->linebuffer, &start, &end);
+        
+        /* Insert codes for tags that apply to the whole line, then remove those
+        tags because we've dealt with them */
+        taglist = gtk_text_iter_get_tags(&linestart);
+        for(ptr = taglist; ptr; ptr = g_slist_next(ptr))
+        {
+            tagend = start;
+            gtk_text_iter_forward_to_tag_toggle(&tagend, ptr->data);
+            if(gtk_text_iter_equal(&tagend, &end))
+            {
+                g_string_append(ctx->output, g_hash_table_lookup(ctx->tag_codes, ptr->data));
+                gtk_text_buffer_remove_tag(ctx->linebuffer, ptr->data, &start, &end);
+            }
+        }
+        g_slist_free(taglist);
+        write_space_or_newline(ctx);
+        g_string_append_c(ctx->output, '{');
+        
         end = start;
-        while(gtk_text_iter_in_range(&end, &linestart, &lineend))
+        while(!gtk_text_iter_is_end(&end))
         {
             gtk_text_iter_forward_to_tag_toggle(&end, NULL);
-            if(gtk_text_iter_compare(&end, &lineend) > 0)
-                end = lineend;
             
-            gchar *text = gtk_text_buffer_get_text(ctx->textbuffer, &start, &end, TRUE);
-            write_rtf_text_and_pictures(ctx, &start, &end, output);
-            g_free(text);
-            start = end;
+            GSList *tagstartlist = gtk_text_iter_get_toggled_tags(&start, TRUE);
+            GSList *tagendlist = gtk_text_iter_get_toggled_tags(&end, FALSE);
+            GSList *tagonlylist = NULL;
             
-            if(gtk_text_iter_ends_tag(&start, NULL))
+            for(ptr = tagstartlist; ptr; ptr = g_slist_next(ptr))
+                if(g_slist_find(tagendlist, ptr->data))
+                    tagonlylist = g_slist_prepend(tagonlylist, ptr->data);
+            for(ptr = tagonlylist; ptr; ptr = g_slist_next(ptr))
             {
-                g_string_append(output, "}{");
-                taglist = gtk_text_iter_get_tags(&start);
+                tagstartlist = g_slist_remove(tagstartlist, ptr->data);
+                tagendlist = g_slist_remove(tagendlist, ptr->data);
             }
-            else
-                taglist = gtk_text_iter_get_toggled_tags(&start, TRUE);
             
-            for(iter = taglist; iter; iter = g_slist_next(iter))
-                g_string_append(output, g_hash_table_lookup(ctx->tag_codes, iter->data));
-            if(taglist)
-                g_string_append_c(output, ' ');
+            gsize length = ctx->output->len;
+            for(ptr = tagstartlist; ptr; ptr = g_slist_next(ptr))
+                g_string_append(ctx->output, g_hash_table_lookup(ctx->tag_codes, ptr->data));
+            if(length != ctx->output->len)
+                write_space_or_newline(ctx);
+            g_slist_free(tagstartlist);
+            
+            if(tagonlylist)
+            {
+                g_string_append_c(ctx->output, '{');
+                gsize length = ctx->output->len;
+                for(ptr = tagonlylist; ptr; ptr = g_slist_next(ptr))
+                    g_string_append(ctx->output, g_hash_table_lookup(ctx->tag_codes, ptr->data));
+                if(length != ctx->output->len)
+                    write_space_or_newline(ctx);
+            }
+            
+            write_rtf_text_and_pictures(ctx, &start, &end);
+            
+            if(tagonlylist)
+                g_string_append_c(ctx->output, '}');
+            g_slist_free(tagonlylist);
+            
+            if(tagendlist)
+            {
+                g_string_append(ctx->output, "}{");
+                taglist = gtk_text_iter_get_tags(&end);
+                tagstartlist = gtk_text_iter_get_toggled_tags(&end, TRUE);
+                for(ptr = tagstartlist; ptr; ptr = g_slist_next(ptr))
+                    taglist = g_slist_remove(taglist, ptr->data);
+                g_slist_free(tagstartlist);
+                
+                gsize length = ctx->output->len;
+                for(ptr = taglist; ptr; ptr = g_slist_next(ptr))
+                    g_string_append(ctx->output, g_hash_table_lookup(ctx->tag_codes, ptr->data));
+                if(length != ctx->output->len)
+                    write_space_or_newline(ctx);
+                g_slist_free(taglist);
+            }
+            g_slist_free(tagendlist);
+            
+            start = end;
         }
-        
+        g_string_append(ctx->output, "}}\n");
         linestart = lineend;
-        g_string_append(output, "}\n");   
     }
 }
 
 static void
-write_color_table_entry(const gchar *colorcode, GString *output)
+write_color_table_entry(const gchar *colorcode, WriterContext *ctx)
 {
-    g_string_append_printf(output, "%s;\n", colorcode);
+    g_string_append_printf(ctx->output, "%s;\n", colorcode);
 }
 
 static gchar *
 write_rtf(WriterContext *ctx)
 {
-    /* Header */
-    GString *output = g_string_new("{\\rtf1\\ansi\\deff0\\uc0\n{\\fonttbl\n");
     GList *iter;
     int count;
     
+    /* Header */
+    g_string_append(ctx->output, "{\\rtf1\\ansi\\deff0\\uc0\n");
+    
     /* Font table */
+    g_string_append(ctx->output, "{\\fonttbl\n");
     for(count = 0, iter = ctx->font_table; iter; iter = g_list_next(iter), count++)
     {
         gchar **fontnames = g_strsplit(iter->data, ",", 2);
-        g_string_append_printf(output, "{\\f%d\\fnil %s;}\n", count, fontnames[0]);
+        g_string_append_printf(ctx->output, "{\\f%d\\fnil %s;}\n", count, fontnames[0]);
         g_strfreev(fontnames);
     }
+    g_string_append(ctx->output, "}\n");
     
     /* Color table */
-    g_string_append(output, "}\n{\\colortbl\n");
-    g_list_foreach(ctx->color_table, (GFunc)write_color_table_entry, output);
+    g_string_append(ctx->output, "{\\colortbl\n");
+    g_list_foreach(ctx->color_table, (GFunc)write_color_table_entry, ctx);
+    g_string_append(ctx->output, "}\n");
     
     /* Metadata (provide default values because Word will overwrite if missing) */
-    g_string_append(output, "}\n{\\info\n{\\author .}\n{\\company .}\n{\\title .}\n");
+    g_string_append(ctx->output, "{\\info {\\author .}{\\company .}{\\title .}\n");
     gchar buffer[29];
     time_t timer = time(NULL);
     if(strftime(buffer, 29, "\\yr%Y\\mo%m\\dy%d\\hr%H\\min%M", localtime(&timer)))
-        g_string_append_printf(output, "{\\creatim%s}\n", buffer);
-    g_string_append_printf(output, "{\\doccomm\nCreated by %s %s on %s}\n}\n", PACKAGE_NAME, PACKAGE_VERSION, ctime(&timer));
-    g_string_append_printf(output, "{\\*\\generator %s %s}\n", PACKAGE_NAME, PACKAGE_VERSION);
+        g_string_append_printf(ctx->output, "{\\creatim%s}\n", buffer);
+    g_string_append_printf(ctx->output, "{\\doccomm Created by %s %s on %s}}\n", PACKAGE_NAME, PACKAGE_VERSION, g_strchomp(ctime(&timer)));
+    g_string_append_printf(ctx->output, "{\\*\\generator %s %s}\n", PACKAGE_NAME, PACKAGE_VERSION);
     
     /* Preliminary formatting */
-    g_string_append_printf(output, "\\deflang%d", language_to_wincode(pango_language_to_string(pango_language_get_default())));
-    g_string_append(output, "\\plain\\widowctrl\\hyphauto\n");
+    g_string_append_printf(ctx->output, "\\deflang%d", language_to_wincode(pango_language_to_string(pango_language_get_default())));
+    g_string_append(ctx->output, "\\plain\\widowctrl\\hyphauto\n");
     
     /* Document body */
-    write_rtf_paragraphs(ctx, output);
+    write_rtf_paragraphs(ctx);
     
-    g_string_append_c(output, '}');
-    return g_string_free(output, FALSE);
+    g_string_append_c(ctx->output, '}');
+    return g_string_free(ctx->output, FALSE);
 }
 
 guint8 *

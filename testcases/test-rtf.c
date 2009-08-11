@@ -284,7 +284,7 @@ add_rtf_tests(void)
 	
     /* RTFD tests */
     g_test_add_data_func("/rtf/parse/pass/rtfd/RTFD test", "rtfdtest.rtfd", rtf_parse_pass_case);
-    g_test_add_data_func("/rtf/write/pass/rtfd/RTFD test", "rtfdtest.rtfd", rtf_write_pass_case);
+    g_test_add_data_func("/rtf/write/rtfd/RTFD test", "rtfdtest.rtfd", rtf_write_pass_case);
     
     /* Human tests -- only on thorough testing */
     if(g_test_thorough())
