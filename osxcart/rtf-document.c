@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <string.h>
 #include <glib.h>
 #include <config.h>
@@ -119,103 +120,94 @@ attributes_free(Attributes *attr)
 	g_free(attr);
 }
 
+static void
+apply_attribute(ParserContext *ctx, GtkTextIter *start, GtkTextIter *end, gchar *format, ...)
+{
+    gchar *tagname;
+    va_list args;
+    
+    va_start(args, format);
+    tagname = g_strdup_vprintf(format, args);
+    va_end(args);
+    gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
+    g_free(tagname);
+}
+
 void
 apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTextIter *end)
 {
+    /* Tags with parameters */
 	if(attr->style != -1)
-	{
-		gchar *tagname = g_strdup_printf("osxcart-rtf-style-%i", attr->style);
-		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
-		g_free(tagname);
-	}
-	
-	if(attr->foreground != -1) 
-	{
-		gchar *tagname = g_strdup_printf("osxcart-rtf-foreground-%i", attr->foreground);
-		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
-		g_free(tagname);
-	}
-
-	if(attr->background != -1) 
-	{
-		gchar *tagname = g_strdup_printf("osxcart-rtf-background-%i", attr->background);
-		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
-		g_free(tagname);
-	}
-
+	    apply_attribute(ctx, start, end, "osxcart-rtf-style-%i", attr->style);
+	if(attr->foreground != -1)
+	    apply_attribute(ctx, start, end, "osxcart-rtf-foreground-%i", attr->foreground);
+	if(attr->background != -1)
+	    apply_attribute(ctx, start, end, "osxcart-rtf-background-%i", attr->background);
 	if(attr->highlight != -1)
-	{
-		gchar *tagname = g_strdup_printf("osxcart-rtf-highlight-%i", attr->highlight);
-		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
-		g_free(tagname);
-	}
-	
-	if(attr->font != -1)
-	{
-		gchar *tagname = g_strdup_printf("osxcart-rtf-font-%i", attr->font);
-		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
-		g_free(tagname);
-	}
-	else if(ctx->default_font != -1 && g_slist_length(ctx->font_table) > ctx->default_font)
-	{
-		gchar *tagname = g_strdup_printf("osxcart-rtf-font-%i", ctx->default_font);
-		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
-		g_free(tagname);
-	}
-	
-	if(attr->size != 0.0) 
-	{
-		gchar *tagname = g_strdup_printf("osxcart-rtf-fontsize-%.3f", attr->size);
-		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
-		g_free(tagname);
-	}
-
-	if(attr->italic) 
+	    apply_attribute(ctx, start, end, "osxcart-rtf-highlight-%i", attr->highlight);
+	if(attr->size != 0.0)
+	    apply_attribute(ctx, start, end, "osxcart-rtf-fontsize-%.3f", attr->size);
+	if(attr->space_before != 0 && !attr->ignore_space_before)
+	    apply_attribute(ctx, start, end, "osxcart-rtf-space-before-%i", attr->space_before);
+	if(attr->space_after != 0 && !attr->ignore_space_after)
+	    apply_attribute(ctx, start, end, "osxcart-rtf-space-after-%i", attr->space_after);
+	if(attr->left_margin != 0)
+	    apply_attribute(ctx, start, end, "osxcart-rtf-left-margin-%i", attr->left_margin);
+	if(attr->right_margin != 0)
+	    apply_attribute(ctx, start, end, "osxcart-rtf-right-margin-%i", attr->right_margin);
+	if(attr->indent != 0)
+	    apply_attribute(ctx, start, end, "osxcart-rtf-indent-%i", attr->indent);	
+	if(attr->invisible)
+		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-invisible", start, end);
+	if(attr->language != 1024)
+	    apply_attribute(ctx, start, end, "osxcart-rtf-language-%i", attr->language);
+	if(attr->rise != 0)
+	    apply_attribute(ctx, start, end, "osxcart-rtf-%s-%i", 
+	        (attr->rise > 0)? "up" : "down", 
+	        ((attr->rise > 0)? 1 : -1) * attr->rise);
+	if(attr->leading != 0)
+	    apply_attribute(ctx, start, end, "osxcart-rtf-leading-%i", attr->leading);
+	/* Boolean tags */
+	if(attr->italic)
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-italic", start, end);
-
 	if(attr->bold)
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-bold", start, end);
-
 	if(attr->smallcaps)
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-smallcaps", start, end);
-	
 	if(attr->strikethrough)
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-strikethrough", start, end);
-
 	if(attr->underline == PANGO_UNDERLINE_SINGLE)
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-underline-single", start, end);
-
     if(attr->underline == PANGO_UNDERLINE_DOUBLE)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-underline-double", start, end);
-
 	if(attr->underline == PANGO_UNDERLINE_ERROR)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-underline-wave", start, end);
-	
 	if(attr->justification == GTK_JUSTIFY_LEFT)
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-left", start, end);
-
 	if(attr->justification == GTK_JUSTIFY_RIGHT)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-right", start, end);
-
 	if(attr->justification == GTK_JUSTIFY_CENTER)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-center", start, end);
-
 	if(attr->justification == GTK_JUSTIFY_FILL)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-justified", start, end);
-
 	if(attr->pardirection == GTK_TEXT_DIR_RTL)
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-right-to-left", start, end);
-	
 	if(attr->pardirection == GTK_TEXT_DIR_LTR)
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-left-to-right", start, end);
-
 	/* Character-formatting direction overrides paragraph formatting */
 	if(attr->chardirection == GTK_TEXT_DIR_RTL)
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-right-to-left", start, end);
-	
 	if(attr->chardirection == GTK_TEXT_DIR_LTR)
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-left-to-right", start, end);
-	
+	if(attr->subscript)
+		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-subscript", start, end);
+	if(attr->superscript)
+		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-superscript", start, end);
+    /* Special */
+	if(attr->font != -1)
+	    apply_attribute(ctx, start, end, "osxcart-rtf-font-%i", attr->font);
+	else if(ctx->default_font != -1 && g_slist_length(ctx->font_table) > ctx->default_font)
+	    apply_attribute(ctx, start, end, "osxcart-rtf-font-%i", ctx->default_font);
 	if(attr->tabs != NULL)
 	{
 	    /* Create a separate tag for each PangoTabArray */
@@ -232,73 +224,6 @@ apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTe
 		}
 	    g_free(tagname);
 	    gtk_text_buffer_apply_tag(ctx->textbuffer, tag, start, end);
-	}
-
-	if(attr->space_before != 0 && !attr->ignore_space_before)
-	{
-		gchar *tagname = g_strdup_printf("osxcart-rtf-space-before-%i", attr->space_before);
-		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
-		g_free(tagname);
-	}
-
-	if(attr->space_after != 0 && !attr->ignore_space_after)
-	{
-		gchar *tagname = g_strdup_printf("osxcart-rtf-space-after-%i", attr->space_after);
-		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
-		g_free(tagname);
-	}
-
-	if(attr->subscript)
-		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-subscript", start, end);
-	
-	if(attr->superscript)
-		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-superscript", start, end);
-
-	if(attr->left_margin != 0)
-	{
-		gchar *tagname = g_strdup_printf("osxcart-rtf-left-margin-%i", attr->left_margin);
-		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
-		g_free(tagname);
-	}
-
-	if(attr->right_margin != 0)
-	{
-		gchar *tagname = g_strdup_printf("osxcart-rtf-right-margin-%i", attr->right_margin);
-		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
-		g_free(tagname);
-	}
-
-	if(attr->indent != 0)
-	{
-		gchar *tagname = g_strdup_printf("osxcart-rtf-indent-%i", attr->indent);
-		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
-		g_free(tagname);
-	}
-	
-	if(attr->invisible)
-		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-invisible", start, end);
-
-	if(attr->language != 1024)
-	{
-		gchar *tagname = g_strdup_printf("osxcart-rtf-language-%i", attr->language);
-		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
-		g_free(tagname);
-	}
-
-	if(attr->rise != 0)
-	{
-		gchar *tagname = (attr->rise > 0)?
-			g_strdup_printf("osxcart-rtf-up-%i", attr->rise) :
-			g_strdup_printf("osxcart-rtf-down-%i", -attr->rise);
-		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
-		g_free(tagname);
-	}
-	
-	if(attr->leading != 0)
-	{
-	    gchar *tagname = g_strdup_printf("osxcart-rtf-leading-%i", attr->leading);
-	    gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, tagname, start, end);
-	    g_free(tagname);
 	}
 }
 
