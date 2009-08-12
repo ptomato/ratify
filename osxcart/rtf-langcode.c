@@ -264,7 +264,7 @@ IsoLangCode isolangcodes[] = {
 	{ 0x0009, "en" }, /* English? */
 	{ 0x0013, "nl" }, /* "Dutch Preferred"? */
 	{ 0x0409, "c" }, /* C/POSIX locale = English? */
-	NULL
+	{ 0, NULL }
 };
 
 /* Do not free return value */
@@ -272,7 +272,7 @@ const gchar *
 language_to_iso(gint wincode)
 {
 	IsoLangCode *lang;
-	for(lang = isolangcodes; lang != NULL; lang++)
+	for(lang = isolangcodes; lang->isocode != NULL; lang++)
 		if(wincode == lang->wincode)
 			return lang->isocode;
 	return "zxx"; /* No language */
@@ -282,7 +282,7 @@ gint
 language_to_wincode(const gchar *isocode)
 {
 	IsoLangCode *lang;
-	for(lang = isolangcodes; lang != NULL; lang++)
+	for(lang = isolangcodes; lang->isocode != NULL; lang++)
 		if(g_ascii_strcasecmp(isocode, lang->isocode) == 0)
 			return lang->wincode;
 	return 1024; /* No language */

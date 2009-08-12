@@ -33,7 +33,7 @@ static StyleParamFunc sty_b, sty_cb, sty_cf, sty_cs, sty_dn, sty_ds, sty_f,
                       sty_fi, sty_fs, sty_fsmilli, sty_highlight, sty_i, sty_li,
                       sty_ri, sty_s, sty_sa, sty_saauto, sty_sb, sty_sbauto, 
                       sty_scaps, sty_slleading, sty_strike, sty_ts, sty_tx, 
-                      sty_ul, sty_uldb, styl_ulstyle, sty_ulwave, sty_up, sty_v;
+                      sty_ul, sty_uldb, sty_ulstyle, sty_ulwave, sty_up, sty_v;
 
 const ControlWord stylesheet_word_table[] = { 
 	{ "b", OPTIONAL_PARAMETER, TRUE, sty_b, 1 },
@@ -80,6 +80,7 @@ const ControlWord stylesheet_word_table[] = {
 	{ "ulhwave", OPTIONAL_PARAMETER, TRUE, sty_ulwave, 1 },
 	{ "ulldash", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 },
 	{ "ulnone", NO_PARAMETER, TRUE, sty_ulnone },
+	{ "ulstyle", REQUIRED_PARAMETER, TRUE, sty_ulstyle },
 	{ "ulth", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 },
 	{ "ulthd", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 },
 	{ "ulthdash", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 },
