@@ -35,12 +35,19 @@ typedef struct {
 	gchar *numeric_format;
 } FieldInstructionState;
 
+typedef struct {
+    gboolean ignore_field_result;
+} FieldState;
+
 static void field_instruction_text(ParserContext *ctx);
 static FieldInstructionState *fldinst_state_new(void);
 static FieldInstructionState *fldinst_state_copy(FieldInstructionState *state);
 static void fldinst_state_free(FieldInstructionState *state);
 static void field_instruction_end(ParserContext *ctx);
 static gchar *format_integer(gint number, GeneralNumberFormat format);
+static FieldState *field_state_new(void);
+static FieldState *field_state_copy(FieldState *state);
+static void field_state_free(FieldState *state);
 
 const ControlWord field_instruction_word_table[] = { 
 	{ "\\", SPECIAL_CHARACTER, FALSE, NULL, 0, "\\" },
@@ -69,18 +76,21 @@ const DestinationInfo field_result_destination = {
 	(StateFreeFunc *)attributes_free
 };
 
+typedef gboolean FieldFunc(ParserContext *, FieldState *, GError **);
+static FieldFunc field_fldrslt;
+
 const ControlWord field_word_table[] = {
 	{ "*fldinst", DESTINATION, FALSE, NULL, 0, NULL, &field_instruction_destination },
-	{ "fldrslt", DESTINATION, FALSE, NULL, 0, NULL, &field_result_destination },
+	{ "fldrslt", NO_PARAMETER, FALSE, field_fldrslt },
 	{ NULL }
 };
 
 const DestinationInfo field_destination = {
     field_word_table,
     ignore_pending_text,
-    ignore_state_new,
-    ignore_state_copy,
-    ignore_state_free
+    (StateNewFunc *)field_state_new,
+    (StateCopyFunc *)field_state_copy,
+    (StateFreeFunc *)field_state_free
 };
 
 static void
@@ -262,17 +272,6 @@ static void field_instruction_end(ParserContext *ctx)
 	GSList *switches = NULL, *formatswitches = NULL, *iter;
 	GScanner *tokenizer = g_scanner_new(&field_parser);
 	g_scanner_input_text(tokenizer, state->scanbuffer->str, strlen(state->scanbuffer->str));
-
-	/*while(!g_scanner_eof(tokenizer))
-	{
-		GTokenType token = g_scanner_get_next_token(tokenizer);
-		g_printerr("Token type: %d\n", token);
-		if(token == G_TOKEN_STRING)
-			g_printerr("String value: %s\n", tokenizer->value.v_string);
-		else if(token == G_TOKEN_CHAR)
-			g_printerr("Character value: %c\n", tokenizer->value.v_char);
-	}
-	return;*/
 	
 	/* Get field type */
 	if(!(field_type = get_string_token(tokenizer)))
@@ -354,11 +353,16 @@ static void field_instruction_end(ParserContext *ctx)
 		}
 	}
 
+    Destination *fielddest = g_queue_peek_nth(ctx->destination_stack, 1);
+    FieldState *fieldstate = g_queue_peek_tail(fielddest->state_stack);
+
 	switch(state->type)
 	{
 		case FIELD_TYPE_HYPERLINK:
+		    /* Actually inserting hyperlinks into the text buffer is a whole 
+		    security can of worms I don't want to open! Just use field result */
+		    fieldstate->ignore_field_result = FALSE;
 			break;
-			/* ignore */
 
 		case FIELD_TYPE_INCLUDEPICTURE:
 		{
@@ -380,6 +384,8 @@ static void field_instruction_end(ParserContext *ctx)
 			}
 			g_free(realfilename);
 		}
+		    /* Don't use calculated field result */
+		    fieldstate->ignore_field_result = TRUE;
 			break;
 
 		case FIELD_TYPE_PAGE:
@@ -390,6 +396,8 @@ static void field_instruction_end(ParserContext *ctx)
 			gtk_text_buffer_insert(ctx->textbuffer, &iter, output, -1);
 			g_free(output);
 		}
+		    /* Don't use calculated field result */
+		    fieldstate->ignore_field_result = TRUE;
 			break;
 			
 		default:
@@ -481,4 +489,47 @@ format_integer(gint number, GeneralNumberFormat format)
 			break;
 	}
 	return g_strdup_printf("%d", number);
+}
+
+static FieldState *
+field_state_new(void)
+{
+    FieldState *retval = g_new0(FieldState, 1);
+    return retval;
+}
+
+static FieldState *
+field_state_copy(FieldState *state)
+{
+    FieldState *retval = field_state_new();
+    *retval = *state;
+    return retval;
+}
+
+static void
+field_state_free(FieldState *state)
+{
+    g_free(state);
+}
+
+static gboolean
+field_fldrslt(ParserContext *ctx, FieldState *state, GError **error)
+{
+    Destination *dest = g_new0(Destination, 1);
+    dest->nesting_level = ctx->group_nesting_level;
+    dest->state_stack = g_queue_new();
+    if(state->ignore_field_result)
+    {
+        dest->info = &ignore_destination;
+        g_queue_push_head(dest->state_stack, dest->info->state_new());
+    }
+    else
+    {
+        Destination *outerdest = g_queue_peek_nth(ctx->destination_stack, 1);
+        Attributes *attr = g_queue_peek_head(outerdest->state_stack);
+        dest->info = &field_result_destination;
+        g_queue_push_head(dest->state_stack, dest->info->state_copy(attr));   
+    }
+    g_queue_push_head(ctx->destination_stack, dest);
+    return TRUE;
 }
