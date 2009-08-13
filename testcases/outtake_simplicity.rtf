@@ -1,0 +1,103 @@
+{\rtf1\ansi\deff0
+
+{\fonttbl
+{\f0\froman Times New Roman;}
+{\f1\fmodern Courier New;}
+{\f2\fswiss Arial;}
+}
+
+{\stylesheet
+{\snext0 Normal;}
+{\*\cs10 \additive Default Paragraph Font;}
+{\*\cs16 \additive \i \sbasedon10 pod-I;}
+{\*\cs17 \additive \i\lang1024\noproof \sbasedon10 pod-F;}
+{\*\cs18 \additive \b \sbasedon10 pod-B;}
+{\*\cs19 \additive \f1\lang1024\noproof\sbasedon10 pod-C;}
+{\s20\ql \li0\ri0\sa180\widctlpar\f1\fs18\lang1024\noproof\sbasedon0 \snext0 pod-codeblock;}
+{\*\cs21 \additive \lang1024\noproof \sbasedon10 pod-computerese;}
+{\*\cs22 \additive \i\lang1024\noproof\sbasedon10 pod-L-pod;}
+{\*\cs23 \additive \i\lang1024\noproof\sbasedon10 pod-L-url;}
+{\*\cs24 \additive \i\lang1024\noproof\sbasedon10 pod-L-man;}
+
+{\*\cs25 \additive \f1\lang1024\noproof\sbasedon0 pod-codelbock-plain;}
+{\*\cs26 \additive \f1\lang1024\noproof\sbasedon25 pod-codelbock-ital;}
+{\*\cs27 \additive \f1\lang1024\noproof\sbasedon25 pod-codelbock-bold;}
+{\*\cs28 \additive \f1\lang1024\noproof\sbasedon25 pod-codelbock-bold-ital;}
+
+{\s31\ql \keepn\sb90\sa180\f2\fs32\ul\sbasedon0 \snext0 pod-head1;}
+{\s32\ql \keepn\sb90\sa180\f2\fs28\ul\sbasedon0 \snext0 pod-head2;}
+{\s33\ql \keepn\sb90\sa180\f2\fs25\ul\sbasedon0 \snext0 pod-head3;}
+{\s34\ql \keepn\sb90\sa180\f2\fs22\ul\sbasedon0 \snext0 pod-head4;}
+}
+
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+{\info{\doccomm
+Pod::Perldoc::ToRtf v1.01 (Pod::Simple::RTF 1.01)
+ using Pod::Simple::PullParser v1.03
+ under Perl v5.008 at Mon Jul 21 18:39:10 2003 GMT}
+{\author Sean M. Burke}{\company interglacial.com}{\operator Sean M. Burke}
+}
+
+\deflang1033\plain\lang1033\widowctrl
+{\header\pard\qr\plain\f2\fs17
+The Simple View of RT\'46, 
+p.\chpgn\par}
+\fs25
+
+
+
+{\pard\li0\sa180
+Here's a little sidebar that we had to edit out for reasons of space:
+\par}
+
+{\pard\li0\s31\keepn\sb90\sa180\f2\fs32\ul{
+The Simple View of RT\'46
+}\par}
+
+{\pard\li0\sa180
+As an example of the sort of simplification I make in this book, I 
+say in this chapter that every document has to start with {\cs19\f1\lang1024\noproof
+\'7b\'5crtf1\'5cansi}. That {\cs19\f1\lang1024\noproof
+{
+\cs21\lang1024\noproof \'5cansi}} command declares that characters in the document are in the ANSI 
+character set (basically Latin\_1 plus some extra characters \_\_ 
+there is a table of it in Appendix C).
+\par}
+
+{\pard\li0\sa180
+Technically, the ANSI character set is the default, so the {\cs19\f1\lang1024\noproof
+{
+\cs21\lang1024\noproof \'5cansi}} command is optional; but leaving it out makes some readers falsely 
+assume a different character set.
+\par}
+
+{\pard\li0\sa180
+Also, instead of {\cs19\f1\lang1024\noproof
+{
+\cs21\lang1024\noproof \'5cansi}}, you could have a command that declares a different character set; 
+but those other character\_set commands are so poorly supported that 
+there's basically no point in trying to use them.
+\par}
+
+{\pard\li0\sa180
+Or consider even the {\cs19\f1\lang1024\noproof
+{
+\cs21\lang1024\noproof \'5crtf1}} command \_\_ the RT\'46 Specification says that that is the way to 
+start an RT\'46 document, but many of its own examples leave off the 
+1 at the end.
+\par}
+
+{\pard\li0\sa180
+A further example: in Chapter 4, I explain that "{\cs19\f1\lang1024\noproof
+{
+\cs21\lang1024\noproof \'5csl720\'5cslmult1}}" is the way to doublespace a paragraph \_\_ but space does not permit 
+me to discuss the surprisingly complicated, abstract, and fairly useless 
+matter of what the {\cs19\f1\lang1024\noproof
+{
+\cs21\lang1024\noproof \'5csl}{\cs16\i
+N}} and {\cs19\f1\lang1024\noproof
+{
+\cs21\lang1024\noproof \'5cslmult}{\cs16\i
+N}} codes mean on their own, and what other values they can take.
+\par}
+}

@@ -162,6 +162,10 @@ const gchar *rtfbookexamples[] = {
 	"Tables 9", "p085b_table_h_alignment.rtf",
 	"Tables 10", "p086a_table_all_alignments.rtf",
 	"Tables 11", "p086b_table_all_alignments_with_borders.rtf",
+	"Crazy font table", "crazy_fonttable.rtf",
+	"General 1", "outtake_crazy_fonttable.rtf",
+	"General 2", "outtake_latin.rtf",
+	"General 3", "outtake_simplicity.rtf",
 	NULL, NULL
 };
 

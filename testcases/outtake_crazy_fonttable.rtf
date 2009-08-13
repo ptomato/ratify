@@ -1,0 +1,104 @@
+{\rtf1\ansi\deff0
+
+{\fonttbl
+{\f0\froman Times New Roman;}
+{\f1\fmodern Courier New;}
+{\f2\fswiss Arial;}
+}
+
+{\stylesheet
+{\snext0 Normal;}
+{\*\cs10 \additive Default Paragraph Font;}
+{\*\cs16 \additive \i \sbasedon10 pod-I;}
+{\*\cs17 \additive \i\lang1024\noproof \sbasedon10 pod-F;}
+{\*\cs18 \additive \b \sbasedon10 pod-B;}
+{\*\cs19 \additive \f1\lang1024\noproof\sbasedon10 pod-C;}
+{\s20\ql \li0\ri0\sa180\widctlpar\f1\fs18\lang1024\noproof\sbasedon0 \snext0 pod-codeblock;}
+{\*\cs21 \additive \lang1024\noproof \sbasedon10 pod-computerese;}
+{\*\cs22 \additive \i\lang1024\noproof\sbasedon10 pod-L-pod;}
+{\*\cs23 \additive \i\lang1024\noproof\sbasedon10 pod-L-url;}
+{\*\cs24 \additive \i\lang1024\noproof\sbasedon10 pod-L-man;}
+
+{\*\cs25 \additive \f1\lang1024\noproof\sbasedon0 pod-codelbock-plain;}
+{\*\cs26 \additive \f1\lang1024\noproof\sbasedon25 pod-codelbock-ital;}
+{\*\cs27 \additive \f1\lang1024\noproof\sbasedon25 pod-codelbock-bold;}
+{\*\cs28 \additive \f1\lang1024\noproof\sbasedon25 pod-codelbock-bold-ital;}
+
+{\s31\ql \keepn\sb90\sa180\f2\fs32\ul\sbasedon0 \snext0 pod-head1;}
+{\s32\ql \keepn\sb90\sa180\f2\fs28\ul\sbasedon0 \snext0 pod-head2;}
+{\s33\ql \keepn\sb90\sa180\f2\fs25\ul\sbasedon0 \snext0 pod-head3;}
+{\s34\ql \keepn\sb90\sa180\f2\fs22\ul\sbasedon0 \snext0 pod-head4;}
+}
+
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+{\info{\doccomm
+Pod::Perldoc::ToRtf v1.01 (Pod::Simple::RTF 1.01)
+ using Pod::Simple::PullParser v1.03
+ under Perl v5.008 at Mon Jul 21 18:37:41 2003 GMT}
+{\author Sean M. Burke}{\company interglacial.com}{\operator Sean M. Burke}
+}
+
+\deflang1033\plain\lang1033\widowctrl
+{\header\pard\qr\plain\f2\fs17
+
+p.\chpgn\par}
+\fs25
+
+
+
+{\pard\li0\sa180
+Here's a bit of a digression that we had to edit out for reasons of 
+space. It's basically an expansion on the old protocol adage of "Be 
+conservative in what you produce" ("...but liberal in what you accept")
+\par}
+
+{\pard\li0\sa180
+...
+\par}
+
+{\pard\li0\sa180
+It is customary to declare {\cs19\f1\lang1024\noproof
+{
+\cs21\lang1024\noproof \'5cf0}}, then {\cs19\f1\lang1024\noproof
+{
+\cs21\lang1024\noproof \'5cf1}}, then {\cs19\f1\lang1024\noproof
+{
+\cs21\lang1024\noproof \'5cf2}}, and so on in order, going up by one each time. But there are word 
+processors that don't quite follow that convention. It is typical 
+of RT\'46 that the specification does not actually lay out this convention; 
+in fact, it does not say what an RT\'46\_reading program should do 
+in the case of running into a font table like this:
+\par}
+
+{\pard\li0\keepn\plain\s20\sa180\f1\fs18\lang1024\noproof
+  \'7b\'5crtf1\'5cansi\'5cdeff-2000\line
+  \'7b\'5cfonttbl\line
+  \'7b\'5cf4321 Times Roman;\'7d\line
+  \'7b\'5cf-2000 Helvetica;\'7d\line
+  \'7b\'5cf1001 Helvetica;\'7d\line
+  \'7b\'5cf3000 Times Roman;\'7d\line
+  \'7b\'5cf2147483648 Verdana;\'7d\line
+  \'7b\'5cf-2147483648 Symbol;\'7d\line
+  \'7b\'5cf1001 Times Roman;\'7d\line
+  \'7b\'5cf5000 \'5c'a5;\'7d\line
+  \'7b\'5cf5050 ;\'7d\line
+  \'7d
+\par}
+
+{\pard\li0\sa180
+While this font table is actually legal according to the RT\'46 specification, 
+it is very strange, in several respects: it has several codes per 
+font (1001 and \_2000 both map to Helvetica), several fonts per code 
+(1001 is defined twice), the numbers out of order, two very large 
+font numbers (2,147,483,648 and \_2,147,483,648), a font whose name 
+is an empty string, and a font whose name is just the yen symbol, 
+\'a5 (properly escaped as {\cs19\f1\lang1024\noproof
+{
+\cs21\lang1024\noproof \'5c'a5}}). Surprisingly, MSWord 2000 and WordPerfect 8 tolerate all these 
+things, but some other word processors are not as forgiving. \'46or 
+example, negative font numbers crash AbiWord 1.0.3. This is a typical 
+example of why you should stick to a "common sense" reading of the 
+specification \_\_ of any technical specification, not just the RT\'46 
+spec.
+\par}
+}
