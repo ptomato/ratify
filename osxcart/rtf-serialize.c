@@ -650,6 +650,9 @@ write_rtf(WriterContext *ctx)
         g_string_append_printf(ctx->output, "{\\f%d\\fnil %s;}\n", count, fontnames[0]);
         g_strfreev(fontnames);
     }
+    if(!ctx->font_table) /* Write at least one font if there are none */
+        g_string_append(ctx->output, "{\\f0\\fswiss Sans;}\n");
+    
     g_string_append(ctx->output, "}\n");
     
     /* Color table */
