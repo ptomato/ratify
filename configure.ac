@@ -19,7 +19,7 @@ m4_defun([_LT_AC_LANG_CXX_CONFIG], [:]) # Disable unnecessary Libtool checks
 m4_defun([_LT_AC_LANG_F77_CONFIG], [:]) # to save time (1.5 only)
 AC_PROG_LIBTOOL            # Libtool (1.5 series)
 PKG_PROG_PKG_CONFIG        # Pkg-config
-AM_GLIB_GNU_GETTEXT        # Use GLib gettext instead of standard
+AM_GNU_GETTEXT([external]) # Gettext, link to system libintl
 IT_PROG_INTLTOOL([0.35.0]) # Intltool
 GTK_DOC_CHECK(1.9)         # Gtk-Doc
 
@@ -55,7 +55,7 @@ AC_C_INLINE
 
 ### INTERNATIONALIZATION ######################################################
 
-AM_GLIB_DEFINE_LOCALEDIR(LOCALEDIR)
+AM_GNU_GETTEXT_VERSION([0.17])
 GETTEXT_PACKAGE=osxcart
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [GETTEXT package name])
