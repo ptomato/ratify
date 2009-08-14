@@ -1,6 +1,6 @@
 AM_CFLAGS = -Wall
 
-noinst_PROGRAMS = test-osxcart test-rtfwrite
+noinst_PROGRAMS = test-osxcart
 test_osxcart_SOURCES = test-plist.c test-rtf.c test.c
 test_osxcart_CFLAGS = @TEST_CFLAGS@ $(AM_CFLAGS)
 test_osxcart_LDADD = @TEST_LIBS@ ../osxcart/libosxcart.la
@@ -20,22 +20,15 @@ full-report: test-osxcart
 	GNOME_DISABLE_CRASH_DIALOG=1 gtester -k -m=perf -m=thorough test-osxcart -o=testlog.xml; \
 	gtester-report testlog.xml > testlog.html
 
-test_rtfwrite_SOURCES = test-rtfwrite.c
-test_rtfwrite_CFLAGS = @TEST_CFLAGS@ $(AM_CFLAGS)
-test_rtfwrite_LDADD = @TEST_LIBS@ ../osxcart/libosxcart.la
-
 CLEANFILES = testlog.xml testlog.html
 
 EXTRA_DIST = \
-	appledoc1.plist \
-	appledoc2.plist \
-	appledoc3.plist \
-	appledoc4.plist \
-	appledoc5.plist \
+	Settings.plist \
 	badlyformed.fail.plist \
 	extraneous_key.fail.plist \
 	extraneous_object.fail.plist \
 	incomplete.fail.plist \
+	manifest.plist \
 	missing_key.fail.plist \
 	missing_version.fail.plist \
 	no_data.fail.plist \
@@ -101,7 +94,6 @@ EXTRA_DIST = \
 	p085b_table_h_alignment.rtf \
 	p086a_table_all_alignments.rtf \
 	p086b_table_all_alignments_with_borders.rtf \
-	rtfpocketguide.jpeg \
 	DefaultText.rtf \
 	minimal.rtf \
 	RtfInterpreterTest_0.rtf \
@@ -141,4 +133,7 @@ EXTRA_DIST = \
 	RtfParserTest_fail_2.rtf \
 	RtfParserTest_fail_3.rtf \
 	RtfParserTest_fail_5.rtf \
-	RtfParserTest_fail_6.rtf
+	RtfParserTest_fail_6.rtf \
+	rtfdtest.rtfd/TXT.rtf \
+	rtfdtest.rtfd/rtfpocketguide.jpeg
+

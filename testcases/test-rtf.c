@@ -4,11 +4,14 @@
 #include <gtk/gtk.h>
 #include <osxcart/rtf.h>
 
+/* This test tries to import a malformed RTF file, and succeeds if the import 
+failed. */
 static void
 rtf_fail_case(gconstpointer filename)
 {
 	GError *error = NULL;
 	GtkTextBuffer *buffer = gtk_text_buffer_new(NULL);
+	
 	g_assert(!rtf_text_buffer_import(buffer, filename, &error));
 	g_assert(error != NULL);
 	g_test_message("Error message: %s", error->message);
@@ -16,71 +19,49 @@ rtf_fail_case(gconstpointer filename)
 	g_object_unref(buffer);
 }
 
+/* This test tries to import an RTF file, and succeeds if the import succeeded. */
 static void
 rtf_parse_pass_case(gconstpointer filename)
 {
 	GError *error = NULL;
 	GtkTextBuffer *buffer = gtk_text_buffer_new(NULL);
+	
 	if(!rtf_text_buffer_import(buffer, filename, &error))
 		g_test_message("Error message: %s", error->message);
 	g_object_unref(buffer);
 	g_assert(error == NULL);
 }
 
+/* This test is commented out. */
+#if 0
 static void
-rtf_parse_human_approval_case(gconstpointer filename)
+rtf_write_case(gcontpointer filename)
 {
-    GError *error = NULL;
+	GError *error = NULL;
+	GtkTextBuffer *buffer = gtk_text_buffer_new(NULL);
 	
-	GtkWidget *label = gtk_label_new("Is the RTF code rendered correctly?");
-	GtkWidget *pane = gtk_hpaned_new();
-	GtkWidget *codescroll = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(codescroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	GtkWidget *codeview = gtk_text_view_new();
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(codeview), GTK_WRAP_CHAR);
-	GtkWidget *rtfscroll = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(rtfscroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	GtkWidget *rtfview = gtk_text_view_new();
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(rtfview), GTK_WRAP_WORD);
-	
-	gtk_container_add(GTK_CONTAINER(codescroll), codeview);
-	gtk_container_add(GTK_CONTAINER(rtfscroll), rtfview);
-	gtk_paned_add1(GTK_PANED(pane), codescroll);
-	gtk_paned_add2(GTK_PANED(pane), rtfscroll);
-	
-	GtkWidget *dialog = gtk_dialog_new_with_buttons(filename, NULL, 0,
-	    GTK_STOCK_YES, GTK_RESPONSE_YES,
-	    GTK_STOCK_NO,  GTK_RESPONSE_NO,
-	    NULL);
-	gtk_window_set_default_size(GTK_WINDOW(dialog), 1000, 400);
-	GtkWidget *vbox = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-	gtk_box_pack_start(GTK_BOX(vbox), pane, TRUE, TRUE, 6);
-	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 6);
-	gtk_paned_set_position(GTK_PANED(pane), 500);
-	gtk_widget_show_all(vbox);
-	
-	gchar *text;
-	if(!g_file_get_contents(filename, &text, NULL, &error))
-	    g_test_message("Error message: %s", error->message);
-	gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(codeview)), text, -1);
+	g_assert(rtf_text_buffer_import(buffer, filename, &error));
 	g_assert(error == NULL);
-    if(!rtf_text_buffer_import_from_string(gtk_text_view_get_buffer(GTK_TEXT_VIEW(rtfview)), text, &error))
-	    g_test_message("Error message: %s", error->message);
-	g_free(text);
-	g_assert(error == NULL);
-	
-	gint response = gtk_dialog_run(GTK_DIALOG(dialog));
-	gtk_widget_destroy(dialog);
-	
-	g_assert(response == GTK_RESPONSE_YES);
+	gchar *string = rtf_text_buffer_export_to_string(buffer);
+    g_object_unref(buffer);
+	g_print("%s\n", string);
+	g_free(string);
 }
+#endif /* rtf_write_case */
 
+/* This test imports an RTF file, exports it, and imports it again. The export
+operation cannot fail, but if either import operation fails, the test fails. It
+then compares the plaintext of the two GtkTextBuffers, and if they differ, the
+test fails. Otherwise, the test succeeds.
+Comparing the plaintext is for lack of a better way to compare the text buffers'
+formatting. */
 static void
 rtf_write_pass_case(gconstpointer filename)
 {
     GError *error = NULL;
     GtkTextBuffer *buffer1 = gtk_text_buffer_new(NULL);
     GtkTextBuffer *buffer2 = gtk_text_buffer_new(NULL);
+    
 	if(!rtf_text_buffer_import(buffer1, filename, &error))
 	    g_test_message("Import error message: %s", error->message);
 	g_assert(error == NULL);
@@ -101,6 +82,66 @@ rtf_write_pass_case(gconstpointer filename)
 	g_object_unref(buffer1);
 	g_object_unref(buffer2);
 	g_free(string);
+}
+
+/* This test reads an RTF file into a string, and imports the RTF string into a
+GtkTextBuffer, failing if either of these operations fail. It then displays the
+RTF code and its rendered result side by side, asking the user whether the RTF
+code is rendered correctly. The test succeeds if the user answers Yes, and fails
+if the user answers No. */
+static void
+rtf_parse_human_approval_case(gconstpointer filename)
+{
+    GError *error = NULL;
+    GtkWidget *label, *pane, *codescroll, *codeview, *rtfscroll, *rtfview, *dialog, *vbox;
+    GtkTextBuffer *rtfbuffer = gtk_text_buffer_new(NULL);
+    gchar *text;
+    gint response;
+	
+	/* Get RTF code */
+	if(!g_file_get_contents(filename, &text, NULL, &error))
+	    g_test_message("Error message: %s", error->message);
+	g_assert(error == NULL);
+	
+	/* Import RTF code into text buffer */
+    if(!rtf_text_buffer_import_from_string(rtfbuffer, text, &error))
+	    g_test_message("Error message: %s", error->message);
+	g_assert(error == NULL);
+	
+	/* Build the interface widgets */
+	label = gtk_label_new("Is the RTF code rendered correctly?");
+	pane = gtk_hpaned_new();
+	codescroll = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(codescroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	codeview = gtk_text_view_new();
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(codeview), GTK_WRAP_CHAR);
+	gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(codeview)), text, -1);
+	rtfscroll = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(rtfscroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	rtfview = gtk_text_view_new_with_buffer(rtfbuffer);
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(rtfview), GTK_WRAP_WORD);
+	/* Pack everything into containers */
+	gtk_container_add(GTK_CONTAINER(codescroll), codeview);
+	gtk_container_add(GTK_CONTAINER(rtfscroll), rtfview);
+	gtk_paned_add1(GTK_PANED(pane), codescroll);
+	gtk_paned_add2(GTK_PANED(pane), rtfscroll);
+	/* Build dialog box */
+	dialog = gtk_dialog_new_with_buttons(filename, NULL, 0,
+	    GTK_STOCK_YES, GTK_RESPONSE_YES,
+	    GTK_STOCK_NO,  GTK_RESPONSE_NO,
+	    NULL);
+	gtk_window_set_default_size(GTK_WINDOW(dialog), 1000, 400);
+	vbox = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+	gtk_box_pack_start(GTK_BOX(vbox), pane, TRUE, TRUE, 6);
+	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 6);
+	gtk_paned_set_position(GTK_PANED(pane), 500);
+	gtk_widget_show_all(vbox);
+
+	/* Run it */
+	response = gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
+	g_free(text);
+	g_assert(response == GTK_RESPONSE_YES);
 }
 
 const gchar *rtfbookexamples[] = {
@@ -201,6 +242,7 @@ const gchar *codeprojectpasscases[] = {
 	"Hello World 5", "RtfParserTest_3.rtf",
 	NULL, NULL
 };
+
 const gchar *codeprojectfailcases[] = {
 	"Empty document group", "RtfInterpreterTest_fail_0.rtf",
 	"Missing version", "RtfInterpreterTest_fail_1.rtf",
@@ -211,15 +253,21 @@ const gchar *codeprojectfailcases[] = {
 	"Text after document group", "RtfParserTest_fail_1.rtf",
 	"Too many closing braces", "RtfParserTest_fail_2.rtf",
 	"Not enough closing braces", "RtfParserTest_fail_3.rtf",
-	"No document group 1", "RtfParserTest_fail_5.rtf", /* 4 was just an empty file */
+	/* 4 was just an empty file, which is caught by GTK's serialize code */
+	"No document group 1", "RtfParserTest_fail_5.rtf", 
 	"No document group 2", "RtfParserTest_fail_6.rtf",
 	NULL, NULL
 };
 
+/* This function adds all the RTF tests to the test suite. It skips tests that
+load WMF and EMF files if those modules are not compiled into GdkPixbuf. The
+human tests are only added if the test suite was invoked with '-m=perf
+-m=thorough'.*/
 void
 add_rtf_tests(void)
 {
     const gchar **ptr;
+    gchar *testname;
     gboolean have_wmf = FALSE;
     gboolean have_emf = FALSE;
     GSList *iter, *formats = gdk_pixbuf_get_formats();
@@ -241,7 +289,7 @@ add_rtf_tests(void)
 	/* These must all parse correctly */
 	for(ptr = rtfbookexamples; *ptr; ptr += 2)
 	{
-		gchar *testname = g_strconcat("/rtf/parse/pass/pocketguide/", ptr[0], NULL);
+		testname = g_strconcat("/rtf/parse/pass/pocketguide/", ptr[0], NULL);
 		g_test_add_data_func(testname, ptr[1], rtf_parse_pass_case);
 		g_free(testname);
 	}
@@ -250,11 +298,9 @@ add_rtf_tests(void)
 	/* These must all parse correctly */
 	for(ptr = codeprojectpasscases; *ptr; ptr += 2)
 	{
-	    if(strstr(ptr[0], "WMF") && !have_wmf)
-	        continue;
-	    if(strstr(ptr[0], "EMF") && !have_emf)
-	        continue;
-		gchar *testname = g_strconcat("/rtf/parse/pass/codeproject/", ptr[0], NULL);
+	    if((!have_wmf && strstr(ptr[0], "WMF")) || (!have_emf && strstr(ptr[0], "EMF")))
+            continue;
+		testname = g_strconcat("/rtf/parse/pass/codeproject/", ptr[0], NULL);
 		g_test_add_data_func(testname, ptr[1], rtf_parse_pass_case);
 		g_free(testname);
 	}
@@ -263,25 +309,23 @@ add_rtf_tests(void)
 	/* These must all give an error */
 	for(ptr = codeprojectfailcases; *ptr; ptr += 2)
 	{
-		gchar *testname = g_strconcat("/rtf/parse/fail/codeproject/", ptr[0], NULL);
+		testname = g_strconcat("/rtf/parse/fail/codeproject/", ptr[0], NULL);
 		g_test_add_data_func(testname, ptr[1], rtf_fail_case);
 		g_free(testname);
 	}
 	
-	/* Now export the RTF to a string and re-import it */
+	/* These tests export the RTF to a string and re-import it */
 	for(ptr = rtfbookexamples; *ptr; ptr += 2)
 	{
-		gchar *testname = g_strconcat("/rtf/write/pocketguide/", ptr[0], NULL);
+		testname = g_strconcat("/rtf/write/pocketguide/", ptr[0], NULL);
 		g_test_add_data_func(testname, ptr[1], rtf_write_pass_case);
 		g_free(testname);
 	}
 	for(ptr = codeprojectpasscases; *ptr; ptr += 2)
 	{
-	    if(strstr(ptr[0], "WMF") && !have_wmf)
-	        continue;
-	    if(strstr(ptr[0], "EMF") && !have_emf)
-	        continue;
-		gchar *testname = g_strconcat("/rtf/write/codeproject/", ptr[0], NULL);
+	    if((!have_wmf && strstr(ptr[0], "WMF")) || (!have_emf && strstr(ptr[0], "EMF")))
+            continue;
+		testname = g_strconcat("/rtf/write/codeproject/", ptr[0], NULL);
 		g_test_add_data_func(testname, ptr[1], rtf_write_pass_case);
 		g_free(testname);
 	}
@@ -295,23 +339,17 @@ add_rtf_tests(void)
     {
         for(ptr = rtfbookexamples; *ptr; ptr += 2)
         {
-            gchar *testname = g_strconcat("/rtf/parse/human/pocketguide/", ptr[0], NULL);
+            testname = g_strconcat("/rtf/parse/human/pocketguide/", ptr[0], NULL);
             g_test_add_data_func(testname, ptr[1], rtf_parse_human_approval_case);
             g_free(testname);
         }
-    
-        /* Pass cases, from http://www.codeproject.com/KB/recipes/RtfConverter.aspx */
-        /* These must all parse correctly */
         for(ptr = codeprojectpasscases; *ptr; ptr += 2)
         {
-            if(strstr(ptr[0], "WMF") && !have_wmf)
+            if((!have_wmf && strstr(ptr[0], "WMF")) || (!have_emf && strstr(ptr[0], "EMF")))
                 continue;
-            if(strstr(ptr[0], "EMF") && !have_emf)
-                continue;
-            gchar *testname = g_strconcat("/rtf/parse/human/codeproject/", ptr[0], NULL);
+            testname = g_strconcat("/rtf/parse/human/codeproject/", ptr[0], NULL);
             g_test_add_data_func(testname, ptr[1], rtf_parse_human_approval_case);
             g_free(testname);
         }
     }
-    
 }
