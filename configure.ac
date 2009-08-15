@@ -46,8 +46,8 @@ AC_SUBST(GDK_PIXBUF_REQUIRED_VERSION)
 
 ### HEADER FILES ###############################################################
 
-AC_CHECK_HEADERS([stdlib.h string.h])
-AC_CHECK_FUNCS([strchr strtol])
+AC_CHECK_HEADERS([fcntl.h stdlib.h string.h])
+AC_CHECK_FUNCS([fchdir strchr strrchr strstr strtol])
 
 # COMPILER CHARACTERISTICS #####################################################
 
