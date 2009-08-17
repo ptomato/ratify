@@ -15,7 +15,7 @@ libosxcart_la_SOURCES = \
 	plist-write.c \
 	$(PLIST_PARSER_SOURCE) \
 	rtf.c rtf.h \
-	rtf-serialize.c \
+	rtf-serialize.c rtf-serialize.h \
 	rtf-deserialize.c rtf-deserialize.h \
 	rtf-document.c rtf-document.h \
 	rtf-fonttbl.c \

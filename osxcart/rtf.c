@@ -10,9 +10,8 @@
 #include <gtk/gtk.h>
 #include <osxcart/rtf.h>
 #include "init.h"
-
-extern guint8 *rtf_serialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, const GtkTextIter *start, const GtkTextIter *end, gsize *length);
-extern gboolean rtf_deserialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, GtkTextIter *iter, const gchar *data, gsize length, gboolean create_tags, gpointer user_data, GError **error);
+#include "rtf-serialize.h"
+#include "rtf-deserialize.h"
 
 /**
  * SECTION:rtf
@@ -283,4 +282,3 @@ rtf_text_buffer_export_to_string(GtkTextBuffer *buffer)
 
 	return string;	
 }
-

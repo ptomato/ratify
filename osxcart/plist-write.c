@@ -3,6 +3,8 @@
 #include <osxcart/plist.h>
 #include "init.h"
 
+/* plist-write.c - Simple recursive plist writer */
+
 typedef struct {
 	GString *buffer;
 	gint num_indents;
@@ -12,6 +14,7 @@ typedef struct {
 /* Forward declarations */
 static void plist_dump(PlistObject *object, PlistDumpContext *context);
 
+/* Output a key and its corresponding object */
 static void
 dump_key_value_pair(const gchar *key, PlistDumpContext *context)
 {
@@ -25,6 +28,7 @@ dump_key_value_pair(const gchar *key, PlistDumpContext *context)
 	context->hashtable = hashtable;
 }
 
+/* Output an object; recurse if the object is a container */
 static void
 plist_dump(PlistObject *object, PlistDumpContext *context)
 {

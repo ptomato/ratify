@@ -2,6 +2,8 @@
 #include "rtf-deserialize.h"
 #include "rtf-ignore.h"
 
+/* rtf-ignore.c - Used to ignore destinations that are not implemented */
+
 const ControlWord ignore_word_table[] = {{ NULL }};
 
 const DestinationInfo ignore_destination = {
@@ -18,7 +20,6 @@ ignore_pending_text(ParserContext *ctx)
 	g_string_truncate(ctx->text, 0);
 }
 
-
 gpointer
 ignore_state_new(void)
 {
@@ -26,7 +27,7 @@ ignore_state_new(void)
 }
 
 gpointer
-ignore_state_copy(gpointer state)
+ignore_state_copy(gconstpointer state)
 {
     return NULL;
 }

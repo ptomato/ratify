@@ -1,12 +1,16 @@
 #include <glib.h>
 #include "rtf-langcode.h"
 
+/* rtf-langcode.c - One long list of ISO and Windows language codes, and
+functions to convert between the two */
+
 typedef struct {
 	gint wincode;
 	const gchar *isocode;
 } IsoLangCode;
 
-/* These are from the RTF spec. */
+/* These are from the RTF spec. The ISO codes are the best I could figure out
+from the Wikipedia page. */
 IsoLangCode isolangcodes[] = {
 	{ 0x0400, "zxx" }, /* None */
 	{ 0x0401, "ar-sa" }, /* Arabic (Saudi Arabia) */

@@ -5,6 +5,9 @@
 #include <osxcart/plist.h>
 #include "plist-common.h"
 
+/* plist-parser.c - This is a plist parser implemented in GLib's GMarkup SAX
+parser API. It requires Glib 2.18 or later. */
+
 typedef enum {
 	STATE_ROOT_OBJECT,
 	STATE_ARRAY_OBJECT,
@@ -12,11 +15,11 @@ typedef enum {
 } ParserState;
 
 typedef struct {
-	ParserState state;
-	GList *array;
-	GHashTable *dict;
-	gchar *key;	
-	PlistObject *current;
+	ParserState state;    /* Current state of state machine */
+	GList *array;         /* <array> to add objects, if in STATE_ARRAY_OBJECT */
+	GHashTable *dict;     /* <dict> to add objects, if in STATE_DICT_OBJECT */
+	gchar *key;	          /* key of current object, if in STATE_DICT_OBJECT */
+	PlistObject *current; /* Object currently being parsed */
 } ParseData;
 
 /* Forward declarations */
@@ -26,14 +29,22 @@ static void element_text(GMarkupParseContext *context, const gchar *text, gsize 
 static void plist_start(GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values, gpointer user_data, GError **error);
 static void plist_end(GMarkupParseContext *context, const gchar *element_name, gpointer user_data, GError **error);
 
+/* Callback functions to deal with the opening and closing tags and the content
+of XML elements representing PlistObjects */
 static GMarkupParser element_parser = { 
 	element_start, element_end, element_text, NULL, NULL
 };
 
+/* Callback functions to deal with the <plist> root element opening and closing
+tags */
 static GMarkupParser plist_parser = { 
 	plist_start, plist_end, NULL, NULL, NULL
 };
 
+/* Allocate a new PlistObject depending on the <name> of the XML element being
+processed. We do not know what the content of the element is, so it is not
+assigned a value until fill_object(); the exception is <true> and <false>
+elements, whose content is already obvious. */
 static PlistObject *
 start_new_object(const gchar *element_name)
 {
@@ -68,6 +79,7 @@ start_new_object(const gchar *element_name)
 	return NULL;
 }
 
+/* Callback for processing an opening XML element */
 static void
 element_start(GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values, gpointer user_data, GError **error)
 {
@@ -85,8 +97,7 @@ element_start(GMarkupParseContext *context, const gchar *element_name, const gch
 	
 	data->current = start_new_object(element_name);
 	
-	/* array - create a new ParseData with a parent array and push this parser
-	onto the context once more with the new ParseData */
+	/* <array> - create a new ParseData with a parent array and push this parser context 	onto the stack once more with the new ParseData */
 	if(str_eq(element_name, "array")) {
 		ParseData *new_data = g_slice_new0(ParseData);
 		new_data->state = STATE_ARRAY_OBJECT;
@@ -94,8 +105,8 @@ element_start(GMarkupParseContext *context, const gchar *element_name, const gch
 		g_markup_parse_context_push(context, &element_parser, new_data);
 	}
 	
-	/* dict - create a new ParseData with a parent hashtable and push this
-	parser onto the context once more with the new ParseData */
+	/* <dict> - create a new ParseData with a parent hashtable and push this
+	parser context onto the stack once more with the new ParseData */
 	else if(str_eq(element_name, "dict")) {
 		ParseData *new_data = g_slice_new0(ParseData);
 		new_data->state = STATE_DICT_OBJECT;
@@ -103,13 +114,14 @@ element_start(GMarkupParseContext *context, const gchar *element_name, const gch
 		g_markup_parse_context_push(context, &element_parser, new_data);
 	}
 
-	/* key - invalid if not in a dict */
+	/* <key> - invalid if not in a <dict> */
 	else if(str_eq(element_name, "key")) {
 		if(data->state != STATE_DICT_OBJECT)
 			g_set_error(error, PLIST_ERROR, PLIST_ERROR_EXTRANEOUS_KEY, _("<key> element found outside of <dict>"));
 	} 
 }	
 
+/* Callback for processing content of XML elements */
 static void
 element_text(GMarkupParseContext *context, const gchar *text, gsize text_len, gpointer user_data, GError **error)
 {	
@@ -124,6 +136,7 @@ element_text(GMarkupParseContext *context, const gchar *text, gsize text_len, gp
 		data->key = g_strdup(text);
 }
 
+/* Callback for processing closing XML elements */
 static void
 element_end(GMarkupParseContext *context, const gchar *element_name, gpointer user_data, GError **error)
 {	
@@ -170,6 +183,7 @@ element_end(GMarkupParseContext *context, const gchar *element_name, gpointer us
 	/* other element while in root <plist> element - leave it where it is */
 }
 
+/* Callback for processing opening tag of root <plist> element */
 static void
 plist_start(GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values, gpointer user_data, GError **error)
 {
@@ -184,6 +198,7 @@ plist_start(GMarkupParseContext *context, const gchar *element_name, const gchar
 	g_markup_parse_context_push(context, &element_parser, parse_data);
 }
 
+/* Callback for processing closing </plist> tag */
 static void
 plist_end(GMarkupParseContext *context, const gchar *element_name, gpointer user_data, GError **error)
 {
@@ -197,7 +212,8 @@ plist_end(GMarkupParseContext *context, const gchar *element_name, gpointer user
 	*data = parse_data->current;
 }
 
-
+/* Real implementation of plist_read_from_string(); move this code into that
+function when plist-parser-oldglib.c is removed */
 PlistObject *
 plist_read_from_string_real(const gchar *string, GError **error)
 {
@@ -216,4 +232,3 @@ plist_read_from_string_real(const gchar *string, GError **error)
 	g_markup_parse_context_free(context);
 	return plist;
 }
-

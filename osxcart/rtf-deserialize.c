@@ -8,16 +8,33 @@
 #include <osxcart/rtf.h>
 #include "rtf-document.h"
 #include "rtf-deserialize.h"
+#include "rtf-ignore.h"
 
-/*
- * Based on gnomeicu-rtf-reader.c from GnomeICU 
+/* rtf-deserialize.c - Modular RTF reader. Works by maintaining a stack of
+destinations (for more information on what a destination is, read the excellent
+book 'RTF Pocket Guide' by Sean M. Burke, published by O'Reilly) which each
+maintain a table of control words and a stack of states.
+
+Whenever an opening brace { is encountered, the destination copies its state and
+pushes it onto its state stack. A closing brace } pops the topmost state from
+the stack. Whenever a control word is encountered, the reader calls the function
+associated with it, and that function modifies the current state. Each
+destination also has a text function, which specifies what to do with plain text
+encountered inside the destination, and a cleanup function, which specifies what
+to do when the destination's closing brace is reached.
+
+Control words can also change the current destination, in which case the new
+destination is pushed onto the destination stack, and a new table of control
+words applies.
+
+ * Originally based on gnomeicu-rtf-reader.c from GnomeICU 
  * Copyright (C) 1998-2002 Jeremy Wise
  * First created by Frédéric Riss (2002)
  * License: GPLv2
  */
 
-extern const DestinationInfo ignore_destination;
-
+/* Allocate a new parser context and initialize it with the main document
+destination */
 static ParserContext *
 parser_context_new(const gchar *rtftext, GtkTextBuffer *textbuffer, GtkTextIter *insert)
 {
@@ -26,7 +43,7 @@ parser_context_new(const gchar *rtftext, GtkTextBuffer *textbuffer, GtkTextIter 
 
 	g_assert(rtftext != NULL && textbuffer != NULL);
 
-	ctx = g_new0(ParserContext, 1);
+	ctx = g_slice_new0(ParserContext);
 	ctx->codepage = -1;
 	ctx->default_codepage = 1252;
 	ctx->default_font = -1;
@@ -45,7 +62,7 @@ parser_context_new(const gchar *rtftext, GtkTextBuffer *textbuffer, GtkTextIter 
 	ctx->startmark = gtk_text_buffer_create_mark(textbuffer, NULL, insert, TRUE);
 	ctx->endmark = gtk_text_buffer_create_mark(textbuffer, NULL, insert, FALSE);
 
-    dest = g_new0(Destination, 1);
+    dest = g_slice_new0(Destination);
     dest->info = &document_destination;
     dest->nesting_level = 0;
     dest->state_stack = g_queue_new();
@@ -57,24 +74,41 @@ parser_context_new(const gchar *rtftext, GtkTextBuffer *textbuffer, GtkTextIter 
 	return ctx;
 }
 
+/* Free font properties */
 static void
 font_properties_free(FontProperties *fontprop)
 {
 	g_free(fontprop->font_name);
-	g_free(fontprop);
+	g_slice_free(FontProperties, fontprop);
 }
 
+/* Push new destination onto the destination stack. If state_to_copy is not 
+NULL, then initializes the state stack with a copy of that state, otherwise a
+blank state. */
+void
+push_new_destination(ParserContext *ctx, const DestinationInfo *destinfo, gpointer state_to_copy)
+{
+    Destination *dest = g_slice_new0(Destination);
+    dest->info = destinfo;
+    dest->nesting_level = ctx->group_nesting_level;
+    dest->state_stack = g_queue_new();
+    if(state_to_copy)
+        g_queue_push_head(dest->state_stack, dest->info->state_copy(state_to_copy));
+    else
+        g_queue_push_head(dest->state_stack, dest->info->state_new());
+    g_queue_push_head(ctx->destination_stack, dest);
+}
+
+/* Free destination */
 static void
 destination_free(Destination *dest)
 {
 	g_queue_foreach(dest->state_stack, (GFunc)dest->info->state_free, NULL);
 	g_queue_free(dest->state_stack);
-	g_free(dest);
+	g_slice_free(Destination, dest);
 }
 
-/*
- * Frees all the data referenced by a RTFParserContext 
- */
+/* Free parser context */
 static void
 parser_context_free(ParserContext *ctx) 
 {
@@ -95,9 +129,10 @@ parser_context_free(ParserContext *ctx)
 	
 	g_string_free(ctx->text, TRUE);
 	
-    g_free(ctx);
+    g_slice_free(ParserContext, ctx);
 }
 
+/* Convenience function to get the current state of the current destination */
 gpointer
 get_state(ParserContext *ctx)
 {
@@ -105,9 +140,8 @@ get_state(ParserContext *ctx)
     return g_queue_peek_head(dest->state_stack);
 }
 
-/*
- * Returns properties for font_index or NULL if such font does not exist
- */
+/* Returns properties for font numbered index in the font table, or NULL if such
+font does not exist */
 FontProperties *
 get_font_properties(ParserContext *ctx, int index)
 {
@@ -119,13 +153,11 @@ get_font_properties(ParserContext *ctx, int index)
         if (properties != NULL && properties->index == index)
             return properties;
     }
-
     return NULL;
 }
 
-/*
- * Try to create a GIconv converter for the specified codepage
- */
+/* Return the name of a GIconv converter for the specified codepage, if it
+exists; otherwise NULL */
 static gchar *
 get_charset_for_codepage(int codepage)
 {
@@ -178,7 +210,7 @@ get_charset_for_codepage(int codepage)
     return NULL;
 }
 
-/* Convert to UTF-8 and add to current string */
+/* Convert the character ch to UTF-8 and add to the context's buffer */
 gboolean
 convert_hex_to_utf8(ParserContext *ctx, gchar ch, GError **error)
 {	
@@ -187,8 +219,9 @@ convert_hex_to_utf8(ParserContext *ctx, gchar ch, GError **error)
     GError *converterror = NULL;
 	Destination *dest;
 	
-	/* First see if the current destination diverts us to another 
-	 codepage (e.g., \fcharset) */
+	/* Determine the character encoding that ch is in. First see if the current
+	destination diverts us to another codepage (e.g., \fcharset in the \fonttbl
+	destination) and if not, use either the current codepage or the default codepage. */
 	dest = (Destination *)g_queue_peek_head(ctx->destination_stack);
 	codepage = -1;
 	if(dest->info->get_codepage)
@@ -204,7 +237,8 @@ convert_hex_to_utf8(ParserContext *ctx, gchar ch, GError **error)
 		return FALSE;
 	}
 
-	/* Now see if there was any incompletely converted text left over from before */
+	/* Now see if there was any incompletely converted text left over from 
+	previous characters */
 	if(ctx->convertbuffer->len)
 	{
 		g_string_append_c(ctx->convertbuffer, ch);
@@ -236,9 +270,10 @@ convert_hex_to_utf8(ParserContext *ctx, gchar ch, GError **error)
 	return TRUE;
 }
 
-/* 
- * Executes the action associated to the control word beginning at the
- * current parsing position
+/* Parses a control word from the input buffer. 'word' is the return location
+for the control word, without a backslash, but with '*' prefixed if the control
+word is preceded by \*, which means that the control word represents a 
+destination that should be skipped if it is not recognized.
  */
 static gboolean
 parse_control_word(ParserContext *ctx, gchar **word, GError **error)
@@ -250,6 +285,7 @@ parse_control_word(ParserContext *ctx, gchar **word, GError **error)
 	{
 		/* Ignorable destination */
 		gchar *destword;
+		
 		ctx->pos++;
 		while(isspace(*ctx->pos))
 			ctx->pos++;
@@ -283,11 +319,10 @@ parse_control_word(ParserContext *ctx, gchar **word, GError **error)
 	return TRUE;
 }
 
-/*
- * Reads an integer at the current position. If there's no integer at that
- * position the function returns FALSE, otherwise TRUE. The value is stored 
- * in the location pointed by the 'value' parameter, unless 'value' is NULL.
- */
+/* Reads an integer at the current position. If there's no integer at that
+position the function returns FALSE, otherwise TRUE. The value is stored in the
+location pointed by the 'value' parameter, unless 'value' is NULL. Eat a space
+after parsing the number. */
 static gboolean 
 parse_int_parameter(ParserContext *ctx, gint32 *value)
 {
@@ -322,7 +357,8 @@ parse_int_parameter(ParserContext *ctx, gint32 *value)
 	return TRUE;
 }
 
-
+/* Skip one character or control word according to the RTF spec's convoluted
+skipping rules */
 gboolean
 skip_character_or_control_word(ParserContext *ctx, GError **error)
 {
@@ -366,8 +402,10 @@ skip_character_or_control_word(ParserContext *ctx, GError **error)
 	} while(TRUE);
 }
 
+/* Carry out the action associated with the control word 'text', as specified
+in the current destination's control word table */
 static gboolean
-do_word_action(ParserContext *ctx, gchar *text, GError **error)
+do_word_action(ParserContext *ctx, const gchar *text, GError **error)
 {
     Destination *dest;
     const ControlWord *word;
@@ -384,7 +422,7 @@ do_word_action(ParserContext *ctx, gchar *text, GError **error)
 		switch(word->type)
 		{
 			case NO_PARAMETER:
-				if(*ctx->pos == ' ')
+				if(*ctx->pos == ' ') /* Eat a space */
 					ctx->pos++;
 				g_assert(word->action);
 				if(word->flush_buffer)
@@ -392,6 +430,9 @@ do_word_action(ParserContext *ctx, gchar *text, GError **error)
 				return word->action(ctx, get_state(ctx), error);
             
             case OPTIONAL_PARAMETER:
+                /* If the parameter is optional, carry out the action with the
+                parameter if there is one, and otherwise with the default
+                parameter */
                 g_assert(word->action);
                 if(parse_int_parameter(ctx, &param))
 				{
@@ -418,23 +459,20 @@ do_word_action(ParserContext *ctx, gchar *text, GError **error)
 				return word->action(ctx, get_state(ctx), param, error);
 
 			case SPECIAL_CHARACTER:
-				if(*ctx->pos == ' ')
+			    /* If the control word represents a special character, then just
+			    insert that character into the buffer */
+				if(*ctx->pos == ' ') /* Eat a space */
 					ctx->pos++;
 				g_assert(word->replacetext);
 				g_string_append(ctx->text, word->replacetext);
 				return TRUE;
 
             case DESTINATION:
-                if(*ctx->pos == ' ')
+                if(*ctx->pos == ' ') /* Eat a space */
                     ctx->pos++;
 				if(word->action && !word->action(ctx, get_state(ctx), error))
 					return FALSE;
-                dest = g_new0(Destination, 1);
-                dest->info = word->destinfo;
-                dest->nesting_level = ctx->group_nesting_level;
-                dest->state_stack = g_queue_new();
-	            g_queue_push_head(dest->state_stack, dest->info->state_new());
-	            g_queue_push_head(ctx->destination_stack, dest);
+				push_new_destination(ctx, word->destinfo, NULL);
 	            return TRUE;
 	            
 			default:
@@ -445,26 +483,17 @@ do_word_action(ParserContext *ctx, gchar *text, GError **error)
 	parameter that follows */
 	if(!parse_int_parameter(ctx, NULL) && *ctx->pos == ' ')
 	    ctx->pos++;
-	/* If the control word was an ignorable destination, push a new destination
-	 onto the stack */
+	/* If the control word was an ignorable destination, and was not recognized,
+	push a new "ignore" destination onto the stack */
 	if(text[0] == '*')
-	{
-		dest = g_new0(Destination, 1);
-		dest->info = &ignore_destination;
-		dest->nesting_level = ctx->group_nesting_level;
-		dest->state_stack = g_queue_new();
-		g_queue_push_head(dest->state_stack, dest->info->state_new());
-		g_queue_push_head(ctx->destination_stack, dest);
-	}
+	    push_new_destination(ctx, &ignore_destination, NULL);
 	
 	return TRUE;
 }
 
-/*
- * When exiting an attibute group in the RTF description ('}'), this function
- * is called to pop one element from the attributes stack, hence restoring the
- * attributes state before entering the current attribute group.
- */
+/* When exiting a group in the RTF code ('}'), this function is called to pop
+one element from the state stack, hence restoring the state before entering the 
+current group. */
 static void 
 pop_state(ParserContext *ctx) 
 {
@@ -494,6 +523,9 @@ pop_state(ParserContext *ctx)
 		dest->info->state_free(g_queue_pop_head(dest->state_stack));
 }
 
+/* When entering a group in the RTF code ('{'), this function copies the current
+state and pushes it onto the state stack, so modifications of the state within
+the group do not affect the state outside of the group. */
 static void 
 push_state(ParserContext *ctx) 
 {
@@ -507,10 +539,12 @@ push_state(ParserContext *ctx)
     g_queue_push_head(dest->state_stack, dest->info->state_copy(g_queue_peek_head(dest->state_stack)));
 }
 
+/* The main parser loop */
 static gboolean
 parse_rtf(ParserContext *ctx, GError **error)
 {
-	do {
+	do 
+	{
 		if(*ctx->pos == '\0')
 		{
 			g_set_error(error, RTF_ERROR, RTF_ERROR_MISSING_BRACE, _("File ended unexpectedly"));
@@ -591,6 +625,7 @@ parse_rtf(ParserContext *ctx, GError **error)
 	return TRUE;
 }
 
+/* This function is called by gtk_text_buffer_deserialize() */
 gboolean
 rtf_deserialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, GtkTextIter *iter, const gchar *data, gsize length, gboolean create_tags, gpointer user_data, GError **error)
 {

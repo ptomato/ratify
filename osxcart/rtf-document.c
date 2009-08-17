@@ -10,6 +10,10 @@
 #include "rtf-document.h"
 #include "rtf-langcode.h"
 
+/* rtf-document.c - Main document destination. This destination is not entirely
+contained within one source file, since some other destinations share code with
+it. */
+
 /* Document destination functions */
 static DocFunc doc_ansi, doc_footnote, doc_mac, doc_pc, doc_pca;
 static DocParamFunc doc_ansicpg, doc_deff, doc_deflang, doc_rtf;
@@ -33,7 +37,7 @@ const ControlWord document_word_table[] = {
 	{ "header", DESTINATION, FALSE, NULL, 0, NULL, &ignore_destination },
 	{ "info", DESTINATION, FALSE, NULL, 0, NULL, &ignore_destination },
 	{ "mac", NO_PARAMETER, FALSE, doc_mac },
-	{ "NeXTGraphic", DESTINATION, FALSE, NULL, 0, NULL, &nextgraphic_destination },
+	{ "NeXTGraphic", DESTINATION, FALSE, NULL, 0, NULL, &nextgraphic_destination }, /* Apple extension */
 	{ "pc", NO_PARAMETER, FALSE, doc_pc },
 	{ "pca", NO_PARAMETER, FALSE, doc_pca },
 	{ "pict", DESTINATION, FALSE, NULL, 0, NULL, &pict_destination },
@@ -93,7 +97,7 @@ set_default_paragraph_attributes(Attributes *attr)
 Attributes *
 attributes_new(void)
 {
-    Attributes *attr = g_new0(Attributes, 1);
+    Attributes *attr = g_slice_new0(Attributes);
 	set_default_paragraph_attributes(attr);
 	set_default_character_attributes(attr);
 	attr->unicode_skip = 1;
@@ -102,13 +106,11 @@ attributes_new(void)
 }
 
 Attributes *
-attributes_copy(Attributes *attr)
+attributes_copy(const Attributes *attr)
 {
-    Attributes *retval = g_new0(Attributes, 1);
-	*retval = *attr;
+    Attributes *retval = g_slice_dup(Attributes, attr);
 	if(attr->tabs)
 	    retval->tabs = pango_tab_array_copy(attr->tabs);
-	
 	return retval;
 }
 
@@ -117,9 +119,10 @@ attributes_free(Attributes *attr)
 {
     if(attr->tabs)
         pango_tab_array_free(attr->tabs);
-	g_free(attr);
+	g_slice_free(Attributes, attr);
 }
 
+/* Space-saving function for apply_attributes() */
 static void
 apply_attribute(ParserContext *ctx, GtkTextIter *start, GtkTextIter *end, gchar *format, ...)
 {
@@ -133,6 +136,8 @@ apply_attribute(ParserContext *ctx, GtkTextIter *start, GtkTextIter *end, gchar 
     g_free(tagname);
 }
 
+/* Apply GtkTextTags to the range from start to end, depending on the current
+attributes 'attr'. */
 void
 apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTextIter *end)
 {
@@ -227,10 +232,9 @@ apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTe
 	}
 }
 
-/*
- * Inserts the pending text with the current attributes. This function is 
- * called  whenever a change occurs in the attributes.
- */
+/* Inserts the pending text with the current attributes. This function is called
+whenever a group is opened or closed, or a control word specifies to flush the
+pending text. */
 void
 document_text(ParserContext *ctx)
 {
@@ -241,7 +245,7 @@ document_text(ParserContext *ctx)
 
 	g_assert(ctx != NULL);
 	
-	attr = (Attributes *)get_state(ctx);
+	attr = get_state(ctx);
     text = ctx->text->str;
     
 	if(text[0] == '\0') 
@@ -266,10 +270,11 @@ document_text(ParserContext *ctx)
 	g_string_truncate(ctx->text, 0);
 }
 
+/* Return the codepage associated with the current font */
 gint 
 document_get_codepage(ParserContext *ctx)
 {
-	Attributes *attr = (Attributes *)get_state(ctx);
+	Attributes *attr = get_state(ctx);
 	if(attr->font != -1)
 	{
 		FontProperties *fontprop = get_font_properties(ctx, attr->font);
@@ -278,6 +283,8 @@ document_get_codepage(ParserContext *ctx)
 	}
 	return -1;
 }
+
+/* Control word functions */
 
 static gboolean
 doc_ansi(ParserContext *ctx, Attributes *attr, GError **error)
@@ -442,6 +449,8 @@ doc_footnote(ParserContext *ctx, Attributes *attr, GError **error)
 {
 	GtkTextIter iter;
 	
+	/* Insert a newline at the end of the document, to separate the coming
+	footnote */
 	gtk_text_buffer_get_end_iter(ctx->textbuffer, &iter);
 	gtk_text_buffer_insert(ctx->textbuffer, &iter, "\n", -1);
 	/* Move the start and end marks back together */

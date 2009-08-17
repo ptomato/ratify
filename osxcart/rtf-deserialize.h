@@ -8,12 +8,25 @@ typedef struct _ParserContext ParserContext;
 typedef struct _ControlWord ControlWord;
 typedef struct _Destination Destination;
 typedef struct _DestinationInfo DestinationInfo;
-typedef gboolean CWFunc(ParserContext *, gpointer, GError **);
-typedef gboolean CWParamFunc(ParserContext *, gpointer, gint32, GError **);
 typedef gpointer StateNewFunc(void);
-typedef gpointer StateCopyFunc(gpointer);
+typedef gpointer StateCopyFunc(gconstpointer);
 typedef void StateFreeFunc(gpointer);
 
+#define DEFINE_SIMPLE_STATE_FUNCTIONS(tn, fn) \
+    static gpointer G_PASTE_ARGS(fn, _state_new)(void) { return g_slice_new0(tn); } \
+    static gpointer G_PASTE_ARGS(fn, _state_copy)(gconstpointer state) { return g_slice_dup(tn, state); } \
+    static void G_PASTE_ARGS(fn, _state_free)(gpointer state) { g_slice_free(tn, state); }
+#define DEFINE_STATE_FUNCTIONS_WITH_INIT(tn, fn, init) \
+    static gpointer \
+    G_PASTE_ARGS(fn, _state_new)(void) \
+    { \
+        tn *state = g_slice_new0(tn); \
+        init \
+        return state; \
+    } \
+    static gpointer G_PASTE_ARGS(fn, _state_copy)(gconstpointer state) { return g_slice_dup(tn, state); } \
+    static void G_PASTE_ARGS(fn, _state_free)(gpointer state) { g_slice_free(tn, state); }
+    
 #define POINTS_TO_PANGO(pts) ((gint)(pts * PANGO_SCALE))
 #define HALF_POINTS_TO_PANGO(halfpts) (halfpts * PANGO_SCALE / 2)
 #define TWIPS_TO_PANGO(twips) (twips * PANGO_SCALE / 20)
@@ -90,9 +103,11 @@ typedef struct {
 	gchar *font_name;
 } FontProperties;
 
-gpointer get_state(ParserContext *ctx);
-FontProperties *get_font_properties(ParserContext *ctx, int index);
-void flush_text(ParserContext *ctx);
-gboolean skip_character_or_control_word(ParserContext *ctx, GError **error);
+G_GNUC_INTERNAL void push_new_destination(ParserContext *ctx, const DestinationInfo *destinfo, gpointer state_to_copy);
+G_GNUC_INTERNAL gpointer get_state(ParserContext *ctx);
+G_GNUC_INTERNAL FontProperties *get_font_properties(ParserContext *ctx, int index);
+G_GNUC_INTERNAL void flush_text(ParserContext *ctx);
+G_GNUC_INTERNAL gboolean skip_character_or_control_word(ParserContext *ctx, GError **error);
+G_GNUC_INTERNAL gboolean rtf_deserialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, GtkTextIter *iter, const gchar *data, gsize length, gboolean create_tags, gpointer user_data, GError **error);
 
 #endif /* __OSXCART_RTF_DESERIALIZE_H__ */

@@ -53,13 +53,14 @@ plist_object_new(const PlistObjectType type)
 	
 	switch(type) {
 		case PLIST_OBJECT_REAL:
-			/* Explicitly initialize PLIST_OBJECT_REAL to 0.0, since that might not
-			be all zero bytes */
+			/* Explicitly initialize PLIST_OBJECT_REAL to 0.0, since that might
+			not	be all zero bytes */
 			retval->real.val = 0.0;
 			break;
 		case PLIST_OBJECT_DICT:
-			/* New GHashTable, with strings as keys, and destroy notify functions so
-			the keys and values get freed automatically when destroyed */
+			/* New GHashTable, with strings as keys, and destroy notify 
+			functions so the keys and values get freed automatically when 
+			destroyed */
 			retval->dict.val = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)plist_object_free);
 			break;
 		default:

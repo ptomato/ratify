@@ -6,6 +6,8 @@
 #include "rtf-deserialize.h"
 #include "rtf-document.h"
 
+/* rtf-stylesheet.c - Implementation of style sheets. */
+
 typedef enum {
 	STYLE_PARAGRAPH,
 	STYLE_CHARACTER,
@@ -19,9 +21,10 @@ typedef struct {
 	Attributes *attr;
 } StylesheetState;
 
+/* Forward declarations */
 static void stylesheet_text(ParserContext *ctx);
 static StylesheetState *stylesheet_state_new(void);
-static StylesheetState *stylesheet_state_copy(StylesheetState *state);
+static StylesheetState *stylesheet_state_copy(const StylesheetState *state);
 static void stylesheet_state_free(StylesheetState *state);
 
 typedef gboolean StyleFunc(ParserContext *, StylesheetState *, GError **);
@@ -46,7 +49,7 @@ const ControlWord stylesheet_word_table[] = {
 	{ "f", REQUIRED_PARAMETER, TRUE, sty_f },
 	{ "fi", OPTIONAL_PARAMETER, TRUE, sty_fi, 0 },
 	{ "fs", OPTIONAL_PARAMETER, TRUE, sty_fs, 24 },
-	{ "fsmilli", REQUIRED_PARAMETER, TRUE, sty_fsmilli },
+	{ "fsmilli", REQUIRED_PARAMETER, TRUE, sty_fsmilli }, /* Apple extension */
 	{ "highlight", REQUIRED_PARAMETER, TRUE, sty_highlight }, 
 	{ "i", OPTIONAL_PARAMETER, TRUE, sty_i, 1 },
 	{ "li", OPTIONAL_PARAMETER, TRUE, sty_li, 1 },
@@ -65,7 +68,7 @@ const ControlWord stylesheet_word_table[] = {
 	{ "sb", OPTIONAL_PARAMETER, TRUE, sty_sb, 0 },
 	{ "sbauto", OPTIONAL_PARAMETER, TRUE, sty_sbauto, 0 },
 	{ "scaps", OPTIONAL_PARAMETER, TRUE, sty_scaps, 1 },
-	{ "slleading", OPTIONAL_PARAMETER, TRUE, sty_slleading, 0 },
+	{ "slleading", OPTIONAL_PARAMETER, TRUE, sty_slleading, 0 }, /* Apple extension */
 	{ "strike", OPTIONAL_PARAMETER, TRUE, sty_strike, 1 },
 	{ "sub", NO_PARAMETER, TRUE, sty_sub },
 	{ "super", NO_PARAMETER, TRUE, sty_super },
@@ -80,7 +83,7 @@ const ControlWord stylesheet_word_table[] = {
 	{ "ulhwave", OPTIONAL_PARAMETER, TRUE, sty_ulwave, 1 },
 	{ "ulldash", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 },
 	{ "ulnone", NO_PARAMETER, TRUE, sty_ulnone },
-	{ "ulstyle", REQUIRED_PARAMETER, TRUE, sty_ulstyle },
+	{ "ulstyle", REQUIRED_PARAMETER, TRUE, sty_ulstyle }, /* Apple extension */
 	{ "ulth", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 },
 	{ "ulthd", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 },
 	{ "ulthdash", OPTIONAL_PARAMETER, TRUE, sty_ul, 1 },
@@ -106,16 +109,15 @@ const DestinationInfo stylesheet_destination = {
 static StylesheetState *
 stylesheet_state_new(void)
 {
-	StylesheetState *retval = g_new0(StylesheetState, 1);
+	StylesheetState *retval = g_slice_new0(StylesheetState);
 	retval->attr = attributes_new();
 	return retval;
 }
 
 static StylesheetState *
-stylesheet_state_copy(StylesheetState *state)
+stylesheet_state_copy(const StylesheetState *state)
 {
-	StylesheetState *retval = g_new0(StylesheetState, 1);
-	*retval = *state;
+	StylesheetState *retval = g_slice_dup(StylesheetState, state);
 	retval->attr = attributes_copy(state->attr);
 	return retval;
 }
@@ -124,9 +126,11 @@ static void
 stylesheet_state_free(StylesheetState *state)
 {
 	attributes_free(state->attr);
-	g_free(state);
+	g_slice_free(StylesheetState, state);
 }
 
+/* Add a style tag to the GtkTextBuffer's tag table with all the attributes of
+the current style */
 static void
 stylesheet_text(ParserContext *ctx)
 {

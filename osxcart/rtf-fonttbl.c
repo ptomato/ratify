@@ -4,6 +4,9 @@
 #include <glib/gi18n-lib.h>
 #include "rtf-deserialize.h"
 
+/* rtf-fonttbl.c - The \fonttbl destination. Builds the parser context's font
+table and adds tags to the GtkTextBuffer's tag table for each font. */
+
 typedef enum {
 	FONT_FAMILY_NIL,
 	FONT_FAMILY_ROMAN,
@@ -22,6 +25,7 @@ typedef struct {
 	gchar *name;
 } FontTableState;
 
+/* Forward declarations */
 static void font_table_text(ParserContext *ctx);
 static FontTableState *fonttbl_state_new(void);
 static FontTableState *fonttbl_state_copy(FontTableState *state);
@@ -35,7 +39,6 @@ typedef gboolean FontParamFunc(ParserContext *, FontTableState *, gint32, GError
 static FontFunc ft_fbidi, ft_fdecor, ft_fmodern, ft_fnil, ft_froman, ft_fscript, 
                 ft_fswiss, ft_ftech;
 static FontParamFunc ft_f, ft_fcharset;
-extern const DestinationInfo ignore_destination;
 
 const ControlWord fonttbl_word_table[] = {
 	{ "f", REQUIRED_PARAMETER, TRUE, ft_f },
@@ -61,21 +64,23 @@ const DestinationInfo fonttbl_destination = {
 	font_table_get_codepage
 };
 
+/* Process plain text in the font table (font names separated by semicolons) */
 static void
 font_table_text(ParserContext *ctx)
 {
-	gchar *name, *semicolon;
+	gchar *name, *semicolon, *tagname, *fontstring = NULL;
 	FontProperties *fontprop;
 	FontTableState *state = (FontTableState *)get_state(ctx);
+	GtkTextTag *tag;
 	static gchar *font_suggestions[] = {
 		"Sans", /* Default font for \fnil */
-		"Serif,Times New Roman,Palatino",
-		"Sans,Arial,Helvetica",
-		"Monospace,Courier New,Pica",
-		"Cursive",
-		"Old English,Zapf Chancery",
-		"Symbol,Wingdings",
-		"Miriam"
+		"Serif", /* \froman */
+		"Sans", /* \fswiss */
+		"Monospace", /* \fmodern */
+		"Script", /* \fscript */
+		NULL, /* \fdecor */
+		NULL, /* \ftech */
+		NULL /* \fbidi */
 	};
 	
 	name = g_strdup(ctx->text->str);
@@ -91,28 +96,28 @@ font_table_text(ParserContext *ctx)
 	g_string_assign(ctx->text, semicolon + 1); /* Leave the text after the semicolon in the buffer */
 	*semicolon = '\0';
 	
-	fontprop = g_new0(FontProperties, 1);
+	fontprop = g_slice_new0(FontProperties);
 	fontprop->index = state->index;
 	fontprop->codepage = state->codepage;
 	fontprop->font_name = g_strconcat(state->name, name, NULL);
 	ctx->font_table = g_slist_prepend(ctx->font_table, fontprop);
 	
-	gchar *tagname = g_strdup_printf("osxcart-rtf-font-%i", state->index);
-	GtkTextTag *tag;
+	/* Add the tag to the buffer right now instead of when the font is used,
+	since any font might be declared the default font; remove any previous font
+	with this font table index first */
+	tagname = g_strdup_printf("osxcart-rtf-font-%i", state->index);
     if((tag = gtk_text_tag_table_lookup(ctx->tags, tagname)))
         gtk_text_tag_table_remove(ctx->tags, tag);
-        
-    gchar *fontstring = NULL;
     tag = gtk_text_tag_new(tagname);
 
-    if(fontprop->font_name && state->family != FONT_FAMILY_NIL)
+    if(fontprop->font_name && font_suggestions[state->family])
         fontstring = g_strconcat(fontprop->font_name, 
                                  ",", 
                                  font_suggestions[state->family], 
                                  NULL);
     else if(fontprop->font_name)
         fontstring = g_strdup(fontprop->font_name);
-    else if(state->family != FONT_FAMILY_NIL)
+    else if(font_suggestions[state->family])
         fontstring = g_strdup(font_suggestions[state->family]);
 
     if(fontstring)
@@ -136,7 +141,7 @@ font_table_text(ParserContext *ctx)
 static FontTableState *
 fonttbl_state_new(void)
 {
-    FontTableState *retval = g_new0(FontTableState, 1);
+    FontTableState *retval = g_slice_new0(FontTableState);
 	retval->codepage = -1;
 	retval->name = g_strdup("");
 	return retval;
@@ -145,8 +150,7 @@ fonttbl_state_new(void)
 static FontTableState *
 fonttbl_state_copy(FontTableState *state)
 {
-    FontTableState *retval = fonttbl_state_new();
-    *retval = *state;
+    FontTableState *retval = g_slice_dup(FontTableState, state);
 	retval->name = g_strdup(state->name);
     return retval;
 }
@@ -155,12 +159,10 @@ static void
 fonttbl_state_free(FontTableState *state)
 {
 	g_free(state->name);
-	g_free(state);
+	g_slice_free(FontTableState, state);
 }
 
-/*
- * Parses the charset
- */
+/* Convert "font charset" character encoding to "codepage" character encoding */
 static gint
 fcharset_to_codepage(gint charset)
 {
@@ -210,10 +212,12 @@ fcharset_to_codepage(gint charset)
     }
 }
 
+/* Assume that text in the \fonttbl destination is in the encoding specified by
+that entry's \fcharset */
 static gint 
 font_table_get_codepage(ParserContext *ctx)
 {
-	FontTableState *state = (FontTableState *)get_state(ctx);
+	FontTableState *state = get_state(ctx);
 	return state->codepage;
 }
 

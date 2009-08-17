@@ -50,28 +50,29 @@ typedef struct {
 	gboolean unicode_ignore;
 } Attributes;
 
-Attributes *attributes_new(void);
-Attributes *attributes_copy(Attributes *attr);
-void attributes_free(Attributes *attr);
-void apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTextIter *end);
-void document_text(ParserContext *ctx);
-gint document_get_codepage(ParserContext *ctx);
+G_GNUC_INTERNAL Attributes *attributes_new(void);
+G_GNUC_INTERNAL Attributes *attributes_copy(const Attributes *attr);
+G_GNUC_INTERNAL void attributes_free(Attributes *attr);
+G_GNUC_INTERNAL void apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTextIter *end);
+G_GNUC_INTERNAL void document_text(ParserContext *ctx);
+G_GNUC_INTERNAL gint document_get_codepage(ParserContext *ctx);
 
 typedef gboolean DocFunc(ParserContext *, Attributes *, GError **);
 typedef gboolean DocParamFunc(ParserContext *, Attributes *, gint32, GError **);
 
 /* Document destination functions usable in other destinations */
-DocFunc doc_chftn, doc_ltrch, doc_ltrpar, doc_nosupersub, doc_pard, doc_plain, 
-        doc_qc, doc_qj, doc_ql, doc_qr, doc_rtlch, doc_rtlpar, doc_sub, 
-        doc_super, doc_ud, doc_ulnone, doc_upr;
-DocParamFunc doc_b, doc_cb, doc_cf, doc_dn, doc_f, doc_fi, doc_fs, doc_fsmilli,
-             doc_highlight, doc_i, doc_lang, doc_li, doc_ri, doc_s, doc_sa,
-             doc_saauto, doc_sb, doc_sbauto, doc_scaps, doc_slleading, 
-             doc_strike, doc_tx, doc_u, doc_uc, doc_ul, doc_uldb, doc_ulstyle,
-             doc_ulwave, doc_up, doc_v;
+G_GNUC_INTERNAL DocFunc doc_chftn, doc_ltrch, doc_ltrpar, doc_nosupersub, 
+    doc_pard, doc_plain, doc_qc, doc_qj, doc_ql, doc_qr, doc_rtlch, doc_rtlpar, 
+    doc_sub, doc_super, doc_ud, doc_ulnone, doc_upr;
+G_GNUC_INTERNAL DocParamFunc doc_b, doc_cb, doc_cf, doc_dn, doc_f, doc_fi, 
+    doc_fs, doc_fsmilli, doc_highlight, doc_i, doc_lang, doc_li, doc_ri, doc_s, 
+    doc_sa, doc_saauto, doc_sb, doc_sbauto, doc_scaps, doc_slleading, 
+    doc_strike, doc_tx, doc_u, doc_uc, doc_ul, doc_uldb, doc_ulstyle,
+    doc_ulwave, doc_up, doc_v;
 
 extern const DestinationInfo shppict_destination;
 
+/* Text formatting control words usable in other destinations */
 #define DOCUMENT_TEXT_CONTROL_WORDS \
 	{ "\n", SPECIAL_CHARACTER, FALSE, NULL, 0, "\n" }, \
 	{ "\r", SPECIAL_CHARACTER, FALSE, NULL, 0, "\n" }, \
@@ -97,7 +98,7 @@ extern const DestinationInfo shppict_destination;
 	{ "f", REQUIRED_PARAMETER, TRUE, doc_f }, \
 	{ "fi", OPTIONAL_PARAMETER, TRUE, doc_fi, 0 }, \
 	{ "fs", OPTIONAL_PARAMETER, TRUE, doc_fs, 24 }, \
-	{ "fsmilli", REQUIRED_PARAMETER, TRUE, doc_fsmilli }, \
+	{ "fsmilli", REQUIRED_PARAMETER, TRUE, doc_fsmilli }, /* Apple extension */ \
 	{ "highlight", REQUIRED_PARAMETER, TRUE, doc_highlight }, \
 	{ "i", OPTIONAL_PARAMETER, TRUE, doc_i, 1 }, \
 	{ "lang", REQUIRED_PARAMETER, TRUE, doc_lang }, \
@@ -131,7 +132,7 @@ extern const DestinationInfo shppict_destination;
 	{ "sbauto", OPTIONAL_PARAMETER, TRUE, doc_sbauto, 0 }, \
 	{ "scaps", OPTIONAL_PARAMETER, TRUE, doc_scaps, 1 }, \
 	{ "*shppict", DESTINATION, TRUE, NULL, 0, NULL, &shppict_destination }, \
-	{ "slleading", OPTIONAL_PARAMETER, TRUE, doc_slleading, 0 }, \
+	{ "slleading", OPTIONAL_PARAMETER, TRUE, doc_slleading, 0 }, /* Apple extension */ \
 	{ "strike", OPTIONAL_PARAMETER, TRUE, doc_strike, 1 }, \
 	{ "sub", NO_PARAMETER, TRUE, doc_sub }, \
 	{ "super", NO_PARAMETER, TRUE, doc_super }, \
@@ -150,7 +151,7 @@ extern const DestinationInfo shppict_destination;
 	{ "ulhwave", OPTIONAL_PARAMETER, TRUE, doc_ulwave, 1 }, \
 	{ "ulldash", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
 	{ "ulnone", NO_PARAMETER, TRUE, doc_ulnone }, \
-	{ "ulstyle", REQUIRED_PARAMETER, TRUE, doc_ulstyle }, \
+	{ "ulstyle", REQUIRED_PARAMETER, TRUE, doc_ulstyle }, /* Apple extension */ \
 	{ "ulth", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
 	{ "ulthd", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \
 	{ "ulthdash", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, \

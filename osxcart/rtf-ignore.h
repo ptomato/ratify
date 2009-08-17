@@ -4,10 +4,10 @@
 #include <glib.h>
 #include "rtf-deserialize.h"
 
-void ignore_pending_text(ParserContext *ctx);
-gpointer ignore_state_new(void);
-gpointer ignore_state_copy(gpointer state);
-void ignore_state_free(gpointer state);
+G_GNUC_INTERNAL void ignore_pending_text(ParserContext *ctx);
+G_GNUC_INTERNAL gpointer ignore_state_new(void);
+G_GNUC_INTERNAL gpointer ignore_state_copy(gconstpointer state);
+G_GNUC_INTERNAL void ignore_state_free(gpointer state);
 
 extern const DestinationInfo ignore_destination;
 

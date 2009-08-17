@@ -10,6 +10,9 @@
 #include "rtf-deserialize.h"
 #include "rtf-ignore.h"
 
+/* rtf-picture.c - All destinations dealing with inserting graphics into the
+document: \pict, \shppict, \NeXTgraphic. */
+
 typedef enum {
 	PICT_TYPE_EMF,
 	PICT_TYPE_PNG,
@@ -40,15 +43,19 @@ typedef struct {
     glong height;
 } NeXTGraphicState;
 
+#define PICT_STATE_INIT \
+    state->type = PICT_TYPE_WMF; \
+	state->type_param = 1; \
+	state->xscale = state->yscale = 100; \
+	state->width = state->height = state->width_goal = state->height_goal = -1;
+DEFINE_STATE_FUNCTIONS_WITH_INIT(PictState, pict, PICT_STATE_INIT)
+#define NEXTGRAPHIC_STATE_INIT state->width = state->height = -1;
+DEFINE_STATE_FUNCTIONS_WITH_INIT(NeXTGraphicState, nextgraphic, NEXTGRAPHIC_STATE_INIT)
+
+/* Forward declarations */
 static void pict_text(ParserContext *ctx);
-static PictState *pict_state_new(void);
-static PictState *pict_state_copy(PictState *state);
-static void pict_state_free(PictState *state);
 static void pict_end(ParserContext *ctx);
 static void nextgraphic_text(ParserContext *ctx);
-static NeXTGraphicState *nextgraphic_state_new(void);
-static NeXTGraphicState *nextgraphic_state_copy(NeXTGraphicState *state);
-static void nextgraphic_state_free(NeXTGraphicState *state);
 static void nextgraphic_end(ParserContext *ctx);
 static gint nextgraphic_get_codepage(ParserContext *ctx);
 
@@ -59,6 +66,10 @@ static PictFunc pic_emfblip, pic_jpegblip, pic_macpict, pic_pngblip;
 static PictParamFunc pic_dibitmap, pic_pich, pic_pichgoal, pic_picscalex,
                      pic_picscaley, pic_picw, pic_picwgoal, pic_pmmetafile,
                      pic_wbitmap, pic_wmetafile;
+
+typedef gboolean NeXTGraphicParamFunc(ParserContext *, NeXTGraphicState *, gint32, GError **);
+
+static NeXTGraphicParamFunc ng_height, ng_width;
 
 const ControlWord pict_word_table[] = {
 	{ "dibitmap", REQUIRED_PARAMETER, FALSE, pic_dibitmap },
@@ -81,15 +92,11 @@ const ControlWord pict_word_table[] = {
 const DestinationInfo pict_destination = {
 	pict_word_table,
 	pict_text,
-	(StateNewFunc *)pict_state_new,
-	(StateCopyFunc *)pict_state_copy,
-	(StateFreeFunc *)pict_state_free,
+	pict_state_new,
+	pict_state_copy,
+	pict_state_free,
 	pict_end
 };
-
-typedef gboolean NeXTGraphicParamFunc(ParserContext *, NeXTGraphicState *, gint32, GError **);
-
-static NeXTGraphicParamFunc ng_height, ng_width;
 
 const ControlWord nextgraphic_word_table[] = {
     { "height", REQUIRED_PARAMETER, FALSE, ng_height },
@@ -100,9 +107,9 @@ const ControlWord nextgraphic_word_table[] = {
 const DestinationInfo nextgraphic_destination = {
     nextgraphic_word_table,
     nextgraphic_text,
-    (StateNewFunc *)nextgraphic_state_new,
-    (StateCopyFunc *)nextgraphic_state_copy,
-    (StateFreeFunc *)nextgraphic_state_free,
+    nextgraphic_state_new,
+    nextgraphic_state_copy,
+    nextgraphic_state_free,
     nextgraphic_end,
     nextgraphic_get_codepage
 };
@@ -120,7 +127,7 @@ const DestinationInfo shppict_destination = {
 	ignore_state_free
 };
 
-/* Insert picture into text buffer */
+/* Insert picture into text buffer at current insertion mark */
 static void
 insert_picture_into_textbuffer(ParserContext *ctx, GdkPixbuf *pixbuf)
 {
@@ -129,6 +136,8 @@ insert_picture_into_textbuffer(ParserContext *ctx, GdkPixbuf *pixbuf)
     gtk_text_buffer_insert_pixbuf(ctx->textbuffer, &iter, pixbuf);
 }
 
+/* Send a message to the GdkPixbufLoader to change its expected size after
+parsing a width or height declaration */
 static void
 adjust_loader_size(PictState *state)
 {
@@ -138,17 +147,19 @@ adjust_loader_size(PictState *state)
 		                           (state->height_goal != -1)? state->height_goal : state->height);
 }
 
+/* The "text" in a \pict destination is the picture, expressed as a long string
+of hexadecimal digits */
 static void
 pict_text(ParserContext *ctx)
 {
 	GError *error = NULL;
-	PictState *state = (PictState *)get_state(ctx);
+	PictState *state = get_state(ctx);
 	guchar *writebuffer;
 	gint count;
 	const char *mimetypes[] = {
 		"image/x-emf", "image/png", "image/jpeg", "image/x-pict", 
 		"OS/2 Presentation Manager", "image/x-wmf", "image/x-bmp", "image-x-bmp"
-	};
+	}; /* "OS/2 Presentation Manager" isn't supported */
 
 	if(state->error)
 		return;
@@ -156,18 +167,19 @@ pict_text(ParserContext *ctx)
 	if(strlen(ctx->text->str) == 0)
 		return;
 	
+	/* If no GdkPixbufLoader has been initialized yet, then do that */
 	if(!state->loader)
 	{
 		GSList *formats = gdk_pixbuf_get_formats();
 		GSList *iter;
-	 	GdkPixbufFormat *info;
 		gchar **mimes;
 		
+		/* Make sure the MIME type we want to load is present in the list of
+		formats compiled into our GdkPixbuf library */
 	 	for(iter = formats; iter && !state->loader; iter = g_slist_next(iter)) 
 		{
 			int i;
-			info = (GdkPixbufFormat *)iter->data;
-			mimes = gdk_pixbuf_format_get_mime_types(info);
+			mimes = gdk_pixbuf_format_get_mime_types(iter->data);
 			
 		 	for(i = 0; mimes[i] != NULL; i++)
 		 	if(g_ascii_strcasecmp(mimes[i], mimetypes[state->type]) == 0) 
@@ -195,6 +207,7 @@ pict_text(ParserContext *ctx)
 		adjust_loader_size(state);
 	}
 	
+	/* Convert the "text" into binary data */
 	writebuffer = g_new0(guchar, strlen(ctx->text->str));
 	for(count = 0; ctx->text->str[count * 2] && ctx->text->str[count * 2 + 1]; count++)
 	{
@@ -214,7 +227,7 @@ pict_text(ParserContext *ctx)
 		}
 		writebuffer[count] = byte;
 	}
-
+    /* Write the "text" into the GdkPixbufLoader */
 	if(!gdk_pixbuf_loader_write(state->loader, writebuffer, count, &error))
 	{
 		g_warning(_("Error reading \\pict data: %s"), error->message);
@@ -225,40 +238,13 @@ pict_text(ParserContext *ctx)
 	g_string_truncate(ctx->text, 0);
 }
 
-static PictState *
-pict_state_new(void)
-{
-    PictState *retval = g_new0(PictState, 1);
-	retval->type = PICT_TYPE_WMF;
-	retval->type_param = 1;
-	retval->width = -1;
-	retval->height = -1;
-	retval->width_goal = -1;
-	retval->height_goal = -1;
-	retval->xscale = 100;
-	retval->yscale = 100;
-	return retval;
-}
-
-static PictState *
-pict_state_copy(PictState *state)
-{
-    PictState *retval = pict_state_new();
-    *retval = *state;
-    return retval;
-}
-
-static void
-pict_state_free(PictState *state)
-{
-	g_free(state);
-}
-
+/* When the destination is closed, then there is no more picture data, so close
+the GdkPixbufLoader and load the picture */
 static void
 pict_end(ParserContext *ctx)
 {
 	GError *error = NULL;
-	PictState *state = (PictState *)get_state(ctx);
+	PictState *state = get_state(ctx);
 
 	if(!state->error)
 	{
@@ -399,42 +385,23 @@ pic_wmetafile(ParserContext *ctx, PictState *state, gint32 param, GError **error
 	return TRUE;
 }
 
+/* Ignore text, but leave it in the pending text buffer, because we use it in
+nextgraphic_end() */
 static void
 nextgraphic_text(ParserContext *ctx)
 {
 }
 
-static NeXTGraphicState *
-nextgraphic_state_new(void)
-{
-    NeXTGraphicState *retval = g_new0(NeXTGraphicState, 1);
-    retval->width = -1;
-    retval->height = -1;
-    return retval;
-}
-
-static NeXTGraphicState *
-nextgraphic_state_copy(NeXTGraphicState *state)
-{
-    NeXTGraphicState *retval = nextgraphic_state_new();
-    *retval = *state;
-    return retval;
-}
-
-static void 
-nextgraphic_state_free(NeXTGraphicState *state)
-{
-    g_free(state);
-}
-
+/* Load the file from the filename in the pending text buffer */
 static void
 nextgraphic_end(ParserContext *ctx)
 {
     GdkPixbuf *pixbuf;
-    gchar *filename = g_strstrip(g_strdup(ctx->text->str));
-    NeXTGraphicState *state = (NeXTGraphicState *)get_state(ctx);
+    gchar *filename;
+    NeXTGraphicState *state = get_state(ctx);
     GError *error = NULL;
     
+    filename = g_strstrip(g_strdup(ctx->text->str));
     g_string_truncate(ctx->text, 0);
     pixbuf = gdk_pixbuf_new_from_file_at_scale(filename, state->width, state->height, FALSE /* preserve aspect ratio */, &error);
     if(!pixbuf)

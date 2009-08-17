@@ -2,21 +2,28 @@
 #include <glib.h>
 #include "rtf-deserialize.h"
 
+/* rtf-colortbl.c - \colortbl destination */
+
 typedef struct {
     gint red;
     gint green;
     gint blue;
 } ColorTableState;
 
+/* Forward declarations */
 static void color_table_text(ParserContext *ctx);
-static ColorTableState *colortbl_state_new(void);
-static ColorTableState *colortbl_state_copy(ColorTableState *state);
 
-typedef gboolean ColorParamFunc(ParserContext *, ColorTableState *, gint32, GError **);
-
-/* Color table destination functions */
-static ColorParamFunc ct_red, ct_green, ct_blue;
-extern const DestinationInfo ignore_destination;
+#define DEFINE_COLOR_TABLE_FUNCTION(arg) \
+    static gboolean \
+    G_PASTE_ARGS(ct_, arg)(ParserContext *ctx, ColorTableState *state, gint32 param, GError **error) \
+    { \
+        state->arg = param; \
+        return TRUE; \
+    }
+DEFINE_COLOR_TABLE_FUNCTION(red)
+DEFINE_COLOR_TABLE_FUNCTION(green)
+DEFINE_COLOR_TABLE_FUNCTION(blue)
+DEFINE_SIMPLE_STATE_FUNCTIONS(ColorTableState, colortbl)
 
 const ControlWord colortbl_word_table[] = {
 	{ "red", REQUIRED_PARAMETER, TRUE, ct_red },
@@ -28,15 +35,17 @@ const ControlWord colortbl_word_table[] = {
 const DestinationInfo colortbl_destination = {
     colortbl_word_table,
     color_table_text,
-    (StateNewFunc *)colortbl_state_new,
-    (StateCopyFunc *)colortbl_state_copy,
-    g_free
+    colortbl_state_new,
+    colortbl_state_copy,
+    colortbl_state_free
 };
 
+/* If the text contains a semicolon, add the RGB code to the color table and
+reset the color table state */
 static void
 color_table_text(ParserContext *ctx)
 {
-    ColorTableState *state = (ColorTableState *)get_state(ctx);
+    ColorTableState *state = get_state(ctx);
 	if(strchr(ctx->text->str, ';'))
 	{
 		gchar *color = g_strdup_printf("#%02x%02x%02x", state->red, state->green, state->blue);
@@ -44,39 +53,4 @@ color_table_text(ParserContext *ctx)
 		state->red = state->green = state->blue = 0;
 	}
 	g_string_truncate(ctx->text, 0);
-}
-
-static ColorTableState *
-colortbl_state_new(void)
-{
-    return g_new0(ColorTableState, 1);
-}
-
-static ColorTableState *
-colortbl_state_copy(ColorTableState *state)
-{
-    ColorTableState *retval = colortbl_state_new();
-    *retval = *state;
-    return retval;
-}
-
-static gboolean
-ct_red(ParserContext *ctx, ColorTableState *state, gint32 param, GError **error)
-{
-	state->red = param;
-	return TRUE;
-}
-
-static gboolean
-ct_green(ParserContext *ctx, ColorTableState *state, gint32 param, GError **error)
-{
-	state->green = param;
-	return TRUE;
-}
-
-static gboolean
-ct_blue(ParserContext *ctx, ColorTableState *state, gint32 param, GError **error)
-{
-	state->blue = param;
-	return TRUE;
 }

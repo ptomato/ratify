@@ -10,24 +10,24 @@
 #include "config.h"
 #include "rtf-langcode.h"
 
-/* Change this later FIXME */
+/* rtf-serialize.c - RTF writer */
+
+/* FIXME: these definitions conflate points and pixels */
 #define PIXELS_TO_TWIPS(pixels) (pixels * 20)
 #define PANGO_TO_HALF_POINTS(pango) (2 * pango / PANGO_SCALE)
 #define PANGO_TO_TWIPS(pango) (20 * pango / PANGO_SCALE)
 
-struct _WriterContext {
+typedef struct {
     GtkTextBuffer *textbuffer;
     const GtkTextIter *start, *end;
     GString *output;
     GtkTextBuffer *linebuffer;
-    
-    /* Tag information */
-    GHashTable *tag_codes;
+    GHashTable *tag_codes; /* Translation table of GtkTextTags to RTF code */
     GList *font_table;
     GList *color_table;
-};
-typedef struct _WriterContext WriterContext;
+} WriterContext;
 
+/* Initialize the writer context */
 static WriterContext *
 writer_context_new(void)
 {
@@ -39,6 +39,7 @@ writer_context_new(void)
     return ctx;
 }
 
+/* Free the writer context */
 static void 
 writer_context_free(WriterContext *ctx)
 {
@@ -48,6 +49,8 @@ writer_context_free(WriterContext *ctx)
     g_slice_free(WriterContext, ctx);
 }
 
+/* Return the number of color in the color table. If color is not in the color
+table, then add it. */
 static gint
 get_color_from_gdk_color(GdkColor *color, WriterContext *ctx)
 {
@@ -72,6 +75,8 @@ get_color_from_gdk_color(GdkColor *color, WriterContext *ctx)
     return colornum;
 }
 
+/* Generate RTF code for tag, and add it to the context's hashtable of tags to
+RTF code. */
 static void 
 convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
 {
@@ -83,7 +88,8 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
     GString *code;
     
     /* First check if this is a osxcart named tag that doesn't have a direct 
-	 Pango attributes equivalent, such as superscript or subscript. */
+	 Pango attributes equivalent, such as superscript or subscript. Treat these
+	 separately. */
 	g_object_get(tag, "name", &name, NULL);
 	if(strcmp(name, "osxcart-rtf-superscript") == 0)
 	{
@@ -353,17 +359,24 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
     g_hash_table_insert(ctx->tag_codes, tag, g_string_free(code, FALSE));
 }
 
+/* This function is run before processing the actual contents of the buffer. It
+generates RTF code for all of the tags in the buffer's tag table, and tells the
+context which portion of the text buffer to serialize. */
 static void 
 analyze_buffer(WriterContext *ctx, GtkTextBuffer *textbuffer, const GtkTextIter *start, const GtkTextIter *end)
 {
-    GtkTextTagTable *tagtable = gtk_text_buffer_get_tag_table(textbuffer);
+    GtkTextTagTable *tagtable = gtk_text_buffer_get_tag_table(textbuffer); 
     gtk_text_tag_table_foreach(tagtable, (GtkTextTagTableForeach)convert_tag_to_code, ctx);
-    
     ctx->textbuffer = textbuffer;
     ctx->start = start;
     ctx->end = end;
 }
 
+/* Write a space to the output buffer if the number of characters output on the
+current line is less than 60; otherwise, a newline. If the next space occurs 
+more than 20 characters further on, the line will still be wider than 80
+characters, but this is probably the easiest way to break lines without
+looking ahead or backtracking to insert spaces. */
 static void
 write_space_or_newline(WriterContext *ctx)
 {
@@ -371,11 +384,12 @@ write_space_or_newline(WriterContext *ctx)
     g_string_append_c(ctx->output, (linelength > 60)? '\n' : ' ');
 }
 
+/* This function translates a piece of text, without formatting codes, to RTF.
+It replaces special characters by their RTF control word equivalents. */
 static void
 write_rtf_text(WriterContext *ctx, const gchar *text)
 {
     const gchar *ptr;
-    
 
     for(ptr = text; *ptr; ptr = g_utf8_next_char(ptr))
     {
@@ -519,6 +533,8 @@ write_rtf_text_and_pictures(WriterContext *ctx, const GtkTextIter *start, const 
     write_rtf_text_and_pictures(ctx, &iter, end);
 }
 
+/* Copy the text paragraph-by-paragraph into a separate buffer and output each
+one sequentially with formatting codes */
 static void
 write_rtf_paragraphs(WriterContext *ctx)
 {
@@ -564,12 +580,20 @@ write_rtf_paragraphs(WriterContext *ctx)
         end = start;
         while(!gtk_text_iter_is_end(&end))
         {
+            GSList *tagstartlist, *tagendlist, *tagonlylist = NULL;
+            gsize length;
+            
+            /* Enclose a section of text without any tag flips between start
+            and end. Then, make tagstartlist a list of tags that open at the
+            beginning of this section, and tagendlist a list of tags that end
+            at the end of this section. */
+            
             gtk_text_iter_forward_to_tag_toggle(&end, NULL);
+            tagstartlist = gtk_text_iter_get_toggled_tags(&start, TRUE);
+            tagendlist = gtk_text_iter_get_toggled_tags(&end, FALSE);
             
-            GSList *tagstartlist = gtk_text_iter_get_toggled_tags(&start, TRUE);
-            GSList *tagendlist = gtk_text_iter_get_toggled_tags(&end, FALSE);
-            GSList *tagonlylist = NULL;
-            
+            /* Move tags that do not extend before or after this section to
+            tagonlylist. */
             for(ptr = tagstartlist; ptr; ptr = g_slist_next(ptr))
                 if(g_slist_find(tagendlist, ptr->data))
                     tagonlylist = g_slist_prepend(tagonlylist, ptr->data);
@@ -579,29 +603,37 @@ write_rtf_paragraphs(WriterContext *ctx)
                 tagendlist = g_slist_remove(tagendlist, ptr->data);
             }
             
-            gsize length = ctx->output->len;
+            /* Output the tags in tagstartlist */
+            length = ctx->output->len;
             for(ptr = tagstartlist; ptr; ptr = g_slist_next(ptr))
                 g_string_append(ctx->output, g_hash_table_lookup(ctx->tag_codes, ptr->data));
             if(length != ctx->output->len)
                 write_space_or_newline(ctx);
             g_slist_free(tagstartlist);
             
+            /* Output the tags in tagonlylist, within their own group */
             if(tagonlylist)
             {
                 g_string_append_c(ctx->output, '{');
-                gsize length = ctx->output->len;
+                length = ctx->output->len;
                 for(ptr = tagonlylist; ptr; ptr = g_slist_next(ptr))
                     g_string_append(ctx->output, g_hash_table_lookup(ctx->tag_codes, ptr->data));
                 if(length != ctx->output->len)
                     write_space_or_newline(ctx);
             }
             
+            /* Output the actual contents of this section */
             write_rtf_text_and_pictures(ctx, &start, &end);
             
+            /* Close the tagonlylist group */
             if(tagonlylist)
                 g_string_append_c(ctx->output, '}');
             g_slist_free(tagonlylist);
             
+            /* If any tags end here, close the group and open another one,
+            then output the tags that _apply_ to the end iter but do not _start_
+            there (those will be output in the next iteration and may need to
+            be in a separate group.) */
             if(tagendlist)
             {
                 g_string_append(ctx->output, "}{");
@@ -611,7 +643,7 @@ write_rtf_paragraphs(WriterContext *ctx)
                     taglist = g_slist_remove(taglist, ptr->data);
                 g_slist_free(tagstartlist);
                 
-                gsize length = ctx->output->len;
+                length = ctx->output->len;
                 for(ptr = taglist; ptr; ptr = g_slist_next(ptr))
                     g_string_append(ctx->output, g_hash_table_lookup(ctx->tag_codes, ptr->data));
                 if(length != ctx->output->len)
@@ -633,6 +665,7 @@ write_color_table_entry(const gchar *colorcode, WriterContext *ctx)
     g_string_append_printf(ctx->output, "%s;\n", colorcode);
 }
 
+/* Write the RTF header and assorted front matter */
 static gchar *
 write_rtf(WriterContext *ctx)
 {
@@ -652,7 +685,6 @@ write_rtf(WriterContext *ctx)
     }
     if(!ctx->font_table) /* Write at least one font if there are none */
         g_string_append(ctx->output, "{\\f0\\fswiss Sans;}\n");
-    
     g_string_append(ctx->output, "}\n");
     
     /* Color table */
@@ -660,7 +692,7 @@ write_rtf(WriterContext *ctx)
     g_list_foreach(ctx->color_table, (GFunc)write_color_table_entry, ctx);
     g_string_append(ctx->output, "}\n");
     
-    /* Metadata (provide default values because Word will overwrite if missing) */
+    /* Metadata (provide dummy values because Word will overwrite if missing) */
     g_string_append(ctx->output, "{\\info {\\author .}{\\company .}{\\title .}\n");
     gchar buffer[29];
     time_t timer = time(NULL);
@@ -680,12 +712,15 @@ write_rtf(WriterContext *ctx)
     return g_string_free(ctx->output, FALSE);
 }
 
+/* This function is called by gtk_text_buffer_serialize(). */
 guint8 *
 rtf_serialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, const GtkTextIter *start, const GtkTextIter *end, gsize *length)
 {
     WriterContext *ctx = writer_context_new();
+    gchar *contents;
+    
     analyze_buffer(ctx, content_buffer, start, end);
-	gchar *contents = write_rtf(ctx);
+	contents = write_rtf(ctx);
 	*length = strlen(contents);
 	writer_context_free(ctx);
 	return (guint8 *)contents;
