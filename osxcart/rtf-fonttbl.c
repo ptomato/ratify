@@ -27,9 +27,6 @@ typedef struct {
 
 /* Forward declarations */
 static void font_table_text(ParserContext *ctx);
-static FontTableState *fonttbl_state_new(void);
-static FontTableState *fonttbl_state_copy(FontTableState *state);
-static void fonttbl_state_free(FontTableState *state);
 static gint font_table_get_codepage(ParserContext *ctx);
 
 typedef gboolean FontFunc(ParserContext *, FontTableState *, GError **);
@@ -54,12 +51,19 @@ const ControlWord fonttbl_word_table[] = {
 	{ NULL }
 };
 
+#define FONTTBL_NEW \
+    state->codepage = -1; \
+	state->name = g_strdup("");
+#define FONTTBL_COPY copy->name = g_strdup(state->name);
+#define FONTTBL_FREE g_free(state->name);
+DEFINE_STATE_FUNCTIONS_FULL(FontTableState, fonttbl, FONTTBL_NEW, FONTTBL_COPY, FONTTBL_FREE);
+
 const DestinationInfo fonttbl_destination = {
     fonttbl_word_table,
     font_table_text,
-    (StateNewFunc *)fonttbl_state_new,
-    (StateCopyFunc *)fonttbl_state_copy,
-    (StateFreeFunc *)fonttbl_state_free,
+    fonttbl_state_new,
+    fonttbl_state_copy,
+    fonttbl_state_free,
 	NULL, /* cleanup */
 	font_table_get_codepage
 };
@@ -136,30 +140,6 @@ font_table_text(ParserContext *ctx)
 	state->family = FONT_FAMILY_NIL;
 	state->codepage = -1;
 	state->name = g_strdup("");
-}
-
-static FontTableState *
-fonttbl_state_new(void)
-{
-    FontTableState *retval = g_slice_new0(FontTableState);
-	retval->codepage = -1;
-	retval->name = g_strdup("");
-	return retval;
-}
-
-static FontTableState *
-fonttbl_state_copy(FontTableState *state)
-{
-    FontTableState *retval = g_slice_dup(FontTableState, state);
-	retval->name = g_strdup(state->name);
-    return retval;
-}
-
-static void
-fonttbl_state_free(FontTableState *state)
-{
-	g_free(state->name);
-	g_slice_free(FontTableState, state);
 }
 
 /* Convert "font charset" character encoding to "codepage" character encoding */

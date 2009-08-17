@@ -5,13 +5,49 @@
 #include "rtf-deserialize.h"
 #include "rtf-document.h"
 #include "rtf-ignore.h"
+#include "rtf-state.h"
 
+/* field.c - \field, \fldinst, and \fldrslt destinations. The markup language
+for fields is very complicated and only a small and arbitrary subset of the 
+field types and formatting codes are implemented here. What is here is taken 
+from ECMA-376 Office Open XML file formats, 2nd Edition (December 2008), Part 1, 
+section 17.16: Fields & Hyperlinks
+(http://www.ecma-international.org/publications/standards/Ecma-376.htm).
+
+The markup language format is simple enough to be parsed with a GScanner. Right
+now, the GScanner does not use a symbol table and parses everything as an
+identifier.
+
+Basically, there are many opportunities for improvement in this code, at
+questionable benefit. */
+
+/* These are the supported field types. Add new values here as more field types
+get implemented. */
 typedef enum {
 	FIELD_TYPE_HYPERLINK,
 	FIELD_TYPE_INCLUDEPICTURE,
 	FIELD_TYPE_PAGE
 } FieldType;
 
+typedef struct {
+    gchar *name;
+    FieldType type;
+    gboolean has_argument;        /* Whether the field itself has an argument */
+    const gchar *switches;        /* 1-character switches without argument */
+    const gchar *argswitches;     /* 1-character switches with argument */
+    const gchar *wideswitches;    /* 2-character switches without argument */
+    const gchar *wideargswitches; /* 2-character switches with argument */
+} FieldInfo;
+
+const FieldInfo fields[] = {
+    { "HYPERLINK", FIELD_TYPE_HYPERLINK, TRUE, "mn", "lot", "", "" },
+    { "INCLUDEPICTURE", FIELD_TYPE_INCLUDEPICTURE, TRUE, "d", "c", "", "" },
+    { "PAGE", FIELD_TYPE_PAGE, FALSE, "", "", "", "" },
+    { NULL }
+};
+
+/* These are the supported general number formats. Not all of the formats
+described in the standard are implemented. */
 typedef enum {
 	NUMBER_ALPHABETIC,
 	NUMBER_alphabetic,
@@ -40,14 +76,16 @@ typedef struct {
 } FieldState;
 
 static void field_instruction_text(ParserContext *ctx);
-static FieldInstructionState *fldinst_state_new(void);
-static FieldInstructionState *fldinst_state_copy(FieldInstructionState *state);
-static void fldinst_state_free(FieldInstructionState *state);
 static void field_instruction_end(ParserContext *ctx);
 static gchar *format_integer(gint number, GeneralNumberFormat format);
-static FieldState *field_state_new(void);
-static FieldState *field_state_copy(FieldState *state);
-static void field_state_free(FieldState *state);
+
+#define FLDINST_STATE_INIT \
+    state->scanbuffer = g_string_new(""); \
+	state->general_number_format = NUMBER_ARABIC;
+/* The GString is shared between all the states on the stack */	
+DEFINE_STATE_FUNCTIONS_WITH_INIT(FieldInstructionState, fldinst, FLDINST_STATE_INIT) 
+DEFINE_SIMPLE_STATE_FUNCTIONS(FieldState, field)
+DEFINE_ATTR_STATE_FUNCTIONS(Attributes, fldrslt)
 
 const ControlWord field_instruction_word_table[] = { 
 	{ "\\", SPECIAL_CHARACTER, FALSE, NULL, 0, "\\" },
@@ -57,9 +95,9 @@ const ControlWord field_instruction_word_table[] = {
 const DestinationInfo field_instruction_destination = {
 	field_instruction_word_table,
 	field_instruction_text,
-	(StateNewFunc *)fldinst_state_new,
-	(StateCopyFunc *)fldinst_state_copy,
-	(StateFreeFunc *)fldinst_state_free,
+	fldinst_state_new,
+	fldinst_state_copy,
+	fldinst_state_free,
 	field_instruction_end
 };
 
@@ -71,9 +109,9 @@ const ControlWord field_result_word_table[] = {
 const DestinationInfo field_result_destination = {
 	field_result_word_table,
 	document_text,
-	(StateNewFunc *)attributes_new,
-	(StateCopyFunc *)attributes_copy,
-	(StateFreeFunc *)attributes_free
+	fldrslt_state_new,
+	fldrslt_state_copy,
+	fldrslt_state_free
 };
 
 typedef gboolean FieldFunc(ParserContext *, FieldState *, GError **);
@@ -88,19 +126,10 @@ const ControlWord field_word_table[] = {
 const DestinationInfo field_destination = {
     field_word_table,
     ignore_pending_text,
-    (StateNewFunc *)field_state_new,
-    (StateCopyFunc *)field_state_copy,
-    (StateFreeFunc *)field_state_free
+    field_state_new,
+    field_state_copy,
+    field_state_free
 };
-
-static void
-field_instruction_text(ParserContext *ctx)
-{
-	FieldInstructionState *state = get_state(ctx);
-	
-	g_string_append(state->scanbuffer, ctx->text->str);
-	g_string_truncate(ctx->text, 0);
-}
 
 const GScannerConfig field_parser = {
 	/* Character sets */
@@ -109,7 +138,7 @@ const GScannerConfig field_parser = {
 	G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "#@*", /* cset_identifier_nth */
 	NULL, /* cpair_comment_single */
 	
-	/* Should symbol lookup work case sensitive? */
+	/* Should symbol lookup be case sensitive? */
 	TRUE, /* case_sensitive */
   
 	/* Boolean values to be adjusted "on the fly" to configure scanning behaviour. */
@@ -136,30 +165,16 @@ const GScannerConfig field_parser = {
 	FALSE  /* store_int64 */
 };
 
-static FieldInstructionState *
-fldinst_state_new(void)
+/* Move all text to the GScanner's scan buffer */
+static void
+field_instruction_text(ParserContext *ctx)
 {
-	FieldInstructionState *retval = g_new0(FieldInstructionState, 1);
-	retval->scanbuffer = g_string_new("");
-	retval->general_number_format = NUMBER_ARABIC;
-	return retval;
+	FieldInstructionState *state = get_state(ctx);
+	g_string_append(state->scanbuffer, ctx->text->str);
+	g_string_truncate(ctx->text, 0);
 }
 
-static FieldInstructionState *
-fldinst_state_copy(FieldInstructionState *state)
-{
-	FieldInstructionState *retval = g_new0(FieldInstructionState, 1);
-	/* Copy the same GString, do not create a new one */
-    *retval = *state;
-    return retval;
-}
-
-static void fldinst_state_free(FieldInstructionState *state)
-{
-	/* Do not free the GString, as it is shared between all the states on the stack */
-	g_free(state);
-}
-
+/* Get the next token from the scanner and make sure it is a string */
 static gchar *
 get_string_token(GScanner *tokenizer)
 {
@@ -194,6 +209,7 @@ free_switch_info(SwitchInfo *info)
 	g_slice_free(SwitchInfo, info);
 }
 
+/* Consume all the tokens belonging to the switches named here */
 static GSList *
 get_switches(GScanner *tokenizer, GSList *switcheslist, const gchar *switches, const gchar *argswitches, const gchar *wideswitches, const gchar *wideargswitches)
 {
@@ -491,45 +507,16 @@ format_integer(gint number, GeneralNumberFormat format)
 	return g_strdup_printf("%d", number);
 }
 
-static FieldState *
-field_state_new(void)
-{
-    FieldState *retval = g_new0(FieldState, 1);
-    return retval;
-}
-
-static FieldState *
-field_state_copy(FieldState *state)
-{
-    FieldState *retval = field_state_new();
-    *retval = *state;
-    return retval;
-}
-
-static void
-field_state_free(FieldState *state)
-{
-    g_free(state);
-}
-
 static gboolean
 field_fldrslt(ParserContext *ctx, FieldState *state, GError **error)
 {
-    Destination *dest = g_new0(Destination, 1);
-    dest->nesting_level = ctx->group_nesting_level;
-    dest->state_stack = g_queue_new();
     if(state->ignore_field_result)
-    {
-        dest->info = &ignore_destination;
-        g_queue_push_head(dest->state_stack, dest->info->state_new());
-    }
+        push_new_destination(ctx, &ignore_destination, NULL);
     else
     {
         Destination *outerdest = g_queue_peek_nth(ctx->destination_stack, 1);
         Attributes *attr = g_queue_peek_head(outerdest->state_stack);
-        dest->info = &field_result_destination;
-        g_queue_push_head(dest->state_stack, dest->info->state_copy(attr));   
+        push_new_destination(ctx, &field_result_destination, attr);
     }
-    g_queue_push_head(ctx->destination_stack, dest);
     return TRUE;
 }

@@ -5,54 +5,10 @@
 #include <pango/pango.h>
 #include "rtf-deserialize.h"
 #include "rtf-ignore.h"
+#include "rtf-state.h"
 
 extern const DestinationInfo document_destination;
 
-typedef struct {
-	gint style; /* Index into style sheet */
-	
-	/* Paragraph formatting */
-	
-	GtkJustification justification;
-	GtkTextDirection pardirection;
-	gint space_before;
-	gint space_after;
-	gboolean ignore_space_before;
-	gboolean ignore_space_after;
-	PangoTabArray *tabs;
-	gint left_margin;
-	gint right_margin;
-	gint indent;
-	gint leading;
-	
-	/* Character formatting */
-	
-	gint foreground; /* Index into the color table */
-	gint background;
-	gint highlight;
-	gint font; /* Index into the font table */
-	gdouble size;
-	gboolean italic;
-	gboolean bold;
-	gboolean smallcaps;
-	gboolean strikethrough;
-	gboolean subscript;
-	gboolean superscript;
-	gboolean invisible;
-	PangoUnderline underline;
-    GtkTextDirection chardirection;
-	gint language;
-	gint rise;
-
-	/* Number of characters to skip after \u */
-	gint unicode_skip;
-	/* Skip characters within \upr but not \*ud */
-	gboolean unicode_ignore;
-} Attributes;
-
-G_GNUC_INTERNAL Attributes *attributes_new(void);
-G_GNUC_INTERNAL Attributes *attributes_copy(const Attributes *attr);
-G_GNUC_INTERNAL void attributes_free(Attributes *attr);
 G_GNUC_INTERNAL void apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTextIter *end);
 G_GNUC_INTERNAL void document_text(ParserContext *ctx);
 G_GNUC_INTERNAL gint document_get_codepage(ParserContext *ctx);

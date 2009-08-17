@@ -3,29 +3,12 @@
 
 #include <glib.h>
 #include <gtk/gtk.h>
+#include "rtf-state.h"
 
 typedef struct _ParserContext ParserContext;
 typedef struct _ControlWord ControlWord;
 typedef struct _Destination Destination;
 typedef struct _DestinationInfo DestinationInfo;
-typedef gpointer StateNewFunc(void);
-typedef gpointer StateCopyFunc(gconstpointer);
-typedef void StateFreeFunc(gpointer);
-
-#define DEFINE_SIMPLE_STATE_FUNCTIONS(tn, fn) \
-    static gpointer G_PASTE_ARGS(fn, _state_new)(void) { return g_slice_new0(tn); } \
-    static gpointer G_PASTE_ARGS(fn, _state_copy)(gconstpointer state) { return g_slice_dup(tn, state); } \
-    static void G_PASTE_ARGS(fn, _state_free)(gpointer state) { g_slice_free(tn, state); }
-#define DEFINE_STATE_FUNCTIONS_WITH_INIT(tn, fn, init) \
-    static gpointer \
-    G_PASTE_ARGS(fn, _state_new)(void) \
-    { \
-        tn *state = g_slice_new0(tn); \
-        init \
-        return state; \
-    } \
-    static gpointer G_PASTE_ARGS(fn, _state_copy)(gconstpointer state) { return g_slice_dup(tn, state); } \
-    static void G_PASTE_ARGS(fn, _state_free)(gpointer state) { g_slice_free(tn, state); }
     
 #define POINTS_TO_PANGO(pts) ((gint)(pts * PANGO_SCALE))
 #define HALF_POINTS_TO_PANGO(halfpts) (halfpts * PANGO_SCALE / 2)

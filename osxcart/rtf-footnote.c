@@ -2,6 +2,7 @@
 #include <glib.h>
 #include "rtf-deserialize.h"
 #include "rtf-document.h"
+#include "rtf-state.h"
 
 /* rtf-footnote.c - Very similar to the main document destination, but adds its
 text in at the very end of the document and increments the footnote number. */
@@ -15,12 +16,14 @@ const ControlWord footnote_word_table[] = {
 	{ NULL }
 };
 
+DEFINE_ATTR_STATE_FUNCTIONS(Attributes, footnote)
+
 const DestinationInfo footnote_destination = {
     footnote_word_table,
     footnote_text,
-    (StateNewFunc *)attributes_new,
-    (StateCopyFunc *)attributes_copy,
-    (StateFreeFunc *)attributes_free,
+    footnote_state_new,
+    footnote_state_copy,
+    footnote_state_free,
 	footnote_end,
 	document_get_codepage
 };

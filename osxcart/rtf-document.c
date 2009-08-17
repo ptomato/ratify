@@ -9,6 +9,7 @@
 #include "rtf-deserialize.h"
 #include "rtf-document.h"
 #include "rtf-langcode.h"
+#include "rtf-state.h"
 
 /* rtf-document.c - Main document destination. This destination is not entirely
 contained within one source file, since some other destinations share code with
@@ -47,80 +48,17 @@ const ControlWord document_word_table[] = {
 	{ NULL }
 };
 
+DEFINE_ATTR_STATE_FUNCTIONS(Attributes, document)
+
 const DestinationInfo document_destination = {
     document_word_table,
     document_text,
-    (StateNewFunc *)attributes_new,
-    (StateCopyFunc *)attributes_copy,
-    (StateFreeFunc *)attributes_free,
+    document_state_new,
+    document_state_copy,
+    document_state_free,
 	NULL, /* cleanup */
 	document_get_codepage
 };
-
-static void
-set_default_character_attributes(Attributes *attr)
-{
-    attr->style = -1;
-	attr->background = -1;
-	attr->foreground = -1;
-	attr->highlight = -1;
-	attr->font = -1;
-	attr->size = 0.0;
-	attr->italic = FALSE;
-	attr->bold = FALSE;
-	attr->smallcaps = FALSE;
-	attr->strikethrough = FALSE;
-	attr->subscript = FALSE;
-	attr->superscript = FALSE;
-	attr->underline = -1;
-	attr->chardirection = -1;
-	attr->language = 1024;
-	attr->rise = 0;
-}
-
-static void
-set_default_paragraph_attributes(Attributes *attr)
-{
-    attr->justification = -1;
-	attr->pardirection = -1;
-	attr->space_before = 0;
-	attr->space_after = 0;
-	attr->ignore_space_before = FALSE;
-	attr->ignore_space_after = FALSE;
-	attr->tabs = NULL;
-	attr->left_margin = 0;
-	attr->right_margin = 0;
-	attr->indent = 0;
-	attr->leading = 0;
-}
-
-Attributes *
-attributes_new(void)
-{
-    Attributes *attr = g_slice_new0(Attributes);
-	set_default_paragraph_attributes(attr);
-	set_default_character_attributes(attr);
-	attr->unicode_skip = 1;
-	attr->unicode_ignore = FALSE;
-    return attr;
-}
-
-Attributes *
-attributes_copy(const Attributes *attr)
-{
-    Attributes *retval = g_slice_dup(Attributes, attr);
-	if(attr->tabs)
-	    retval->tabs = pango_tab_array_copy(attr->tabs);
-	return retval;
-}
-
-void
-attributes_free(Attributes *attr)
-{
-    if(attr->tabs)
-        pango_tab_array_free(attr->tabs);
-	g_slice_free(Attributes, attr);
-}
 
 /* Space-saving function for apply_attributes() */
 static void
