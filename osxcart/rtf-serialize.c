@@ -693,13 +693,13 @@ write_rtf(WriterContext *ctx)
     g_string_append(ctx->output, "}\n");
     
     /* Metadata (provide dummy values because Word will overwrite if missing) */
+    g_string_append_printf(ctx->output, "{\\*\\generator %s %s}\n", PACKAGE_NAME, PACKAGE_VERSION);
     g_string_append(ctx->output, "{\\info {\\author .}{\\company .}{\\title .}\n");
     gchar buffer[29];
     time_t timer = time(NULL);
     if(strftime(buffer, 29, "\\yr%Y\\mo%m\\dy%d\\hr%H\\min%M", localtime(&timer)))
-        g_string_append_printf(ctx->output, "{\\creatim%s}\n", buffer);
-    g_string_append_printf(ctx->output, "{\\doccomm Created by %s %s on %s}}\n", PACKAGE_NAME, PACKAGE_VERSION, g_strchomp(ctime(&timer)));
-    g_string_append_printf(ctx->output, "{\\*\\generator %s %s}\n", PACKAGE_NAME, PACKAGE_VERSION);
+        g_string_append_printf(ctx->output, "{\\creatim%s}}\n", buffer);
+    
     
     /* Preliminary formatting */
     g_string_append_printf(ctx->output, "\\deflang%d", language_to_wincode(pango_language_to_string(pango_language_get_default())));
