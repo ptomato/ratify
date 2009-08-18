@@ -30,7 +30,7 @@ typedef enum {
 } FieldType;
 
 typedef struct {
-    gchar *name;
+    const gchar *name;
     FieldType type;
     gboolean has_argument;        /* Whether the field itself has an argument */
     const gchar *switches;        /* 1-character switches without argument */
@@ -286,40 +286,34 @@ static void field_instruction_end(ParserContext *ctx)
 	FieldInstructionState *state = get_state(ctx);
 	gchar *field_type, *buffer;
 	GSList *switches = NULL, *formatswitches = NULL, *iter;
+	const FieldInfo *field_info = fields;
 	GScanner *tokenizer = g_scanner_new(&field_parser);
+	
 	g_scanner_input_text(tokenizer, state->scanbuffer->str, strlen(state->scanbuffer->str));
 	
 	/* Get field type */
 	if(!(field_type = get_string_token(tokenizer)))
 		return;
 
-	/* Determine if field type is supported */
-	if(strcmp(field_type, "HYPERLINK") == 0)
+	/* Determine if field type is supported and get switches and arguments */
+	while(field_info->name != NULL)
 	{
-		state->type = FIELD_TYPE_HYPERLINK;
-		switches = get_switches(tokenizer, switches, "mn", "lot", "", "");
-		if(!(buffer = get_string_token(tokenizer)))
-			return;
-		state->argument = g_strdup(buffer);
-		switches = get_switches(tokenizer, switches, "mn", "lot", "", "");
-		/* Ignore switches */
+	    if(g_ascii_strcasecmp(field_type, field_info->name) == 0)
+	    {
+	        state->type = field_info->type;
+	        switches = get_switches(tokenizer, switches, field_info->switches, field_info->argswitches, field_info->wideswitches, field_info->wideargswitches);
+	        if(field_info->has_argument)
+	        {
+	            if(!(buffer = get_string_token(tokenizer)))
+	                return;
+	            state->argument = g_strdup(buffer);
+	            switches = get_switches(tokenizer, switches, field_info->switches, field_info->argswitches, field_info->wideswitches, field_info->wideargswitches);
+	        }
+	        break;
+	    }
+	    field_info++;
 	}
-	else if(strcmp(field_type, "INCLUDEPICTURE") == 0)
-	{
-		state->type = FIELD_TYPE_INCLUDEPICTURE;
-		switches = get_switches(tokenizer, switches, "d", "c", "", "");
-		if(!(buffer = get_string_token(tokenizer)))
-			return;
-		state->argument = g_strdup(buffer);
-		switches = get_switches(tokenizer, switches, "d", "c", "", "");
-		/* Ignore switches */
-	}
-	else if(strcmp(field_type, "PAGE") == 0)
-	{
-		state->type = FIELD_TYPE_PAGE;
-		/* No switches or arguments */
-	}
-	else
+	if(field_info->name == NULL) /* Field name wasn't found in list */
 	{
 		g_warning(_("'%s' field not supported"), field_type);
 		g_scanner_destroy(tokenizer);
