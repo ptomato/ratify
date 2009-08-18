@@ -17,7 +17,7 @@ it. */
 
 /* Document destination functions */
 static DocFunc doc_ansi, doc_footnote, doc_mac, doc_pc, doc_pca;
-static DocParamFunc doc_ansicpg, doc_deff, doc_deflang, doc_rtf;
+static DocParamFunc doc_ansicpg, doc_deff, doc_deflang, doc_ilvl, doc_rtf;
 
 extern const DestinationInfo colortbl_destination, field_destination,
                              fonttbl_destination, footnote_destination,
@@ -36,6 +36,7 @@ const ControlWord document_word_table[] = {
 	{ "fonttbl", DESTINATION, FALSE, NULL, 0, NULL, &fonttbl_destination },
 	{ "footnote", DESTINATION, TRUE, doc_footnote, 0, NULL, &footnote_destination },
 	{ "header", DESTINATION, FALSE, NULL, 0, NULL, &ignore_destination },
+	{ "ilvl", REQUIRED_PARAMETER, FALSE, doc_ilvl },
 	{ "info", DESTINATION, FALSE, NULL, 0, NULL, &ignore_destination },
 	{ "mac", NO_PARAMETER, FALSE, doc_mac },
 	{ "NeXTGraphic", DESTINATION, FALSE, NULL, 0, NULL, &nextgraphic_destination }, /* Apple extension */
@@ -489,6 +490,24 @@ doc_i(ParserContext *ctx, Attributes *attr, gint32 param, GError **error)
         gtk_text_tag_table_add(ctx->tags, tag);
     }
     attr->italic = (param != 0);
+    return TRUE;
+}
+
+static gboolean
+doc_ilvl(ParserContext *ctx, Attributes *attr, gint32 param, GError **error)
+{
+    /* Insert n tabs at beginning of line */
+    GtkTextIter iter;
+    gchar *tabstring = g_strnfill(param, '\t');
+    
+	gtk_text_buffer_get_end_iter(ctx->textbuffer, &iter);
+	gtk_text_iter_set_line_offset(&iter, 0);
+	gtk_text_buffer_insert(ctx->textbuffer, &iter, tabstring, -1);
+	/* Move the start and end marks back together */
+	gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &iter, ctx->startmark);
+	gtk_text_buffer_move_mark(ctx->textbuffer, ctx->endmark, &iter);
+    
+    g_free(tabstring);
     return TRUE;
 }
 
