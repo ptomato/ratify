@@ -3,6 +3,7 @@
 #include <config.h>
 #include <glib/gi18n-lib.h>
 #include "rtf-deserialize.h"
+#include "rtf-document.h"
 
 /* rtf-fonttbl.c - The \fonttbl destination. Builds the parser context's font
 table and adds tags to the GtkTextBuffer's tag table for each font. */
@@ -38,6 +39,7 @@ static FontFunc ft_fbidi, ft_fdecor, ft_fmodern, ft_fnil, ft_froman, ft_fscript,
 static FontParamFunc ft_f, ft_fcharset;
 
 const ControlWord fonttbl_word_table[] = {
+    SPECIAL_CHARACTER_CONTROL_WORDS,
 	{ "f", REQUIRED_PARAMETER, TRUE, ft_f },
 	{ "fbidi", NO_PARAMETER, TRUE, ft_fbidi },
 	{ "fcharset", REQUIRED_PARAMETER, TRUE, ft_fcharset },

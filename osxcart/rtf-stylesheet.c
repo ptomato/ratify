@@ -39,62 +39,11 @@ DEFINE_STYLE_FUNCTION(sty_s, STYLE_PARAGRAPH)
 DEFINE_STYLE_FUNCTION(sty_ts, STYLE_TABLE)
 
 const ControlWord stylesheet_word_table[] = { 
-	{ "b", OPTIONAL_PARAMETER, TRUE, doc_b, 1 },
-	{ "cb", OPTIONAL_PARAMETER, TRUE, doc_cb, 0 },
-	{ "cf", OPTIONAL_PARAMETER, TRUE, doc_cf, 0 },
-	{ "chcbpat", OPTIONAL_PARAMETER, TRUE, doc_cb, 0 },
+	FORMATTED_TEXT_CONTROL_WORDS,
 	{ "*cs", REQUIRED_PARAMETER, TRUE, sty_cs },
-	{ "dn", OPTIONAL_PARAMETER, TRUE, doc_dn, 6 },
 	{ "*ds", REQUIRED_PARAMETER, TRUE, sty_ds },
-	{ "f", REQUIRED_PARAMETER, TRUE, doc_f },
-	{ "fi", OPTIONAL_PARAMETER, TRUE, doc_fi, 0 },
-	{ "fs", OPTIONAL_PARAMETER, TRUE, doc_fs, 24 },
-	{ "fsmilli", REQUIRED_PARAMETER, TRUE, doc_fsmilli }, /* Apple extension */
-	{ "highlight", REQUIRED_PARAMETER, TRUE, doc_highlight }, 
-	{ "i", OPTIONAL_PARAMETER, TRUE, doc_i, 1 },
-	{ "li", OPTIONAL_PARAMETER, TRUE, doc_li, 1 },
-	{ "ltrch", NO_PARAMETER, TRUE, doc_ltrch },
-	{ "ltrpar", NO_PARAMETER, TRUE, doc_ltrpar },
-	{ "qc", NO_PARAMETER, TRUE, doc_qc },
-	{ "qj", NO_PARAMETER, TRUE, doc_qj },
-	{ "ql", NO_PARAMETER, TRUE, doc_ql },
-	{ "qr", NO_PARAMETER, TRUE, doc_qr },
-	{ "ri", OPTIONAL_PARAMETER, TRUE, doc_ri, 0 },
-	{ "rtlch", NO_PARAMETER, TRUE, doc_rtlch },
-	{ "rtlpar", NO_PARAMETER, TRUE, doc_rtlpar },
 	{ "s", OPTIONAL_PARAMETER, TRUE, sty_s, 0 },
-	{ "sa", OPTIONAL_PARAMETER, TRUE, doc_sa, 0 },
-	{ "saauto", OPTIONAL_PARAMETER, TRUE, doc_saauto, 0 },
-	{ "sb", OPTIONAL_PARAMETER, TRUE, doc_sb, 0 },
-	{ "sbauto", OPTIONAL_PARAMETER, TRUE, doc_sbauto, 0 },
-	{ "scaps", OPTIONAL_PARAMETER, TRUE, doc_scaps, 1 },
-	{ "slleading", OPTIONAL_PARAMETER, TRUE, doc_slleading, 0 }, /* Apple extension */
-	{ "strike", OPTIONAL_PARAMETER, TRUE, doc_strike, 1 },
-	{ "sub", NO_PARAMETER, TRUE, doc_sub },
-	{ "super", NO_PARAMETER, TRUE, doc_super },
 	{ "*ts", REQUIRED_PARAMETER, TRUE, sty_ts },
-	{ "tx", REQUIRED_PARAMETER, FALSE, doc_tx },
-	{ "ul", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 },
-	{ "uld", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, /* Treat unsupported types */
-	{ "uldash", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, /* of underlining as */
-	{ "uldashd", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 }, /* regular underlining */
-	{ "uldashdd", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 },
-	{ "uldb", OPTIONAL_PARAMETER, TRUE, doc_uldb, 1 },
-	{ "ulhwave", OPTIONAL_PARAMETER, TRUE, doc_ulwave, 1 },
-	{ "ulldash", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 },
-	{ "ulnone", NO_PARAMETER, TRUE, doc_ulnone },
-	{ "ulstyle", REQUIRED_PARAMETER, TRUE, doc_ulstyle }, /* Apple extension */
-	{ "ulth", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 },
-	{ "ulthd", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 },
-	{ "ulthdash", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 },
-	{ "ulthdashd", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 },
-	{ "ulthdashdd", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 },
-	{ "ulthldash", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 },
-	{ "ululdbwave", OPTIONAL_PARAMETER, TRUE, doc_ulwave, 1 },
-	{ "ulw", OPTIONAL_PARAMETER, TRUE, doc_ul, 1 },
-	{ "ulwave", OPTIONAL_PARAMETER, TRUE, doc_ulwave, 1 },
-	{ "up", OPTIONAL_PARAMETER, TRUE, doc_up, 6 },
-	{ "v", OPTIONAL_PARAMETER, TRUE, doc_v, 1 },
 	{ NULL }
 };
 
