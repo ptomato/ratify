@@ -20,7 +20,7 @@ libosxcart_la_SOURCES = \
 	rtf-document.c rtf-document.h \
 	rtf-fonttbl.c \
 	rtf-colortbl.c \
-	rtf-ignore.c \
+	rtf-ignore.c rtf-ignore.h \
 	rtf-footnote.c \
 	rtf-picture.c \
 	rtf-field.c \
@@ -36,4 +36,3 @@ libosxcart_la_LIBADD = @OSXCART_LIBS@
 libosxcart_la_LDFLAGS = -no-undefined -export-symbols-regex "^(plist|rtf)_"
 libosxcart_includedir = $(includedir)/osxcart/osxcart
 libosxcart_include_HEADERS = plist.h rtf.h
-
