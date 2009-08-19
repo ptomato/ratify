@@ -12,8 +12,7 @@ dist_osxcartdoc_DATA = \
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = osxcart.pc
 
-EXTRA_DIST = intltool-extract.in intltool-merge.in intltool-update.in \
-	osxcart.pc.in
+EXTRA_DIST = osxcart.pc.in
 
 DISTCLEANFILES = intltool-extract intltool-merge intltool-update
 

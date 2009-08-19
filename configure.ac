@@ -20,7 +20,6 @@ m4_defun([_LT_AC_LANG_F77_CONFIG], [:]) # to save time (1.5 only)
 AC_PROG_LIBTOOL            # Libtool (1.5 series)
 PKG_PROG_PKG_CONFIG        # Pkg-config
 AM_GNU_GETTEXT([external]) # Gettext, link to system libintl
-IT_PROG_INTLTOOL([0.35.0]) # Intltool
 GTK_DOC_CHECK(1.9)         # Gtk-Doc
 
 ### LIBRARIES ##################################################################
@@ -76,4 +75,3 @@ AC_CONFIG_FILES([
 
 # Do it
 AC_OUTPUT
-
