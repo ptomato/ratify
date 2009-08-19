@@ -48,7 +48,7 @@ CFILE_GLOB=$(top_srcdir)/osxcart/*.c
 EXTRA_HFILES=
 
 # Header files to ignore when scanning. Use base file name, no paths
-IGNORE_HFILES=plist-common.h rtf-deserialize.h rtf-document.h rtf-ignore.h
+IGNORE_HFILES=plist-common.h rtf-deserialize.h rtf-document.h rtf-ignore.h rtf-state.h
 
 # Images to copy into HTML directory.
 HTML_IMAGES=
