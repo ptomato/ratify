@@ -174,7 +174,8 @@ field_instruction_text(ParserContext *ctx)
 	g_string_truncate(ctx->text, 0);
 }
 
-/* Get the next token from the scanner and make sure it is a string */
+/* Get the next token from the scanner and make sure it is a string. Do not free
+the returned value. */
 static gchar *
 get_string_token(GScanner *tokenizer)
 {
@@ -358,7 +359,7 @@ static void field_instruction_end(ParserContext *ctx)
 			else if(strcmp(info->switcharg, "roman") == 0)
 				state->general_number_format = NUMBER_roman;
 			else
-				g_warning(_("Format '%s' not supported."), buffer);
+				g_warning(_("Format '%s' not supported."), info->switcharg);
 				/* Just continue */
 		}
 	}
