@@ -2,11 +2,12 @@ SUBDIRS = osxcart testcases docs po
 
 osxcartdocdir = ${prefix}/doc/osxcart
 dist_osxcartdoc_DATA = \
-	README\
-	COPYING\
-	AUTHORS\
-	ChangeLog\
-	INSTALL\
+	README \
+	COPYING \
+	COPYING.LESSER \
+	AUTHORS \
+	ChangeLog \
+	INSTALL \
 	NEWS
 
 pkgconfigdir = $(libdir)/pkgconfig
