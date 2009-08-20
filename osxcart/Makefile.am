@@ -29,8 +29,9 @@ libosxcart_la_SOURCES = \
 	rtf-state.c rtf-state.h
 	
 libosxcart_la_CPPFLAGS = \
-	-DG_LOG_DOMAIN=\"Osxcart\" \
-	-DLOCALEDIR=\""$(datadir)/locale"\"
+	-DG_LOG_DOMAIN=\"@PACKAGE_NAME@\" \
+	-DLOCALEDIR=\""$(datadir)/locale"\" \
+	-I$(top_srcdir)
 libosxcart_la_CFLAGS = @OSXCART_CFLAGS@ $(AM_CFLAGS)
 libosxcart_la_LIBADD = @OSXCART_LIBS@
 libosxcart_la_LDFLAGS = -no-undefined -export-symbols-regex "^(plist|rtf)_"

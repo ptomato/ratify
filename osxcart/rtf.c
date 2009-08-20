@@ -134,8 +134,8 @@ rtf_register_deserialize_format(GtkTextBuffer *buffer)
 gboolean
 rtf_text_buffer_import(GtkTextBuffer *buffer, const gchar *filename, GError **error)
 {
-	gchar *contents, *tmpstr, *realfilename;
-	int cwd = -1;
+	gchar *contents, *tmpstr, *tmpfilename, *realfilename, *newdir;
+	int cwd;
 	gboolean retval;
 
 	osxcart_init();
@@ -145,39 +145,50 @@ rtf_text_buffer_import(GtkTextBuffer *buffer, const gchar *filename, GError **er
 	g_return_val_if_fail(filename != NULL, FALSE);
 	g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
+    /* Save the current directory for later, because the RTF file may refer to
+    other files relative to its own path */
+    cwd = g_open(".", O_RDONLY, 0);
+    if(cwd == -1)
+    {
+        g_set_error(error, G_FILE_ERROR, g_file_error_from_errno(errno), _("Could not access current directory: %s"), g_strerror(errno));
+        return FALSE;
+    }
+
     /* Check whether this is an RTFD package */
     tmpstr = g_ascii_strdown(filename, -1);
-    realfilename = g_build_filename(filename, "TXT.rtf", NULL);
-    if(g_str_has_suffix(tmpstr, ".rtfd") && g_file_test(filename, G_FILE_TEST_IS_DIR) && g_file_test(realfilename, G_FILE_TEST_EXISTS))
+    tmpfilename = g_build_filename(filename, "TXT.rtf", NULL);
+    if(g_str_has_suffix(tmpstr, ".rtfd") && g_file_test(filename, G_FILE_TEST_IS_DIR) && g_file_test(tmpfilename, G_FILE_TEST_EXISTS))
     {
-        /* Change the current directory to the package */
-        cwd = g_open(".", O_RDONLY, 0); /* Save directory for later */
-        if(cwd == -1)
-        {
-            g_set_error(error, G_FILE_ERROR, g_file_error_from_errno(errno), _("Could not access current directory: %s"), g_strerror(errno));
-            return FALSE;
-        }
-        if(g_chdir(filename) == -1)
-        {
-            g_set_error(error, G_FILE_ERROR, g_file_error_from_errno(errno), _("Could not change directory to '%s': %s"), filename, g_strerror(errno));
-            return FALSE;
-        }
-        g_free(realfilename);
+        /* cd to the package directory and open TXT.rtf */
+        newdir = g_strdup(filename);
         realfilename = g_strdup("TXT.rtf");
     }
     else
     {
-        g_free(realfilename);
-        realfilename = g_strdup(filename);
+        newdir = g_path_get_dirname(filename);
+        realfilename = g_path_get_basename(filename);
     }
     g_free(tmpstr);
+    g_free(tmpfilename);
+
+    /* Change directory */
+    if(g_chdir(newdir) == -1)
+    {
+        g_free(newdir);
+        g_free(realfilename);
+        g_set_error(error, G_FILE_ERROR, g_file_error_from_errno(errno), _("Could not change directory to '%s': %s"), newdir, g_strerror(errno));
+        return FALSE;
+    }
+    g_free(newdir);
 
 	if(!g_file_get_contents(realfilename, &contents, NULL, error))
 	{
 	    g_free(realfilename);
 		return FALSE;
     }
+    g_free(realfilename);
 	retval = rtf_text_buffer_import_from_string(buffer, contents, error);
+	g_free(contents);
 	
 	/* Change the directory back */
 	if(cwd != -1)
@@ -187,8 +198,6 @@ rtf_text_buffer_import(GtkTextBuffer *buffer, const gchar *filename, GError **er
 	    if(close(cwd) == -1)
 	        g_warning(_("Could not close current directory: %s"), g_strerror(errno));
 	}
-	g_free(contents);
-	g_free(realfilename);
 	return retval;
 }
 

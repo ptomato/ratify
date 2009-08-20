@@ -1,33 +1,45 @@
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gtk/gtk.h>
 #include <osxcart/rtf.h>
 
+/* Convenience function */
+static gchar *
+build_filename(const gchar *name)
+{
+    return g_build_filename(TESTFILEDIR, name, NULL);
+}
+
 /* This test tries to import a malformed RTF file, and succeeds if the import 
 failed. */
 static void
-rtf_fail_case(gconstpointer filename)
+rtf_fail_case(gconstpointer name)
 {
 	GError *error = NULL;
 	GtkTextBuffer *buffer = gtk_text_buffer_new(NULL);
+	gchar *filename = build_filename(name);
 	
 	g_assert(!rtf_text_buffer_import(buffer, filename, &error));
+	g_free(filename);
+	g_object_unref(buffer);
 	g_assert(error != NULL);
 	g_test_message("Error message: %s", error->message);
 	g_error_free(error);
-	g_object_unref(buffer);
 }
 
 /* This test tries to import an RTF file, and succeeds if the import succeeded. */
 static void
-rtf_parse_pass_case(gconstpointer filename)
+rtf_parse_pass_case(gconstpointer name)
 {
 	GError *error = NULL;
 	GtkTextBuffer *buffer = gtk_text_buffer_new(NULL);
+	gchar *filename = build_filename(name);
 	
 	if(!rtf_text_buffer_import(buffer, filename, &error))
 		g_test_message("Error message: %s", error->message);
+    g_free(filename);
 	g_object_unref(buffer);
 	g_assert(error == NULL);
 }
@@ -35,15 +47,17 @@ rtf_parse_pass_case(gconstpointer filename)
 /* This test is commented out. */
 #if 0
 static void
-rtf_write_case(gcontpointer filename)
+rtf_write_case(gcontpointer name)
 {
 	GError *error = NULL;
 	GtkTextBuffer *buffer = gtk_text_buffer_new(NULL);
+	gchar *filename = build_filename(name);
 	
 	g_assert(rtf_text_buffer_import(buffer, filename, &error));
+	g_free(filename);
 	g_assert(error == NULL);
 	gchar *string = rtf_text_buffer_export_to_string(buffer);
-    g_object_unref(buffer);
+	g_object_unref(buffer);
 	g_print("%s\n", string);
 	g_free(string);
 }
@@ -56,14 +70,16 @@ test fails. Otherwise, the test succeeds.
 Comparing the plaintext is for lack of a better way to compare the text buffers'
 formatting. */
 static void
-rtf_write_pass_case(gconstpointer filename)
+rtf_write_pass_case(gconstpointer name)
 {
     GError *error = NULL;
     GtkTextBuffer *buffer1 = gtk_text_buffer_new(NULL);
     GtkTextBuffer *buffer2 = gtk_text_buffer_new(NULL);
+    gchar *filename = build_filename(name);
     
 	if(!rtf_text_buffer_import(buffer1, filename, &error))
 	    g_test_message("Import error message: %s", error->message);
+	g_free(filename);
 	g_assert(error == NULL);
 	gchar *string = rtf_text_buffer_export_to_string(buffer1);
 	if(!rtf_text_buffer_import_from_string(buffer2, string, &error))
@@ -90,12 +106,12 @@ RTF code and its rendered result side by side, asking the user whether the RTF
 code is rendered correctly. The test succeeds if the user answers Yes, and fails
 if the user answers No. */
 static void
-rtf_parse_human_approval_case(gconstpointer filename)
+rtf_parse_human_approval_case(gconstpointer name)
 {
     GError *error = NULL;
     GtkWidget *label, *pane, *codescroll, *codeview, *rtfscroll, *rtfview, *dialog, *vbox;
     GtkTextBuffer *rtfbuffer = gtk_text_buffer_new(NULL);
-    gchar *text;
+    gchar *text, *filename = build_filename(name);
     gint response;
 	
 	/* Get RTF code */
@@ -136,6 +152,7 @@ rtf_parse_human_approval_case(gconstpointer filename)
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 6);
 	gtk_paned_set_position(GTK_PANED(pane), 500);
 	gtk_widget_show_all(vbox);
+	g_free(filename);
 
 	/* Run it */
 	response = gtk_dialog_run(GTK_DIALOG(dialog));
@@ -259,20 +276,16 @@ const gchar *codeprojectfailcases[] = {
 	NULL, NULL
 };
 
-/* This function adds all the RTF tests to the test suite. It skips tests that
-load WMF and EMF files if those modules are not compiled into GdkPixbuf. The
-human tests are only added if the test suite was invoked with '-m=perf
--m=thorough'.*/
-void
-add_rtf_tests(void)
+/* Whether WMF and EMF loading is available */
+gboolean have_wmf = FALSE;
+gboolean have_emf = FALSE;
+
+/* Determine whether WMF and EMF support were compiled into our GdkPixbuf */
+static void
+check_wmf_and_emf(void)
 {
-    const gchar **ptr;
-    gchar *testname;
-    gboolean have_wmf = FALSE;
-    gboolean have_emf = FALSE;
     GSList *iter, *formats = gdk_pixbuf_get_formats();
     
-    /* Determine whether WMF and EMF support were compiled into our GdkPixbuf */
     for(iter = formats; iter; iter = g_slist_next(iter))
     {
         if(strcmp(gdk_pixbuf_format_get_name(iter->data), "wmf") == 0)
@@ -281,75 +294,55 @@ add_rtf_tests(void)
             have_emf = TRUE;
     }
     g_slist_free(formats);
+}
+
+static void
+add_tests(const gchar **testlist, const gchar *path, void (test_func)(gconstpointer))
+{
+    const gchar **ptr;
+    gchar *testname;
     
+    for(ptr = testlist; *ptr; ptr += 2)
+	{
+	    if((!have_wmf && strstr(ptr[0], "WMF")) || (!have_emf && strstr(ptr[0], "EMF")))
+            continue;
+		testname = g_strconcat(path, ptr[0], NULL);
+		g_test_add_data_func(testname, ptr[1], test_func);
+		g_free(testname);
+	}
+}
+
+/* This function adds all the RTF tests to the test suite. It skips tests that
+load WMF and EMF files if those modules are not compiled into GdkPixbuf. The
+human tests are only added if the test suite was invoked with '-m=perf
+-m=thorough'.*/
+void
+add_rtf_tests(void)
+{
+    check_wmf_and_emf();
+    
+    /* Fail cases */
 	/* Nonexistent filename case */
 	g_test_add_data_func("/rtf/parse/fail/Nonexistent filename", "", rtf_fail_case);
+	/* Cases from http://www.codeproject.com/KB/recipes/RtfConverter.aspx */
+	add_tests(codeprojectfailcases, "/rtf/parse/fail/", rtf_fail_case);
 
-	/* Pass cases, all examples from 'RTF Pocket Guide' by Sean M. Burke */
-	/* These must all parse correctly */
-	for(ptr = rtfbookexamples; *ptr; ptr += 2)
-	{
-		testname = g_strconcat("/rtf/parse/pass/pocketguide/", ptr[0], NULL);
-		g_test_add_data_func(testname, ptr[1], rtf_parse_pass_case);
-		g_free(testname);
-	}
-
-	/* Pass cases, from http://www.codeproject.com/KB/recipes/RtfConverter.aspx */
-	/* These must all parse correctly */
-	for(ptr = codeprojectpasscases; *ptr; ptr += 2)
-	{
-	    if((!have_wmf && strstr(ptr[0], "WMF")) || (!have_emf && strstr(ptr[0], "EMF")))
-            continue;
-		testname = g_strconcat("/rtf/parse/pass/codeproject/", ptr[0], NULL);
-		g_test_add_data_func(testname, ptr[1], rtf_parse_pass_case);
-		g_free(testname);
-	}
-
-	/* Fail cases, from http://www.codeproject.com/KB/recipes/RtfConverter.aspx */
-	/* These must all give an error */
-	for(ptr = codeprojectfailcases; *ptr; ptr += 2)
-	{
-		testname = g_strconcat("/rtf/parse/fail/codeproject/", ptr[0], NULL);
-		g_test_add_data_func(testname, ptr[1], rtf_fail_case);
-		g_free(testname);
-	}
-	
+	/* Pass cases */
+	/* Examples from 'RTF Pocket Guide' by Sean M. Burke */
+	add_tests(rtfbookexamples, "/rtf/parse/pass/", rtf_parse_pass_case);
+	/* From http://www.codeproject.com/KB/recipes/RtfConverter.aspx */
+	add_tests(codeprojectpasscases, "/rtf/parse/pass/", rtf_parse_pass_case);
 	/* These tests export the RTF to a string and re-import it */
-	for(ptr = rtfbookexamples; *ptr; ptr += 2)
-	{
-		testname = g_strconcat("/rtf/write/pocketguide/", ptr[0], NULL);
-		g_test_add_data_func(testname, ptr[1], rtf_write_pass_case);
-		g_free(testname);
-	}
-	for(ptr = codeprojectpasscases; *ptr; ptr += 2)
-	{
-	    if((!have_wmf && strstr(ptr[0], "WMF")) || (!have_emf && strstr(ptr[0], "EMF")))
-            continue;
-		testname = g_strconcat("/rtf/write/codeproject/", ptr[0], NULL);
-		g_test_add_data_func(testname, ptr[1], rtf_write_pass_case);
-		g_free(testname);
-	}
-	
+	add_tests(rtfbookexamples, "/rtf/write/", rtf_write_pass_case);
+	add_tests(codeprojectpasscases, "/rtf/write/", rtf_write_pass_case);
     /* RTFD tests */
-    g_test_add_data_func("/rtf/parse/pass/rtfd/RTFD test", "rtfdtest.rtfd", rtf_parse_pass_case);
-    g_test_add_data_func("/rtf/write/rtfd/RTFD test", "rtfdtest.rtfd", rtf_write_pass_case);
+    g_test_add_data_func("/rtf/parse/pass/RTFD test", "rtfdtest.rtfd", rtf_parse_pass_case);
+    g_test_add_data_func("/rtf/write/RTFD test", "rtfdtest.rtfd", rtf_write_pass_case);
     
     /* Human tests -- only on thorough testing */
     if(g_test_thorough())
     {
-        for(ptr = rtfbookexamples; *ptr; ptr += 2)
-        {
-            testname = g_strconcat("/rtf/parse/human/pocketguide/", ptr[0], NULL);
-            g_test_add_data_func(testname, ptr[1], rtf_parse_human_approval_case);
-            g_free(testname);
-        }
-        for(ptr = codeprojectpasscases; *ptr; ptr += 2)
-        {
-            if((!have_wmf && strstr(ptr[0], "WMF")) || (!have_emf && strstr(ptr[0], "EMF")))
-                continue;
-            testname = g_strconcat("/rtf/parse/human/codeproject/", ptr[0], NULL);
-            g_test_add_data_func(testname, ptr[1], rtf_parse_human_approval_case);
-            g_free(testname);
-        }
+        add_tests(rtfbookexamples, "/rtf/parse/human/", rtf_parse_human_approval_case);
+        add_tests(codeprojectpasscases, "/rtf/parse/human/", rtf_parse_human_approval_case);
     }
 }

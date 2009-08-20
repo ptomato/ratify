@@ -54,7 +54,7 @@ IGNORE_HFILES=plist-common.h rtf-deserialize.h rtf-document.h rtf-ignore.h rtf-s
 HTML_IMAGES=
 
 # Extra SGML files that are included by $(DOC_MAIN_SGML_FILE).
-content_files=
+content_files=version.xml
 
 # SGML files where gtk-doc abbrevations (#GtkWidget) are expanded
 # These files must be listed here *and* in content_files
@@ -73,10 +73,13 @@ include $(top_srcdir)/gtk-doc.make
 EXTRA_DIST += version.xml.in
 
 # Files not to distribute
-DISTCLEANFILES = $(DOC_MODULE).types $(DOC_MODULE)-sections.txt
+DISTCLEANFILES = \
+	$(DOC_MODULE).types \
+	$(DOC_MODULE)-sections.txt \
+	$(DOC_MODULE)-overrides.txt
 
 # Comment this out if you want your docs-status tested during 'make check'
 if ENABLE_GTK_DOC
-TESTS_ENVIRONMENT = cd $(srcsrc)
+TESTS_ENVIRONMENT = cd $(srcdir) &&
 TESTS = $(GTKDOC_CHECK)
 endif 

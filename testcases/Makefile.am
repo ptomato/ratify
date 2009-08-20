@@ -1,6 +1,7 @@
 AM_CFLAGS = -Wall
 
 noinst_PROGRAMS = test-osxcart
+test_osxcart_CPPFLAGS = -I$(top_srcdir) -DTESTFILEDIR=\""$(abs_srcdir)"\"
 test_osxcart_SOURCES = test-plist.c test-rtf.c test.c
 test_osxcart_CFLAGS = @TEST_CFLAGS@ $(AM_CFLAGS)
 test_osxcart_LDADD = @TEST_LIBS@ ../osxcart/libosxcart.la
@@ -94,6 +95,10 @@ EXTRA_DIST = \
 	p085b_table_h_alignment.rtf \
 	p086a_table_all_alignments.rtf \
 	p086b_table_all_alignments_with_borders.rtf \
+	crazy_fonttable.rtf \
+	outtake_crazy_fonttable.rtf \
+	outtake_latin.rtf \
+	outtake_simplicity.rtf \
 	DefaultText.rtf \
 	minimal.rtf \
 	RtfInterpreterTest_0.rtf \

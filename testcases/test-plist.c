@@ -1,15 +1,24 @@
 #include <glib.h>
 #include <osxcart/plist.h>
 
+/* Convenience function */
+static gchar *
+build_filename(const gchar *name)
+{
+    return g_build_filename(TESTFILEDIR, name, NULL);
+}
+
 /* This test tries to read a malformed plist, and succeeds if the operation
 failed. */
 static void
-plist_fail_case(gconstpointer filename)
+plist_fail_case(gconstpointer name)
 {
 	GError *error = NULL;
 	PlistObject *plist;
+	gchar *filename = build_filename(name);
 	
 	plist = plist_read(filename, &error);
+	g_free(filename);
 	g_assert(error != NULL);
 	g_test_message("Error message: %s", error->message);
 	g_error_free(error);
@@ -18,12 +27,14 @@ plist_fail_case(gconstpointer filename)
 
 /* This test tries to read a plist, and succeeds if the operation succeeded. */
 static void
-plist_pass_case(gconstpointer filename)
+plist_pass_case(gconstpointer name)
 {
 	GError *error = NULL;
 	PlistObject *plist;
+	gchar *filename = build_filename(name);
 	
 	plist = plist_read(filename, &error);
+	g_free(filename);
 	g_assert(error == NULL);
 	g_assert(plist != NULL);
 	plist_object_free(plist);
@@ -37,15 +48,16 @@ In this implementation of writing plists, <real> elements are specified to 14
 decimal places, and <dict> entries are alphabetized by their <key>. The input
 file must also follow these conventions if the two strings are to be equal. */
 static void
-plist_compare_case(gconstpointer filename)
+plist_compare_case(gconstpointer name)
 {
 	GError *error = NULL;
 	PlistObject *plist;
-	gchar *correctstring, *actualstring;
+	gchar *correctstring, *actualstring, *filename = build_filename(name);
 	
 	plist = plist_read(filename, &error);
 	g_assert(error == NULL);
 	g_assert(g_file_get_contents(filename, &correctstring, NULL, &error));
+	g_free(filename);
 	g_assert(error == NULL);
 	actualstring = plist_write_to_string(plist);
 	plist_object_free(plist);
@@ -76,36 +88,31 @@ const gchar *passcases[] = {
     NULL, NULL
 };
 
-/* This function adds the plist tests to the test suite. */
-void
-add_plist_tests()
+static void
+add_tests(const gchar **testlist, const gchar *path, void (test_func)(gconstpointer))
 {
     const gchar **ptr;
     gchar *testname;
     
-    /* Fail cases */
-    for(ptr = failcases; *ptr; ptr += 2)
+    for(ptr = testlist; *ptr; ptr += 2)
 	{
-		testname = g_strconcat("/plist/fail/", ptr[0], NULL);
-		g_test_add_data_func(testname, ptr[1], plist_fail_case);
+		testname = g_strconcat(path, ptr[0], NULL);
+		g_test_add_data_func(testname, ptr[1], test_func);
 		g_free(testname);
 	}
+}
+
+/* This function adds the plist tests to the test suite. */
+void
+add_plist_tests()
+{
+    /* Fail cases */
+    add_tests(failcases, "/plist/fail/", plist_fail_case);
 	
-	/* Pass cases, from Apple's plist man pages */
-	for(ptr = passcases; *ptr; ptr += 2)
-	{
-	    testname = g_strconcat("/plist/pass/", ptr[0], NULL);
-	    g_test_add_data_func(testname, ptr[1], plist_pass_case);
-	    g_free(testname);
-	}
-	
+	/* Pass cases */
+	add_tests(passcases, "/plist/pass/", plist_pass_case);
 	/* Cases where the output should be exactly the same as the input */
 	/* Remember to specify <real>s to 14 decimal points and to alphabetize
 	<dict> keys */
-	for(ptr = passcases; *ptr; ptr += 2)
-	{
-	    testname = g_strconcat("/plist/compare/", ptr[0], NULL);
-	    g_test_add_data_func(testname, ptr[1], plist_compare_case);
-	    g_free(testname);
-    }
+	add_tests(passcases, "/plist/compare/", plist_compare_case);
 }
