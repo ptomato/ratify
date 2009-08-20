@@ -1,6 +1,10 @@
 #!/bin/sh
 ### autogen.sh with sensible comments ###############################
 
+### CREATE MACRO DIRECTORY ##########################################
+# Needed by Gtk-Doc
+mkdir -p m4
+
 ### GTK-DOC #########################################################
 # Run before autotools
 echo "Setting up Gtk-Doc"

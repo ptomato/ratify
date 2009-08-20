@@ -7,6 +7,7 @@ AC_PREREQ([2.61]) # Version in Debian stable
 
 AC_INIT([osxcart], [0.1])
 AC_CONFIG_SRCDIR([testcases/test.c]) # Sanity check
+AC_CONFIG_MACRO_DIR(m4)
 AM_INIT_AUTOMAKE([-Wall])
 AM_SILENT_RULES # Shut up and tell libtool to shut up too
 
