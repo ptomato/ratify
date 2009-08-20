@@ -5,7 +5,7 @@ AC_PREREQ([2.61]) # Version in Debian stable
 
 ### INITIALIZATION #############################################################
 
-AC_INIT([osxcart], [0.1])
+AC_INIT([Osxcart], [0.99])
 AC_CONFIG_SRCDIR([testcases/test.c]) # Sanity check
 AC_CONFIG_MACRO_DIR(m4)
 AM_INIT_AUTOMAKE([-Wall])
