@@ -11,6 +11,15 @@ AC_CONFIG_MACRO_DIR(m4)
 AM_INIT_AUTOMAKE([-Wall])
 AM_SILENT_RULES # Shut up and tell libtool to shut up too
 
+### LIBRARY VERSIONING #########################################################
+# Only update immediately before a public release
+
+OSXCART_CURRENT=0  # Increment if interface changes
+OSXCART_REVISION=0 # Increment if source code changes; set 0 if interface
+OSXCART_AGE=0 # Increment if interfaces added; set 0 if removed
+LT_VERSION_INFO="$OSXCART_CURRENT:$OSXCART_REVISION:$OSXCART_AGE"
+AC_SUBST(LT_VERSION_INFO)
+
 ### PROGRAMS ###################################################################
 
 AC_PROG_CC                 # C compiler

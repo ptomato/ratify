@@ -34,6 +34,8 @@ libosxcart_la_CPPFLAGS = \
 	-I$(top_srcdir)
 libosxcart_la_CFLAGS = @OSXCART_CFLAGS@ $(AM_CFLAGS)
 libosxcart_la_LIBADD = @OSXCART_LIBS@
-libosxcart_la_LDFLAGS = -no-undefined -export-symbols-regex "^(plist|rtf)_"
+libosxcart_la_LDFLAGS = -version-info $(LT_VERSION_INFO) \
+						-no-undefined \
+						-export-symbols-regex "^(plist|rtf)_"
 libosxcart_includedir = $(includedir)/osxcart/osxcart
 libosxcart_include_HEADERS = plist.h rtf.h
