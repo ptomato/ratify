@@ -1,3 +1,9 @@
+2009-09-06 13:33  pchimento
+
+	* /ChangeLog, /Makefile.am, /NEWS, /configure.ac, /osxcart.spec.in,
+	  /po/nl.po: - Add rpm target to makefile
+	  - Update version to 1.0
+
 2009-09-06 11:44  pchimento
 
 	* /configure.ac, /osxcart/rtf.c: Fixed directory bug
