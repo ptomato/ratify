@@ -1,4 +1,12 @@
-2009-08-20  P. F. Chimento  <philip.chimento@gmail.com>
+2009-09-06 11:44  pchimento
 
-	* ChangeLog: Release 0.99, first public release.
+	* /configure.ac, /osxcart/rtf.c: Fixed directory bug
+
+2009-09-06 10:34  pchimento
+
+	* /testcases/test-rtf.c: Workaround bug in GTK X11
+
+2009-08-20 05:31  pchimento
+
+	* /ChangeLog, /configure.ac: Advance version to 0.99.
 

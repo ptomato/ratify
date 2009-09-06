@@ -5,7 +5,7 @@ AC_PREREQ([2.61]) # Version in Debian stable
 
 ### INITIALIZATION #############################################################
 
-AC_INIT([Osxcart], [0.99])
+AC_INIT([Osxcart], [1.0])
 AC_CONFIG_SRCDIR([testcases/test.c]) # Sanity check
 AC_CONFIG_MACRO_DIR(m4)
 AM_INIT_AUTOMAKE([-Wall])
@@ -15,7 +15,7 @@ AM_SILENT_RULES # Shut up and tell libtool to shut up too
 # Only update immediately before a public release
 
 OSXCART_CURRENT=0  # Increment if interface changes
-OSXCART_REVISION=0 # Increment if source code changes; set 0 if interface
+OSXCART_REVISION=1 # Increment if source code changes; set 0 if interface
 OSXCART_AGE=0 # Increment if interfaces added; set 0 if removed
 LT_VERSION_INFO="$OSXCART_CURRENT:$OSXCART_REVISION:$OSXCART_AGE"
 AC_SUBST(LT_VERSION_INFO)
@@ -25,6 +25,8 @@ AC_SUBST(LT_VERSION_INFO)
 AC_PROG_CC                 # C compiler
 AM_PROG_CC_C_O             # Required for per-target CFLAGS
 AC_PROG_INSTALL            # Install
+AC_PATH_PROG([TEST], [test])
+AC_PATH_PROG([ECHO], [echo])
 m4_defun([_LT_AC_LANG_CXX_CONFIG], [:]) # Disable unnecessary Libtool checks
 m4_defun([_LT_AC_LANG_F77_CONFIG], [:]) # to save time (1.5 only)
 AC_PROG_LIBTOOL            # Libtool (1.5 series)
@@ -56,11 +58,34 @@ AC_SUBST(GDK_PIXBUF_REQUIRED_VERSION)
 ### HEADER FILES ###############################################################
 
 AC_CHECK_HEADERS([stdlib.h string.h])
-AC_CHECK_FUNCS([fchdir strchr strrchr strstr strtol])
+AC_CHECK_FUNCS([strchr strrchr strstr strtol])
 
 # COMPILER CHARACTERISTICS #####################################################
 
 AC_C_INLINE
+
+### RPM CONFIGURATION ##########################################################
+# --enable-rpm requires rpm and rpmbuild
+AC_PATH_PROG([RPMBUILD], [rpmbuild], [notfound])
+AC_PATH_PROG([RPM], [rpm], [notfound])
+AC_ARG_ENABLE([rpm],
+	[AS_HELP_STRING([--enable-rpm],[Configure for building RPM package [no] (requires rpm and rpmbuild)])],
+	[AS_CASE([${enableval}],
+		[yes], [AS_IF(
+			[$TEST "x$RPMBUILD" = xnotfound],
+				[AC_MSG_ERROR([rpmbuild is required for --enable-rpm])],
+			[$TEST "x$RPM" = xnotfound],
+				[AC_MSG_ERROR([rpm is required for --enable-rpm])],
+			[rpm=true])],
+		[no],  [rpm=false],
+		[AC_MSG_ERROR([bad value ${enableval} for --enable-rpm])]
+	)],
+	[rpm=false]
+)
+AM_CONDITIONAL([BUILDING_RPM], [$TEST "x$rpm" = xtrue])
+# The user can specify the RPM release number in the environment (e.g. '1.fc10')
+AC_ARG_VAR([RPM_RELEASE], [Release number to build RPMs with [1]])
+AS_IF([$TEST "x$RPM_RELEASE" = x], [RPM_RELEASE=1])
 
 ### INTERNATIONALIZATION ######################################################
 
@@ -74,6 +99,7 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [GETTEXT package name])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([
 	osxcart.pc
+	osxcart.spec
 	Makefile
 	osxcart/Makefile
 	testcases/Makefile

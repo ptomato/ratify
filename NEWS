@@ -1,2 +1,7 @@
+News in 1.0
++ Added an 'rpm' target to the makefile, so 'make rpm' now builds an RPM
+  package and a devel RPM package.
+* Fixed various bugs.
+
 News in 0.99
 * First public release.
