@@ -142,7 +142,7 @@ rtf_parse_human_approval_case(gconstpointer name)
 	gtk_paned_add1(GTK_PANED(pane), codescroll);
 	gtk_paned_add2(GTK_PANED(pane), rtfscroll);
 	/* Build dialog box */
-	dialog = gtk_dialog_new_with_buttons(filename, NULL, 0,
+	dialog = gtk_dialog_new_with_buttons(filename, NULL, GTK_DIALOG_MODAL,
 	    GTK_STOCK_YES, GTK_RESPONSE_YES,
 	    GTK_STOCK_NO,  GTK_RESPONSE_NO,
 	    NULL);
