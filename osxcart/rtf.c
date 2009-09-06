@@ -14,8 +14,6 @@ You should have received a copy of the GNU Lesser General Public License along
 with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include <errno.h>
 #include <glib.h>
 #include <glib/gstdio.h>
@@ -134,8 +132,7 @@ rtf_register_deserialize_format(GtkTextBuffer *buffer)
 gboolean
 rtf_text_buffer_import(GtkTextBuffer *buffer, const gchar *filename, GError **error)
 {
-	gchar *contents, *tmpstr, *tmpfilename, *realfilename, *newdir;
-	int cwd;
+	gchar *cwd, *contents, *tmpstr, *tmpfilename, *realfilename, *newdir;
 	gboolean retval;
 
 	osxcart_init();
@@ -147,12 +144,7 @@ rtf_text_buffer_import(GtkTextBuffer *buffer, const gchar *filename, GError **er
 
     /* Save the current directory for later, because the RTF file may refer to
     other files relative to its own path */
-    cwd = g_open(".", O_RDONLY, 0);
-    if(cwd == -1)
-    {
-        g_set_error(error, G_FILE_ERROR, g_file_error_from_errno(errno), _("Could not access current directory: %s"), g_strerror(errno));
-        return FALSE;
-    }
+	cwd = g_get_current_dir();
 
     /* Check whether this is an RTFD package */
     tmpstr = g_ascii_strdown(filename, -1);
@@ -176,6 +168,7 @@ rtf_text_buffer_import(GtkTextBuffer *buffer, const gchar *filename, GError **er
     {
         g_free(newdir);
         g_free(realfilename);
+		g_free(cwd);
         g_set_error(error, G_FILE_ERROR, g_file_error_from_errno(errno), _("Could not change directory to '%s': %s"), newdir, g_strerror(errno));
         return FALSE;
     }
@@ -184,6 +177,9 @@ rtf_text_buffer_import(GtkTextBuffer *buffer, const gchar *filename, GError **er
 	if(!g_file_get_contents(realfilename, &contents, NULL, error))
 	{
 	    g_free(realfilename);
+		if(g_chdir(cwd) == -1)
+	    g_warning(_("Could not restore current directory: %s"), g_strerror(errno));
+			g_free(cwd);
 		return FALSE;
     }
     g_free(realfilename);
@@ -191,13 +187,10 @@ rtf_text_buffer_import(GtkTextBuffer *buffer, const gchar *filename, GError **er
 	g_free(contents);
 	
 	/* Change the directory back */
-	if(cwd != -1)
-	{
-	    if(fchdir(cwd) == -1)
-	        g_warning(_("Could not restore current directory: %s"), g_strerror(errno));
-	    if(close(cwd) == -1)
-	        g_warning(_("Could not close current directory: %s"), g_strerror(errno));
-	}
+    if(g_chdir(cwd) == -1)
+	    g_warning(_("Could not restore current directory: %s"), g_strerror(errno));
+	g_free(cwd);
+	
 	return retval;
 }
 
