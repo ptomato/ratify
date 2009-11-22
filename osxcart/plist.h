@@ -200,7 +200,7 @@ typedef enum {
 /**
  * PLIST_ERROR:
  *
- * The domain of errors raised by property list processing in Libmac.
+ * The domain of errors raised by property list processing in Osxcart.
  */
 #define PLIST_ERROR plist_error_quark()
 
