@@ -20,17 +20,6 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 G_BEGIN_DECLS
 
-typedef union  _PlistObject        PlistObject;
-
-typedef struct _PlistObjectBoolean PlistObjectBoolean;
-typedef struct _PlistObjectReal    PlistObjectReal;
-typedef struct _PlistObjectInteger PlistObjectInteger;
-typedef struct _PlistObjectString  PlistObjectString;
-typedef struct _PlistObjectDate    PlistObjectDate;
-typedef struct _PlistObjectArray   PlistObjectArray;
-typedef struct _PlistObjectDict    PlistObjectDict;
-typedef struct _PlistObjectData    PlistObjectData;
-
 /**
  * PlistObjectType:
  *
@@ -54,10 +43,10 @@ typedef enum {
  *
  * A #PlistObject which contains a boolean, similar to #CFBoolean.
  */
-struct _PlistObjectBoolean {
+typedef struct _PlistObjectBoolean {
 	PlistObjectType type;
 	gboolean val;
-};
+} PlistObjectBoolean;
 
 /**
  * PlistObjectReal:
@@ -67,10 +56,10 @@ struct _PlistObjectBoolean {
  * A #PlistObject which contains a double-precision floating point number.
  * #CFNumber is used to represent these in CoreFoundation.
  */
-struct _PlistObjectReal {
+typedef struct _PlistObjectReal {
 	PlistObjectType type;
 	gdouble val;
-};
+} PlistObjectReal;
 
 /**
  * PlistObjectInteger:
@@ -80,10 +69,10 @@ struct _PlistObjectReal {
  * A #PlistObject which contains an integer. #CFNumber is used to represent
  * these in CoreFoundation.
  */
-struct _PlistObjectInteger {
+typedef struct _PlistObjectInteger {
 	PlistObjectType type;
 	gint val;
-};
+} PlistObjectInteger;
 
 /**
  * PlistObjectString:
@@ -92,10 +81,10 @@ struct _PlistObjectInteger {
  *
  * A #PlistObject which contains a string, similar to #CFString.
  */
-struct _PlistObjectString {
+typedef struct _PlistObjectString {
 	PlistObjectType type;
 	gchar *val;
-};
+} PlistObjectString;
 
 /**
  * PlistObjectDate:
@@ -105,10 +94,10 @@ struct _PlistObjectString {
  * A #PlistObject which contains a date in GLib's timeval format, similar to 
  * #CFDate.
  */
-struct _PlistObjectDate {
+typedef struct _PlistObjectDate {
 	PlistObjectType type;
 	GTimeVal val;
-};
+} PlistObjectDate;
 
 /**
  * PlistObjectArray:
@@ -118,10 +107,10 @@ struct _PlistObjectDate {
  * A #PlistObject which contains any number of child #PlistObject<!---->s, 
  * similar to #CFArray.
  */
-struct _PlistObjectArray {
+typedef struct _PlistObjectArray {
 	PlistObjectType type;
 	GList *val;
-};
+} PlistObjectArray;
 
 /**
  * PlistObjectDict:
@@ -131,10 +120,10 @@ struct _PlistObjectArray {
  * A #PlistObject which contains a dictionary of child #PlistObject<!---->s 
  * accessed by string keys, similar to #CFDictionary.
  */
-struct _PlistObjectDict {
+typedef struct _PlistObjectDict {
 	PlistObjectType type;
 	GHashTable *val;
-};
+} PlistObjectDict;
 
 /**
  * PlistObjectData:
@@ -144,11 +133,11 @@ struct _PlistObjectDict {
  *
  * A #PlistObject which contains arbitary binary data, similar to #CFData.
  */
-struct _PlistObjectData {
+typedef struct _PlistObjectData {
 	PlistObjectType type;
 	guchar *val;
 	gsize length;
-};
+} PlistObjectData;
 
 /**
  * PlistObject:
@@ -168,7 +157,7 @@ struct _PlistObjectData {
  * if(obj->type == PLIST_OBJECT_ARRAY)
  *     g_list_foreach(obj->array.val, some_function, NULL);]|
  */
-union _PlistObject {
+typedef union _PlistObject {
 	PlistObjectType    type;
 	PlistObjectBoolean boolean;
 	PlistObjectReal    real;
@@ -178,7 +167,7 @@ union _PlistObject {
 	PlistObjectArray   array;
 	PlistObjectDict    dict;
 	PlistObjectData    data;
-};
+} PlistObject;
 
 /**
  * PlistError:
