@@ -147,6 +147,9 @@ plist_object_lookup(PlistObject *tree, ...)
 				"object that wasn't a dict or array"));
 			return tree;
 		}
+		/* Return NULL if one of the keys or indices wasn't found */
+		if(tree == NULL)
+			break;
 	}
 	va_end(ap);
 	
