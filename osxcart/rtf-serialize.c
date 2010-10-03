@@ -106,17 +106,20 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
 	 Pango attributes equivalent, such as superscript or subscript. Treat these
 	 separately. */
 	g_object_get(tag, "name", &name, NULL);
-	if(strcmp(name, "osxcart-rtf-superscript") == 0)
+	if(name)
 	{
-		g_hash_table_insert(ctx->tag_codes, tag, g_strdup("\\super"));
-		return;
+		if(strcmp(name, "osxcart-rtf-superscript") == 0)
+		{
+			g_hash_table_insert(ctx->tag_codes, tag, g_strdup("\\super"));
+			return;
+		}
+		else if(strcmp(name, "osxcart-rtf-subscript") == 0)
+		{
+			g_hash_table_insert(ctx->tag_codes, tag, g_strdup("\\sub"));
+			return;
+		}
 	}
-	else if(strcmp(name, "osxcart-rtf-subscript") == 0)
-	{
-		g_hash_table_insert(ctx->tag_codes, tag, g_strdup("\\sub"));
-		return;
-	}
-
+	
 	/* Otherwise, read the attributes one by one and add RTF code for them */
 	code = g_string_new("");
 	
