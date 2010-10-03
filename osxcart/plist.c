@@ -13,7 +13,10 @@ PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along 
 with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
+#include <stdarg.h>
 #include <glib.h>
+#include <config.h>
+#include <glib/gi18n-lib.h>
 #include <osxcart/plist.h>
 #include "init.h"
 
@@ -119,5 +122,34 @@ plist_object_free(PlistObject *object)
 	}
 	
 	g_slice_free(PlistObject, object);
+}
+
+/**
+ * plist_object_lookup:
+ *
+ */
+PlistObject *
+plist_object_lookup(PlistObject *tree, ...)
+{
+	g_return_val_if_fail(tree, NULL);
+	
+	va_list ap;
+	gpointer arg;
+	
+	va_start(ap, tree);
+	for(arg = va_arg(ap, gpointer); GPOINTER_TO_INT(arg) != -1; arg = va_arg(ap, gpointer)) {
+		if(tree->type == PLIST_OBJECT_DICT)
+			tree = g_hash_table_lookup(tree->dict.val, (const gchar *)arg);
+		else if(tree->type == PLIST_OBJECT_ARRAY)
+			tree = g_list_nth_data(tree->array.val, GPOINTER_TO_UINT(arg));
+		else {
+			g_critical("%s: %s", __func__, _("Tried to look up a child of an "
+				"object that wasn't a dict or array"));
+			return tree;
+		}
+	}
+	va_end(ap);
+	
+	return tree;
 }
 

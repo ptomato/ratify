@@ -17,6 +17,7 @@ You should have received a copy of the GNU Lesser General Public License along
 with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <glib.h>
+#include <stdarg.h>
 
 G_BEGIN_DECLS
 
@@ -196,6 +197,7 @@ typedef enum {
 GQuark plist_error_quark(void);
 PlistObject *plist_object_new(const PlistObjectType type);
 void plist_object_free(PlistObject *object);
+PlistObject *plist_object_lookup(PlistObject *tree, ...);
 PlistObject *plist_read(const gchar *filename, GError **error);
 PlistObject *plist_read_from_string(const gchar *string, GError **error);
 gboolean plist_write(PlistObject *plist, const gchar *filename, GError **error);
