@@ -66,6 +66,35 @@ plist_compare_case(gconstpointer name)
 	g_free(correctstring);
 }
 
+static void
+plist_lookup_test()
+{
+	GError *error = NULL;
+	PlistObject *list, *obj;
+	
+	list = plist_read("oneofeach.plist", &error);
+	g_assert(error == NULL);
+	g_assert(list);
+	
+	/* Look up the list itself */
+	obj = plist_object_lookup(list, -1);
+	g_assert(obj == list);
+	
+	/* Look up the first element of the "Array" key */
+	obj = plist_object_lookup(list, "Array", 0, -1);
+	g_assert_cmpint(obj->integer.val, ==, 1);
+	
+	/* Look up the "String" key of the "Dict" key */
+	obj = plist_object_lookup(list, "Dict", "String", -1);
+	g_assert_cmpstr(obj->string.val, ==, "3");
+	
+	/* Look up the "True value" key */
+	obj = plist_object_lookup(list, "True value", -1);
+	g_assert(obj->boolean.val);
+	
+	plist_object_free(list);
+}
+
 const gchar *failcases[] = {
     "Nonexistent filename", "",
     "Badly formed XML", "badlyformed.fail.plist",
@@ -115,4 +144,6 @@ add_plist_tests()
 	/* Remember to specify <real>s to 14 decimal points and to alphabetize
 	<dict> keys */
 	add_tests(passcases, "/plist/compare/", plist_compare_case);
+	/* Other cases */
+	g_test_add_func("/plist/misc/Lookup test", plist_lookup_test);
 }
