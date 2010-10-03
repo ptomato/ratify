@@ -126,7 +126,47 @@ plist_object_free(PlistObject *object)
 
 /**
  * plist_object_lookup:
+ * @tree: The root object of the plist
+ * @Varargs: A path consisting of dictionary keys and array indices, terminated
+ * by -1
  *
+ * Convenience function for looking up an object that exists at a certain path
+ * within the plist. The variable argument list can consist of either strings 
+ * (dictionary keys, if the object at that point in the path is a dict) or 
+ * integers (array indices, if the object at that point in the path is an 
+ * array.) 
+ * 
+ * The variable argument list must be terminated by -1. 
+ * 
+ * For example, given the following plist: 
+ * |[&lt;plist version="1.0"&gt; 
+ * &lt;dict&gt; 
+ *   &lt;key&gt;Array&lt;/key&gt; 
+ *   &lt;array&gt; 
+ *     &lt;integer&gt;1&lt;/integer&gt;
+ *     &lt;string&gt;2&lt;/string&gt;
+ *     &lt;real&gt;3.0&lt;/real&gt; 
+ *   &lt;/array&gt; 
+ *   &lt;key&gt;Dict&lt;/key&gt;
+ *   &lt;dict&gt;
+ *     &lt;key&gt;Integer&lt;/key&gt;
+ *     &lt;integer&gt;1&lt;/integer&gt;
+ *     &lt;key&gt;Real&lt;/key&gt;
+ *     &lt;real&gt;2.0&lt;/real&gt;
+ *     &lt;key&gt;String&lt;/key&gt;
+ *     &lt;string&gt;3&lt;/string&gt;
+ *   &lt;/dict&gt;
+ * &lt;/plist&gt;]| 
+ * then the following code: 
+ * |[PlistObject *obj1 = plist_object_lookup(plist, "Array", 0, -1); 
+ * PlistObject *obj2 = plist_object_lookup(plist, "Dict", "Integer", -1);]| 
+ * will place in @obj1 and @obj2 two identical #PlistObjects containing
+ * the integer 1, although they will both point to two different spots in the
+ * @plist tree. 
+ * 
+ * Returns: The requested #PlistObject, or %NULL if the path did not exist. The 
+ * returned object is a pointer to the object within the original @tree, and is 
+ * not copied. Therefore, it should not be freed separately from @tree.
  */
 PlistObject *
 plist_object_lookup(PlistObject *tree, ...)
