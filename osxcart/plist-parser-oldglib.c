@@ -13,6 +13,7 @@ PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along 
 with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
+#include <config.h>
 #include <stdlib.h>
 #include <string.h>
 #include <glib.h>
@@ -187,7 +188,7 @@ plist_start_element(GMarkupParseContext *context, const gchar *element_name, con
 	case STATE_DICT_OBJECT:
 	    /* Error if we are already in the middle of parsing an object */
 		if(data->current) {
-			g_set_error(error, PLIST_ERROR, PLIST_ERROR_UNEXPECTED_ELEMENT, _("Unexpected object <%s>"), element_name);
+			g_set_error(error, PLIST_ERROR, PLIST_ERROR_UNEXPECTED_OBJECT, _("Unexpected object <%s>"), element_name);
 			return;
 		}
 		
