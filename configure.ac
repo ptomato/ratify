@@ -9,7 +9,8 @@ AC_INIT([Osxcart], [1.0])
 AC_CONFIG_SRCDIR([testcases/test.c]) # Sanity check
 AC_CONFIG_MACRO_DIR(m4)
 AM_INIT_AUTOMAKE([-Wall])
-AM_SILENT_RULES # Shut up and tell libtool to shut up too
+# Shut up and tell libtool to shut up too
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 ### LIBRARY VERSIONING #########################################################
 # Only update immediately before a public release
@@ -69,20 +70,15 @@ AC_C_INLINE
 AC_PATH_PROG([RPMBUILD], [rpmbuild], [notfound])
 AC_PATH_PROG([RPM], [rpm], [notfound])
 AC_ARG_ENABLE([rpm],
-	[AS_HELP_STRING([--enable-rpm],[Configure for building RPM package [no] (requires rpm and rpmbuild)])],
-	[AS_CASE([${enableval}],
-		[yes], [AS_IF(
-			[$TEST "x$RPMBUILD" = xnotfound],
-				[AC_MSG_ERROR([rpmbuild is required for --enable-rpm])],
-			[$TEST "x$RPM" = xnotfound],
-				[AC_MSG_ERROR([rpm is required for --enable-rpm])],
-			[rpm=true])],
-		[no],  [rpm=false],
-		[AC_MSG_ERROR([bad value ${enableval} for --enable-rpm])]
-	)],
-	[rpm=false]
-)
-AM_CONDITIONAL([BUILDING_RPM], [$TEST "x$rpm" = xtrue])
+	[AS_HELP_STRING([--enable-rpm=@<:@yes/no@:>@],
+		[Configure for building RPM package @<:@default=no@:>@ (requires rpm and rpmbuild)])],
+	[AS_IF([$TEST "x$enable_rpm" = xyes],
+		[AS_IF([$TEST "x$RPMBUILD" = xnotfound],
+			[AC_MSG_ERROR([rpmbuild is required for --enable-rpm])],
+		[$TEST "x$RPM" = xnotfound],
+			[AC_MSG_ERROR([rpm is required for --enable-rpm])])])],
+	[enable_rpm=no])
+AM_CONDITIONAL(BUILDING_RPM, $TEST "x$enable_rpm" = xyes)
 # The user can specify the RPM release number in the environment (e.g. '1.fc10')
 AC_ARG_VAR([RPM_RELEASE], [Release number to build RPMs with [1]])
 AS_IF([$TEST "x$RPM_RELEASE" = x], [RPM_RELEASE=1])
