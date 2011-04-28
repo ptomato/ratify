@@ -28,18 +28,14 @@ AM_PROG_CC_C_O             # Required for per-target CFLAGS
 AC_PROG_INSTALL            # Install
 AC_PATH_PROG([TEST], [test])
 AC_PATH_PROG([ECHO], [echo])
-m4_defun([_LT_AC_LANG_CXX_CONFIG], [:]) # Disable unnecessary Libtool checks
-m4_defun([_LT_AC_LANG_F77_CONFIG], [:]) # to save time (1.5 only)
-AC_PROG_LIBTOOL            # Libtool (1.5 series)
+LT_INIT                    # Libtool
 PKG_PROG_PKG_CONFIG        # Pkg-config
 AM_GNU_GETTEXT([external]) # Gettext, link to system libintl
 GTK_DOC_CHECK(1.9)         # Gtk-Doc
 
 ### LIBRARIES ##################################################################
 
-PKG_CHECK_EXISTS([glib-2.0 >= 2.18], [glib218=yes], [glib218=no])
-AM_CONDITIONAL([GLIB_218], [test x$glib218 = xyes])
-GLIB_REQUIRED_VERSION=2.16
+GLIB_REQUIRED_VERSION=2.18
 GTK_REQUIRED_VERSION=2.10
 GDK_PIXBUF_REQUIRED_VERSION=2.6
 PKG_CHECK_MODULES([OSXCART], [

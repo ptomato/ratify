@@ -2,18 +2,12 @@ AM_CFLAGS = -Wall
 
 lib_LTLIBRARIES = libosxcart.la
 
-if GLIB_218
-PLIST_PARSER_SOURCE = plist-parser.c
-else
-PLIST_PARSER_SOURCE = plist-parser-oldglib.c
-endif
-
 libosxcart_la_SOURCES = \
 	init.c init.h \
 	plist.c plist.h \
 	plist-common.c plist-common.h \
 	plist-write.c \
-	$(PLIST_PARSER_SOURCE) \
+	plist-parser.c \
 	rtf.c rtf.h \
 	rtf-serialize.c rtf-serialize.h \
 	rtf-deserialize.c rtf-deserialize.h \
