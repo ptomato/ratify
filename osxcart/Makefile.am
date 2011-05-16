@@ -5,7 +5,6 @@ lib_LTLIBRARIES = libosxcart.la
 libosxcart_la_SOURCES = \
 	init.c init.h \
 	plist.c plist.h \
-	plist-common.c plist-common.h \
 	plist-write.c \
 	plist-parser.c \
 	rtf.c rtf.h \
