@@ -16,6 +16,8 @@ PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along 
 with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
+#include <glib.h>
+
 G_GNUC_INTERNAL void osxcart_init(void);
 
 #endif /* __OSXCART_INIT_H__ */
