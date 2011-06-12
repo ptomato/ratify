@@ -100,8 +100,8 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
  *
  * The error domain for property list errors.
  *
- * Returns: The string <quote>plist-error-quark</quote> as a <link 
- * linkend="GQuark">GQuark</link>.
+ * Returns: (transfer none): The string <quote>plist-error-quark</quote> as a
+ * <link linkend="GQuark">GQuark</link>.
  */
 GQuark
 plist_error_quark(void)
@@ -224,9 +224,10 @@ plist_object_free(PlistObject *object)
  * the integer 1, although they will both point to two different spots in the
  * @plist tree. 
  * 
- * Returns: The requested #PlistObject, or %NULL if the path did not exist. The 
- * returned object is a pointer to the object within the original @tree, and is 
- * not copied. Therefore, it should not be freed separately from @tree.
+ * Returns: (transfer none): The requested #PlistObject, or %NULL if the path
+ * did not exist. The returned object is a pointer to the object within the
+ * original @tree, and is not copied. Therefore, it should not be freed
+ * separately from @tree.
  */
 PlistObject *
 plist_object_lookup(PlistObject *tree, ...)

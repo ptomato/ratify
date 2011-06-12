@@ -47,8 +47,8 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
  *
  * The error domain for RTF serializer errors.
  *
- * Returns: The string <quote>rtf-error-quark</quote> as a <link 
- * linkend="GQuark">GQuark</link>.
+ * Returns: (transfer none): The string <quote>rtf-error-quark</quote> as a
+ * <link linkend="GQuark">GQuark</link>.
  */
 GQuark
 rtf_error_quark(void)
@@ -64,8 +64,9 @@ rtf_error_quark(void)
  * Registers the RTF text serialization format with @buffer. This allows the
  * contents of @buffer to be exported to Rich Text Format (MIME type text/rtf).
  *
- * Returns: a <link linkend="GdkAtom">GdkAtom</link> representing the
- * serialization format, to be passed to gtk_text_buffer_serialize().
+ * Returns: (transfer none): a <link linkend="GdkAtom">GdkAtom</link>
+ * representing the serialization format, to be passed to
+ * gtk_text_buffer_serialize().
  */
 GdkAtom
 rtf_register_serialize_format(GtkTextBuffer *buffer)
@@ -86,8 +87,9 @@ rtf_register_serialize_format(GtkTextBuffer *buffer)
  * Rich Text Format files to be imported into @buffer. See 
  * rtf_register_serialize_format().
  * 
- * Returns: a <link linkend="GdkAtom">GdkAtom</link> representing the
- * deserialization format, to be passed to gtk_text_buffer_deserialize().
+ * Returns: (transfer none): a <link linkend="GdkAtom">GdkAtom</link>
+ * representing the deserialization format, to be passed to
+ * gtk_text_buffer_deserialize().
  */
 GdkAtom
 rtf_register_deserialize_format(GtkTextBuffer *buffer)
