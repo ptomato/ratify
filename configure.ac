@@ -1,14 +1,14 @@
 # Human-readable configure.ac
 ### REQUIREMENTS ###############################################################
 
-AC_PREREQ([2.61]) # Version in Debian stable
+AC_PREREQ([2.62]) # Earliest version that works with gobject introspection
 
 ### INITIALIZATION #############################################################
 
 AC_INIT([Osxcart], [1.0])
 AC_CONFIG_SRCDIR([testcases/test.c]) # Sanity check
 AC_CONFIG_MACRO_DIR(m4)
-AM_INIT_AUTOMAKE([-Wall])
+AM_INIT_AUTOMAKE([-Wall -Wno-portability])
 # Shut up and tell libtool to shut up too
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
@@ -39,6 +39,7 @@ GLIB_REQUIRED_VERSION=2.18
 GTK_REQUIRED_VERSION=2.10
 GDK_PIXBUF_REQUIRED_VERSION=2.6
 PKG_CHECK_MODULES([OSXCART], [
+	gobject-2.0
 	glib-2.0 >= $GLIB_REQUIRED_VERSION
 	gdk-2.0
 	gdk-pixbuf-2.0 >= $GDK_PIXBUF_REQUIRED_VERSION
@@ -85,6 +86,10 @@ AM_GNU_GETTEXT_VERSION([0.17])
 GETTEXT_PACKAGE=osxcart
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [GETTEXT package name])
+
+### INTROSPECTION ##############################################################
+
+GOBJECT_INTROSPECTION_CHECK([0.6.7])
 
 # DECLARE OUTPUT FILES #########################################################
 

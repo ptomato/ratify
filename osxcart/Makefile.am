@@ -32,3 +32,48 @@ libosxcart_la_LDFLAGS = -version-info $(LT_VERSION_INFO) \
 						-export-symbols-regex "^(plist|rtf)_"
 libosxcart_includedir = $(includedir)/osxcart/osxcart
 libosxcart_include_HEADERS = plist.h rtf.h
+
+CLEANFILES=
+
+# Introspection boilerplate
+-include $(INTROSPECTION_MAKEFILE)
+INTROSPECTION_GIRS =
+INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir)
+INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
+
+if HAVE_INTROSPECTION
+
+# There can't be two namespaces in one .gir file?
+
+OsxcartPlist-1.0.gir: libosxcart.la
+OsxcartPlist_1_0_gir_INCLUDES = GLib-2.0
+OsxcartPlist_1_0_gir_CFLAGS = @OSXCART_CFLAGS@
+OsxcartPlist_1_0_gir_LIBS = libosxcart.la
+OsxcartPlist_1_0_gir_FILES = plist.h plist.c plist-parser.c plist-write.c
+OsxcartPlist_1_0_gir_SCANNERFLAGS = \
+	--identifier-prefix=Plist \
+	--c-include=osxcart/plist.h \
+	--warn-all
+INTROSPECTION_GIRS += OsxcartPlist-1.0.gir
+
+OsxcartRtf-1.0.gir: libosxcart.la
+OsxcartRtf_1_0_gir_INCLUDES = Gtk-2.0
+OsxcartRtf_1_0_gir_PACKAGES = gtk+-2.0
+OsxcartRtf_1_0_gir_CFLAGS = @OSXCART_CFLAGS@
+OsxcartRtf_1_0_gir_LIBS = libosxcart.la
+OsxcartRtf_1_0_gir_FILES = rtf.h rtf.c
+OsxcartRtf_1_0_gir_SCANNERFLAGS = \
+	--identifier-prefix=Rtf \
+	--c-include=osxcart/rtf.h \
+	--warn-all
+INTROSPECTION_GIRS += OsxcartRtf-1.0.gir
+
+girdir = $(datadir)/gir-1.0
+gir_DATA = $(INTROSPECTION_GIRS)
+
+typelibdir = $(libdir)/girepository-1.0
+typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
+
+CLEANFILES += $(gir_DATA) $(typelib_DATA)
+endif
+

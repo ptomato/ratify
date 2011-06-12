@@ -12,13 +12,14 @@ EXTRA_DIST = \
 	AUTHORS \
 	ChangeLog \
 	INSTALL \
-	NEWS
+	NEWS \
+	m4/introspection.m4
 
 DISTCLEANFILES = osxcart.pc osxcart.spec
 
 ACLOCAL_AMFLAGS = -I m4
 
-DISTCHECK_CONFIGURE_FLAGS = --enable-gtk-doc
+DISTCHECK_CONFIGURE_FLAGS = --enable-gtk-doc --enable-introspection
 
 if BUILDING_RPM
 EXTRA_DIST += osxcart.spec
