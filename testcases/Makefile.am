@@ -142,3 +142,5 @@ EXTRA_DIST = \
 	rtfdtest.rtfd/TXT.rtf \
 	rtfdtest.rtfd/rtfpocketguide.jpeg
 
+
+-include $(top_srcdir)/git.mk

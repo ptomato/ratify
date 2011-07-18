@@ -1,0 +1,6 @@
+Makevars.template
+Rules-quot
+*.sed
+*.header
+*.sin
+stamp-po
