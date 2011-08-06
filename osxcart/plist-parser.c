@@ -1,4 +1,4 @@
-/* Copyright 2009 P. F. Chimento
+/* Copyright 2009, 2011 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
@@ -55,7 +55,6 @@ tags */
 static GMarkupParser plist_parser = { 
 	plist_start, plist_end, NULL, NULL, NULL
 };
-
 
 /* Custom string equality function, for typing convenience */
 static inline gboolean 

@@ -1,7 +1,7 @@
 #ifndef __OSXCART_PLIST_H__
 #define __OSXCART_PLIST_H__
 
-/* Copyright 2009 P. F. Chimento
+/* Copyright 2009, 2011 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
@@ -23,6 +23,14 @@ G_BEGIN_DECLS
 
 /**
  * PlistObjectType:
+ * @PLIST_OBJECT_BOOLEAN: A #PlistObjectBoolean.
+ * @PLIST_OBJECT_REAL: A #PlistObjectReal.
+ * @PLIST_OBJECT_INTEGER: A #PlistObjectInteger.
+ * @PLIST_OBJECT_STRING: A #PlistObjectString.
+ * @PLIST_OBJECT_DATE: A #PlistObjectDate.
+ * @PLIST_OBJECT_ARRAY: A #PlistObjectArray.
+ * @PLIST_OBJECT_DICT: A #PlistObjectDict.
+ * @PLIST_OBJECT_DATA: A #PlistObjectData.
  *
  * The type of value stored in a #PlistObject.
  */
@@ -42,7 +50,7 @@ typedef enum {
  * @type: Must be %PLIST_OBJECT_BOOLEAN
  * @val: The value
  *
- * A #PlistObject which contains a boolean, similar to #CFBoolean.
+ * A #PlistObject which contains a boolean, similar to <code>CFBoolean</code>.
  */
 typedef struct _PlistObjectBoolean {
 	PlistObjectType type;
@@ -55,7 +63,7 @@ typedef struct _PlistObjectBoolean {
  * @val: The value
  *
  * A #PlistObject which contains a double-precision floating point number.
- * #CFNumber is used to represent these in CoreFoundation.
+ * <code>CFNumber</code> is used to represent these in CoreFoundation.
  */
 typedef struct _PlistObjectReal {
 	PlistObjectType type;
@@ -67,8 +75,8 @@ typedef struct _PlistObjectReal {
  * @type: Must be %PLIST_OBJECT_INTEGER
  * @val: The value
  *
- * A #PlistObject which contains an integer. #CFNumber is used to represent
- * these in CoreFoundation.
+ * A #PlistObject which contains an integer. <code>CFNumber</code> is used to
+ * represent these in CoreFoundation.
  */
 typedef struct _PlistObjectInteger {
 	PlistObjectType type;
@@ -80,7 +88,7 @@ typedef struct _PlistObjectInteger {
  * @type: Must be %PLIST_OBJECT_STRING
  * @val: The string
  *
- * A #PlistObject which contains a string, similar to #CFString.
+ * A #PlistObject which contains a string, similar to <code>CFString</code>.
  */
 typedef struct _PlistObjectString {
 	PlistObjectType type;
@@ -93,7 +101,7 @@ typedef struct _PlistObjectString {
  * @val: The date
  *
  * A #PlistObject which contains a date in GLib's timeval format, similar to 
- * #CFDate.
+ * <code>CFDate</code>.
  */
 typedef struct _PlistObjectDate {
 	PlistObjectType type;
@@ -106,7 +114,7 @@ typedef struct _PlistObjectDate {
  * @val: A list of #PlistObject<!---->s
  *
  * A #PlistObject which contains any number of child #PlistObject<!---->s, 
- * similar to #CFArray.
+ * similar to <code>CFArray</code>.
  */
 typedef struct _PlistObjectArray {
 	PlistObjectType type;
@@ -119,7 +127,7 @@ typedef struct _PlistObjectArray {
  * @val: A hash table of #PlistObject<!---->s
  *
  * A #PlistObject which contains a dictionary of child #PlistObject<!---->s 
- * accessed by string keys, similar to #CFDictionary.
+ * accessed by string keys, similar to <code>CFDictionary</code>.
  */
 typedef struct _PlistObjectDict {
 	PlistObjectType type;
@@ -132,7 +140,8 @@ typedef struct _PlistObjectDict {
  * @val: The data
  * @length: The length of the data
  *
- * A #PlistObject which contains arbitary binary data, similar to #CFData.
+ * A #PlistObject which contains arbitary binary data, similar to
+ * <code>CFData</code>.
  */
 typedef struct _PlistObjectData {
 	PlistObjectType type;
@@ -142,12 +151,22 @@ typedef struct _PlistObjectData {
 
 /**
  * PlistObject:
+ * @type: The type of value stored in this object.
+ * @boolean: The object as a #PlistObjectBoolean.
+ * @real: The object as a #PlistObjectReal.
+ * @integer: The object as a #PlistObjectInteger.
+ * @string: The object as a #PlistObjectString.
+ * @date: The object as a #PlistObjectDate.
+ * @array: The object as a #PlistObjectArray.
+ * @dict: The object as a #PlistObjectDict.
+ * @data: The object as a #PlistObjectData.
  * 
  * The #PlistObject type is a union of all the types that can be stored in a
- * property list. It is similar to a #NSValue or #CFValue. In this library,
- * #PlistObject<!---->s provide a lightweight interface for storing and 
- * manipulating property lists so that the library doesn't have to depend on 
- * CoreFoundation.
+ * property list. It is similar to a <code>NSValue</code> or
+ * <code>CFValue</code>, or an extremely lightweight <code>GValue</code>. In
+ * this library, #PlistObject<!---->s provide a lightweight interface for
+ * storing and manipulating property lists so that the library doesn't have to
+ * depend on CoreFoundation.
  *
  * Similar to <link linkend="GdkEvent">GdkEvent</link>, the @type field is
  * always the first member of the structure, so that the type of value can
@@ -172,19 +191,27 @@ typedef union _PlistObject {
 
 /**
  * PlistError:
+ * @PLIST_ERROR_FAILED: A generic error.
+ * @PLIST_ERROR_BAD_VERSION: The plist was an incompatible version.
+ * @PLIST_ERROR_UNEXPECTED_OBJECT: An object was out of place in the plist.
+ * @PLIST_ERROR_EXTRANEOUS_KEY: A <code>&lt;key&gt;</code> element was
+ * encountered outside a <code>&lt;dict&gt;</code> object.
+ * @PLIST_ERROR_MISSING_KEY: A <code>&lt;dict&gt;</code> object was missing a
+ * <code>&lt;key&gt;</code> element.
+ * @PLIST_ERROR_BAD_DATE: A <code>&lt;date&gt;</code> object contained incorrect
+ * formatting.
+ * @PLIST_ERROR_NO_ELEMENTS: The plist was empty.
  *
  * The different error codes which can be thrown in the #PLIST_ERROR domain.
  */
 typedef enum {
-	PLIST_ERROR_FAILED,            /* Generic error */
-	PLIST_ERROR_BAD_VERSION,       /* The plist was an incompatible version */
-	PLIST_ERROR_UNEXPECTED_OBJECT, /* An object was out of place in the plist */
-	PLIST_ERROR_EXTRANEOUS_KEY,    /* A <key> element was encountered outside a
-	                                  <dict> object */
-	PLIST_ERROR_MISSING_KEY,       /* A <dict> object was missing a <key> */
-	PLIST_ERROR_BAD_DATE,          /* A <date> object contained incorrect
-	                                  formatting */
-	PLIST_ERROR_NO_ELEMENTS        /* The plist was empty */
+	PLIST_ERROR_FAILED,
+	PLIST_ERROR_BAD_VERSION,
+	PLIST_ERROR_UNEXPECTED_OBJECT,
+	PLIST_ERROR_EXTRANEOUS_KEY,
+	PLIST_ERROR_MISSING_KEY,
+	PLIST_ERROR_BAD_DATE,
+	PLIST_ERROR_NO_ELEMENTS
 } PlistError;
 
 /**
@@ -205,4 +232,4 @@ gchar *plist_write_to_string(PlistObject *plist);
 
 G_END_DECLS
 
-#endif /* __LIBMAC_PLIST_H__ */
+#endif /* __OSXCART_PLIST_H__ */

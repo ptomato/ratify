@@ -1,4 +1,4 @@
-/* Copyright 2009 P. F. Chimento
+/* Copyright 2009, 2011 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
@@ -33,6 +33,66 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
  * <ulink 
  * link="http://developer.apple.com/documentation/Darwin/Reference/ManPages/man5/plist.5.html">
  * Apple developer documentation</ulink>.
+ * Instead of deserializing the property list into Core Foundation types as in
+ * Mac OS X, the property list is represented using a hierarchical structure of
+ * #PlistObject<!---->s, lightweight objects that can contain any type of data.
+ *
+ * Each property list object type has a corresponding #PlistObject structure.
+ * For completeness, the data types are listed here:
+ *
+ * <informaltable>
+ *   <tgroup cols='3'>
+ *     <thead>
+ *       <row>
+ *         <entry>XML Element</entry>
+ *         <entry>Core Foundation data type</entry>
+ *         <entry>#PlistObject struct</entry>
+ *       </row>
+ *     </thead>
+ *     <tbody>
+ *       <row>
+ *         <entry><code>true</code>, <code>false</code></entry>
+ *         <entry><code>CFBoolean</code></entry>
+ *         <entry>#PlistObjectBoolean</entry>
+ *       </row>
+ *       <row>
+ *         <entry><code>integer</code></entry>
+ *         <entry><code>CFNumber</code></entry>
+ *         <entry>#PlistObjectInteger</entry>
+ *       </row>
+ *       <row>
+ *         <entry><code>real</code></entry>
+ *         <entry><code>CFNumber</code></entry>
+ *         <entry>#PlistObjectReal</entry>
+ *       </row>
+ *       <row>
+ *         <entry><code>string</code></entry>
+ *         <entry><code>CFString</code></entry>
+ *         <entry>#PlistObjectString</entry>
+ *       </row>
+ *       <row>
+ *         <entry><code>date</code></entry>
+ *         <entry><code>CFDate</code></entry>
+ *         <entry>#PlistObjectDate</entry>
+ *       </row>
+ *       <row>
+ *         <entry><code>data</code></entry>
+ *         <entry><code>CFData</code></entry>
+ *         <entry>#PlistObjectData</entry>
+ *       </row>
+ *       <row>
+ *         <entry><code>array</code></entry>
+ *         <entry><code>CFArray</code></entry>
+ *         <entry>#PlistObjectArray</entry>
+ *       </row>
+ *       <row>
+ *         <entry><code>dict</code></entry>
+ *         <entry><code>CFDictionary</code></entry>
+ *         <entry>#PlistObjectDict</entry>
+ *       </row>
+ *     </tbody>
+ *   </tgroup>
+ * </informaltable>
  */
 
 /**
