@@ -1,4 +1,4 @@
-/* Copyright 2009 P. F. Chimento
+/* Copyright 2009, 2011 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
@@ -374,7 +374,7 @@ static void field_instruction_end(ParserContext *ctx)
 			else if(strcmp(info->switcharg, "roman") == 0)
 				state->general_number_format = NUMBER_roman;
 			else
-				g_warning(_("Format '%s' not supported."), info->switcharg);
+				g_warning(_("Format '%s' not supported"), info->switcharg);
 				/* Just continue */
 		}
 	}
