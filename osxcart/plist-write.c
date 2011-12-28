@@ -174,6 +174,8 @@ plist_write_file(PlistObject *plist, GFile *file, GCancellable *cancellable, GEr
 
 	g_return_val_if_fail(plist != NULL, FALSE);
 	g_return_val_if_fail(file != NULL, FALSE);
+	g_return_val_if_fail(G_IS_FILE(file), FALSE);
+	g_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), FALSE);
 	g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
 	string = plist_write_to_string(plist);

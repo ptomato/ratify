@@ -344,6 +344,8 @@ plist_read_file(GFile *file, GCancellable *cancellable, GError **error)
 	osxcart_init();
 
 	g_return_val_if_fail(file != NULL, NULL);
+	g_return_val_if_fail(G_IS_FILE(file), NULL);
+	g_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), NULL);
 	g_return_val_if_fail(error == NULL || *error == NULL, NULL);
 
 	if(!g_file_load_contents(file, cancellable, &contents, NULL, NULL, error))

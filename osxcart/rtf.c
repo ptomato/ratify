@@ -146,6 +146,8 @@ rtf_text_buffer_import_file(GtkTextBuffer *buffer, GFile *file, GCancellable *ca
 	g_return_val_if_fail(buffer != NULL, FALSE);
 	g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), FALSE);
 	g_return_val_if_fail(file != NULL, FALSE);
+	g_return_val_if_fail(G_IS_FILE(file), FALSE);
+	g_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), FALSE);
 	g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     /* Save the current directory for later, because the RTF file may refer to
@@ -307,6 +309,8 @@ rtf_text_buffer_export_file(GtkTextBuffer *buffer, GFile *file, GCancellable *ca
 	g_return_val_if_fail(buffer != NULL, FALSE);
 	g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), FALSE);
 	g_return_val_if_fail(file != NULL, FALSE);
+	g_return_val_if_fail(G_IS_FILE(file), FALSE);
+	g_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), FALSE);
 	g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
 	string = rtf_text_buffer_export_to_string(buffer);
