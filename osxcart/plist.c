@@ -188,7 +188,7 @@ plist_object_free(PlistObject *object)
 /**
  * plist_object_lookup:
  * @tree: The root object of the plist
- * @Varargs: A path consisting of dictionary keys and array indices, terminated
+ * @...: A path consisting of dictionary keys and array indices, terminated
  * by -1
  *
  * Convenience function for looking up an object that exists at a certain path
