@@ -179,7 +179,7 @@ plist_write_file(PlistObject *plist, GFile *file, GCancellable *cancellable, GEr
 	g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
 	string = plist_write_to_string(plist);
-	retval = g_file_replace_contents(file, string, -1, NULL, FALSE, G_FILE_CREATE_NONE, NULL, cancellable, error);
+	retval = g_file_replace_contents(file, string, strlen(string), NULL, FALSE, G_FILE_CREATE_NONE, NULL, cancellable, error);
 	g_free(string);
 	return retval;
 }

@@ -314,7 +314,7 @@ rtf_text_buffer_export_file(GtkTextBuffer *buffer, GFile *file, GCancellable *ca
 	g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
 	string = rtf_text_buffer_export_to_string(buffer);
-	retval = g_file_replace_contents(file, string, -1, NULL, FALSE, G_FILE_CREATE_NONE, NULL, cancellable, error);
+	retval = g_file_replace_contents(file, string, strlen(string), NULL, FALSE, G_FILE_CREATE_NONE, NULL, cancellable, error);
 	g_free(string);
 	return retval;
 }
