@@ -1,4 +1,4 @@
-/* Copyright 2009 P. F. Chimento
+/* Copyright 2009, 2011 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
@@ -107,13 +107,14 @@ rtf_register_deserialize_format(GtkTextBuffer *buffer)
 }
 
 /**
- * rtf_text_buffer_import:
+ * rtf_text_buffer_import_file:
  * @buffer: the text buffer into which to import text
- * @filename: an RTF text file
+ * @file: a #GFile pointing to an RTF text file
+ * @cancellable: (allow-none): optional #GCancellable object, or %NULL
  * @error: return location for an error, or %NULL
  *
- * Deserializes the contents of @filename to @buffer. Only a small subset of
- * RTF features are supported: those corresponding to features of <link
+ * Deserializes the contents of @file to @buffer. Only a small subset of RTF
+ * features are supported: those corresponding to features of <link
  * linkend="GtkTextBuffer">GtkTextBuffer</link> or those that can be emulated in
  * a <link linkend="GtkTextBuffer">GtkTextBuffer</link>. All unsupported 
  * features are ignored.
@@ -128,20 +129,23 @@ rtf_register_deserialize_format(GtkTextBuffer *buffer)
  *  <quote>TXT.rtf</quote>, then it is assumed to be an RTFD package.
  * </para></note>
  *
+ * If @cancellable is triggered from another thread, the operation is cancelled.
+ *
  * Returns: %TRUE if the operation was successful, %FALSE if not, in which case
  * @error is set.
  */ 
 gboolean
-rtf_text_buffer_import(GtkTextBuffer *buffer, const gchar *filename, GError **error)
+rtf_text_buffer_import_file(GtkTextBuffer *buffer, GFile *file, GCancellable *cancellable, GError **error)
 {
-	gchar *cwd, *contents, *tmpstr, *tmpfilename, *realfilename, *newdir;
+	char *cwd, *contents, *tmpstr, *basename, *newdir;
+	GFile *check_file, *real_file, *parent;
 	gboolean retval;
 
 	osxcart_init();
 	
 	g_return_val_if_fail(buffer != NULL, FALSE);
 	g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), FALSE);
-	g_return_val_if_fail(filename != NULL, FALSE);
+	g_return_val_if_fail(file != NULL, FALSE);
 	g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     /* Save the current directory for later, because the RTF file may refer to
@@ -149,42 +153,47 @@ rtf_text_buffer_import(GtkTextBuffer *buffer, const gchar *filename, GError **er
 	cwd = g_get_current_dir();
 
     /* Check whether this is an RTFD package */
-    tmpstr = g_ascii_strdown(filename, -1);
-    tmpfilename = g_build_filename(filename, "TXT.rtf", NULL);
-    if(g_str_has_suffix(tmpstr, ".rtfd") && g_file_test(filename, G_FILE_TEST_IS_DIR) && g_file_test(tmpfilename, G_FILE_TEST_EXISTS))
+	basename = g_file_get_basename(file);
+    tmpstr = g_ascii_strdown(basename, -1);
+    check_file = g_file_get_child(file, "TXT.rtf");
+    if(g_str_has_suffix(tmpstr, ".rtfd")
+	    && g_file_query_file_type(file, G_FILE_QUERY_INFO_NONE, NULL) == G_FILE_TYPE_DIRECTORY
+	    && g_file_query_exists(check_file, NULL))
     {
         /* cd to the package directory and open TXT.rtf */
-        newdir = g_strdup(filename);
-        realfilename = g_strdup("TXT.rtf");
+        real_file = g_object_ref(check_file);
     }
     else
     {
-        newdir = g_path_get_dirname(filename);
-        realfilename = g_path_get_basename(filename);
+        real_file = g_object_ref(file);
     }
     g_free(tmpstr);
-    g_free(tmpfilename);
+    g_free(basename);
+	g_object_unref(check_file);
 
     /* Change directory */
+	parent = g_file_get_parent(real_file);
+	newdir = g_file_get_path(parent);
+	g_object_unref(parent);
     if(g_chdir(newdir) == -1)
     {
         g_free(newdir);
-        g_free(realfilename);
+        g_object_unref(real_file);
 		g_free(cwd);
         g_set_error(error, G_FILE_ERROR, g_file_error_from_errno(errno), _("Could not change directory to '%s': %s"), newdir, g_strerror(errno));
         return FALSE;
     }
     g_free(newdir);
 
-	if(!g_file_get_contents(realfilename, &contents, NULL, error))
+	if(!g_file_load_contents(real_file, cancellable, &contents, NULL, NULL, error))
 	{
-	    g_free(realfilename);
+	    g_object_unref(real_file);
 		if(g_chdir(cwd) == -1)
-	    g_warning(_("Could not restore current directory: %s"), g_strerror(errno));
-			g_free(cwd);
+			g_warning(_("Could not restore current directory: %s"), g_strerror(errno));
+		g_free(cwd);
 		return FALSE;
     }
-    g_free(realfilename);
+    g_object_unref(real_file);
 	retval = rtf_text_buffer_import_from_string(buffer, contents, error);
 	g_free(contents);
 	
@@ -197,13 +206,44 @@ rtf_text_buffer_import(GtkTextBuffer *buffer, const gchar *filename, GError **er
 }
 
 /**
+ * rtf_text_buffer_import:
+ * @buffer: the text buffer into which to import text
+ * @filename: path to an RTF text file
+ * @error: return location for an error, or %NULL
+ *
+ * Deserializes the contents of @filename to @buffer. For more information, see
+ * rtf_text_buffer_import_file().
+ *
+ * Returns: %TRUE if the operation was successful, %FALSE if not, in which case
+ * @error is set.
+ */
+gboolean
+rtf_text_buffer_import(GtkTextBuffer *buffer, const char *filename, GError **error)
+{
+	GFile *file;
+	gboolean retval;
+
+	osxcart_init();
+	g_return_val_if_fail(buffer != NULL, FALSE);
+	g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), FALSE);
+	g_return_val_if_fail(filename != NULL, FALSE);
+	g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+
+	file = g_file_new_for_path(filename);
+	retval = rtf_text_buffer_import_file(buffer, file, NULL, error);
+	g_object_unref(file);
+
+	return retval;
+}
+
+/**
  * rtf_text_buffer_import_from_string:
  * @buffer: the text buffer into which to import text
  * @string: a string containing an RTF document
  * @error: return location for an error, or %NULL
  *
  * Deserializes the contents of @string to @buffer. See 
- * rtf_text_buffer_import() for details.
+ * rtf_text_buffer_import_file() for details.
  * 
  * Returns: %TRUE if the operation was successful, %FALSE if not, in which case
  * @error is set.
@@ -233,21 +273,56 @@ rtf_text_buffer_import_from_string(GtkTextBuffer *buffer, const gchar *string, G
 }
 
 /**
- * rtf_text_buffer_export:
+ * rtf_text_buffer_export_file:
  * @buffer: the text buffer to export
- * @filename: filename to export to
+ * @file: a #GFile to export to
+ * @cancellable: (allow-none): optional #GCancellable object, or %NULL
  * @error: return location for an error, or %NULL
  *
- * Serializes the contents of @buffer to an RTF text file. Any formatting and 
- * embedded pixbufs in @buffer are preserved, but embedded widgets will not be. 
- * If the buffer was imported from RTF text written by another application, the
- * result will be quite different; none of the advanced formatting features that
- * RTF is capable of representing, such as styles, are preserved across loading 
- * and saving.
+ * Serializes the contents of @buffer to an RTF text file, @file. Any formatting
+ * and embedded pixbufs in @buffer are preserved, but embedded widgets will not
+ * be. If the buffer was imported from RTF text written by another application,
+ * the result will be quite different; none of the advanced formatting features
+ * that RTF is capable of representing, such as styles, are preserved across
+ * loading and saving.
  *
  * This function automatically registers the RTF serialization format and
  * deregisters it afterwards, so there is no need to call 
  * rtf_register_serialize_format().
+ *
+ * The operation can be cancelled by triggering @cancellable from another
+ * thread.
+ *
+ * Returns: %TRUE if the operation succeeded, %FALSE if not, in which case
+ * @error is set.
+ */
+gboolean
+rtf_text_buffer_export_file(GtkTextBuffer *buffer, GFile *file, GCancellable *cancellable, GError **error)
+{
+	char *string;
+	gboolean retval;
+
+	osxcart_init();
+
+	g_return_val_if_fail(buffer != NULL, FALSE);
+	g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), FALSE);
+	g_return_val_if_fail(file != NULL, FALSE);
+	g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+
+	string = rtf_text_buffer_export_to_string(buffer);
+	retval = g_file_replace_contents(file, string, -1, NULL, FALSE, G_FILE_CREATE_NONE, NULL, cancellable, error);
+	g_free(string);
+	return retval;
+}
+
+/**
+ * rtf_text_buffer_export:
+ * @buffer: the text buffer to export
+ * @filename: a filename to export to
+ * @error: return location for an error, or %NULL
+ *
+ * Serializes the contents of @buffer to an RTF text file, @filename. See
+ * rtf_text_buffer_export_file() for more information.
  *
  * Returns: %TRUE if the operation succeeded, %FALSE if not, in which case 
  * @error is set.

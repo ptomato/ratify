@@ -15,6 +15,7 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <stdarg.h>
 #include <glib.h>
+#include <gio/gio.h>
 #include <config.h>
 #include <glib/gi18n-lib.h>
 #include <osxcart/plist.h>

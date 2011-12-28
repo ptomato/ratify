@@ -15,6 +15,7 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <string.h>
 #include <glib.h>
+#include <gio/gio.h>
 #include <osxcart/plist.h>
 #include "init.h"
 
@@ -145,6 +146,38 @@ plist_write(PlistObject *plist, const gchar *filename, GError **error)
 
 	string = plist_write_to_string(plist);
 	retval = g_file_set_contents(filename, string, -1, error);
+	g_free(string);
+	return retval;
+}
+
+/**
+ * plist_write_file:
+ * @plist: A property list object.
+ * @file: A #GFile to write to.
+ * @cancellable: (allow-none): optional #GCancellable object, or %NULL.
+ * @error: Return location for an error, or %NULL.
+ *
+ * Writes the property list @plist to a file in XML format. If @file exists,
+ * it will be overwritten. The operation will be cancelled if @cancellable is
+ * triggered from another thread.
+ *
+ * Returns: %TRUE if the operation succeeded, %FALSE if not, in which case
+ * @error is set.
+ */
+gboolean
+plist_write_file(PlistObject *plist, GFile *file, GCancellable *cancellable, GError **error)
+{
+	gchar *string;
+	gboolean retval;
+
+	osxcart_init();
+
+	g_return_val_if_fail(plist != NULL, FALSE);
+	g_return_val_if_fail(file != NULL, FALSE);
+	g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+
+	string = plist_write_to_string(plist);
+	retval = g_file_replace_contents(file, string, -1, NULL, FALSE, G_FILE_CREATE_NONE, NULL, cancellable, error);
 	g_free(string);
 	return retval;
 }

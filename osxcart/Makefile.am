@@ -46,7 +46,7 @@ if HAVE_INTROSPECTION
 # There can't be two namespaces in one .gir file?
 
 OsxcartPlist-1.0.gir: libosxcart.la
-OsxcartPlist_1_0_gir_INCLUDES = GLib-2.0
+OsxcartPlist_1_0_gir_INCLUDES = GLib-2.0 Gio-2.0
 OsxcartPlist_1_0_gir_CFLAGS = @OSXCART_CFLAGS@
 OsxcartPlist_1_0_gir_LIBS = libosxcart.la
 OsxcartPlist_1_0_gir_FILES = plist.h plist.c plist-parser.c plist-write.c

@@ -15,6 +15,7 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <stdlib.h>
 #include <glib.h>
+#include <gio/gio.h>
 #include <config.h>
 #include <glib/gi18n-lib.h>
 #include <osxcart/plist.h>
@@ -314,6 +315,38 @@ plist_read(const gchar *filename, GError **error)
 	g_return_val_if_fail(error == NULL || *error == NULL, NULL);
 
 	if(!g_file_get_contents(filename, &contents, NULL, error))
+		return NULL;
+	retval = plist_read_from_string(contents, error);
+	g_free(contents);
+	return retval;
+}
+
+/**
+ * plist_read_file:
+ * @file: A #GFile containing a property list in XML format.
+ * @cancellable: (allow-none): An optional #GCancellable object, or %NULL.
+ * @error: Return location for an error, or %NULL.
+ *
+ * Reads a property list in XML format from @file and returns a #PlistObject
+ * representing the property list. The operation will be cancelled if
+ * @cancellable is triggered from another thread.
+ *
+ * Returns: the property list, or %NULL if an error occurred, in which case
+ * @error is set. The property list must be freed with plist_object_free() after
+ * use.
+ */
+PlistObject *
+plist_read_file(GFile *file, GCancellable *cancellable, GError **error)
+{
+	gchar *contents;
+	PlistObject *retval;
+
+	osxcart_init();
+
+	g_return_val_if_fail(file != NULL, NULL);
+	g_return_val_if_fail(error == NULL || *error == NULL, NULL);
+
+	if(!g_file_load_contents(file, cancellable, &contents, NULL, NULL, error))
 		return NULL;
 	retval = plist_read_from_string(contents, error);
 	g_free(contents);
