@@ -1,7 +1,7 @@
 #ifndef __OSXCART_PLIST_H__
 #define __OSXCART_PLIST_H__
 
-/* Copyright 2009, 2011 P. F. Chimento
+/* Copyright 2009, 2011, 2012 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
@@ -47,96 +47,96 @@ typedef enum {
 } PlistObjectType;
 
 /**
- * PlistObjectBoolean:
+ * PlistObjectBoolean: (skip)
  * @type: Must be %PLIST_OBJECT_BOOLEAN
  * @val: The value
  *
  * A #PlistObject which contains a boolean, similar to <code>CFBoolean</code>.
  */
-typedef struct _PlistObjectBoolean {
+typedef struct {
 	PlistObjectType type;
 	gboolean val;
 } PlistObjectBoolean;
 
 /**
- * PlistObjectReal:
+ * PlistObjectReal: (skip)
  * @type: Must be %PLIST_OBJECT_REAL
  * @val: The value
  *
  * A #PlistObject which contains a double-precision floating point number.
  * <code>CFNumber</code> is used to represent these in CoreFoundation.
  */
-typedef struct _PlistObjectReal {
+typedef struct {
 	PlistObjectType type;
 	gdouble val;
 } PlistObjectReal;
 
 /**
- * PlistObjectInteger:
+ * PlistObjectInteger: (skip)
  * @type: Must be %PLIST_OBJECT_INTEGER
  * @val: The value
  *
  * A #PlistObject which contains an integer. <code>CFNumber</code> is used to
  * represent these in CoreFoundation.
  */
-typedef struct _PlistObjectInteger {
+typedef struct {
 	PlistObjectType type;
 	gint val;
 } PlistObjectInteger;
 
 /**
- * PlistObjectString:
+ * PlistObjectString: (skip)
  * @type: Must be %PLIST_OBJECT_STRING
  * @val: The string
  *
  * A #PlistObject which contains a string, similar to <code>CFString</code>.
  */
-typedef struct _PlistObjectString {
+typedef struct {
 	PlistObjectType type;
 	gchar *val;
 } PlistObjectString;
 
 /**
- * PlistObjectDate:
+ * PlistObjectDate: (skip)
  * @type: Must be %PLIST_OBJECT_DATE
  * @val: The date
  *
  * A #PlistObject which contains a date in GLib's timeval format, similar to 
  * <code>CFDate</code>.
  */
-typedef struct _PlistObjectDate {
+typedef struct {
 	PlistObjectType type;
 	GTimeVal val;
 } PlistObjectDate;
 
 /**
- * PlistObjectArray:
+ * PlistObjectArray: (skip)
  * @type: Must be %PLIST_OBJECT_ARRAY
  * @val: A list of #PlistObject<!---->s
  *
  * A #PlistObject which contains any number of child #PlistObject<!---->s, 
  * similar to <code>CFArray</code>.
  */
-typedef struct _PlistObjectArray {
+typedef struct {
 	PlistObjectType type;
 	GList *val;
 } PlistObjectArray;
 
 /**
- * PlistObjectDict:
+ * PlistObjectDict: (skip)
  * @type: Must be %PLIST_OBJECT_DICT
  * @val: A hash table of #PlistObject<!---->s
  *
  * A #PlistObject which contains a dictionary of child #PlistObject<!---->s 
  * accessed by string keys, similar to <code>CFDictionary</code>.
  */
-typedef struct _PlistObjectDict {
+typedef struct {
 	PlistObjectType type;
 	GHashTable *val;
 } PlistObjectDict;
 
 /**
- * PlistObjectData:
+ * PlistObjectData: (skip)
  * @type: Must be %PLIST_OBJECT_DATA
  * @val: The data
  * @length: The length of the data
@@ -144,7 +144,7 @@ typedef struct _PlistObjectDict {
  * A #PlistObject which contains arbitary binary data, similar to
  * <code>CFData</code>.
  */
-typedef struct _PlistObjectData {
+typedef struct {
 	PlistObjectType type;
 	guchar *val;
 	gsize length;
@@ -153,14 +153,14 @@ typedef struct _PlistObjectData {
 /**
  * PlistObject:
  * @type: The type of value stored in this object.
- * @boolean: The object as a #PlistObjectBoolean.
- * @real: The object as a #PlistObjectReal.
- * @integer: The object as a #PlistObjectInteger.
- * @string: The object as a #PlistObjectString.
- * @date: The object as a #PlistObjectDate.
- * @array: The object as a #PlistObjectArray.
- * @dict: The object as a #PlistObjectDict.
- * @data: The object as a #PlistObjectData.
+ * @boolean: (skip): The object as a #PlistObjectBoolean.
+ * @real: (skip): The object as a #PlistObjectReal.
+ * @integer: (skip): The object as a #PlistObjectInteger.
+ * @string: (skip): The object as a #PlistObjectString.
+ * @date: (skip): The object as a #PlistObjectDate.
+ * @array: (skip): The object as a #PlistObjectArray.
+ * @dict: (skip): The object as a #PlistObjectDict.
+ * @data: (skip): The object as a #PlistObjectData.
  * 
  * The #PlistObject type is a union of all the types that can be stored in a
  * property list. It is similar to a <code>NSValue</code> or
@@ -178,7 +178,7 @@ typedef struct _PlistObjectData {
  * if(obj->type == PLIST_OBJECT_ARRAY)
  *     g_list_foreach(obj->array.val, some_function, NULL);]|
  */
-typedef union _PlistObject {
+typedef union {
 	PlistObjectType    type;
 	PlistObjectBoolean boolean;
 	PlistObjectReal    real;
@@ -223,7 +223,9 @@ typedef enum {
 #define PLIST_ERROR plist_error_quark()
 
 GQuark plist_error_quark(void);
+GType plist_object_get_type(void);
 PlistObject *plist_object_new(const PlistObjectType type);
+PlistObject *plist_object_copy(PlistObject *object);
 void plist_object_free(PlistObject *object);
 PlistObject *plist_object_lookup(PlistObject *tree, ...);
 PlistObject *plist_read(const gchar *filename, GError **error);

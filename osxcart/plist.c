@@ -1,4 +1,4 @@
-/* Copyright 2009, 2011 P. F. Chimento
+/* Copyright 2009, 2011, 2012 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
@@ -111,6 +111,8 @@ plist_error_quark(void)
 	return g_quark_from_static_string("plist-error-quark");
 }
 
+G_DEFINE_BOXED_TYPE(PlistObject, plist_object, plist_object_copy, plist_object_free);
+
 /**
  * plist_object_new:
  * @type: The type of #PlistObject to create.
@@ -118,7 +120,7 @@ plist_error_quark(void)
  * Allocates a #PlistObject, with its value initialized to zero in whatever way
  * is appropriate for @type.
  *
- * Returns: a newly-allocated #PlistObject.
+ * Returns: (transfer full): a newly-allocated #PlistObject.
  */
 PlistObject *
 plist_object_new(const PlistObjectType type)
@@ -149,8 +151,76 @@ plist_object_new(const PlistObjectType type)
 	return retval;
 }
 
+/* Helper function: for each element of a PlistObjectArray, copy the element and
+insert it into a new list */
+void
+insert_copied_element(PlistObject *object, GList **new_list)
+{
+	*new_list = g_list_prepend(*new_list, plist_object_copy(object));
+}
+
+/* Helper function: for each key and value of a PlistObjectDict, copy them and
+insert them into a new dict */
+void
+insert_copied_key_and_value(char *key, PlistObject *value, GHashTable *new_dict)
+{
+	g_hash_table_insert(new_dict, g_strdup(key), plist_object_copy(value));
+}
+
 /**
- * plist_object_free:
+ * plist_object_copy: (skip):
+ * @object: The #PlistObject to copy.
+ *
+ * Makes a copy of a #PlistObject.
+ *
+ * Returns: (transfer full): a newly-allocated #PlistObject.
+ */
+PlistObject *
+plist_object_copy(PlistObject *object)
+{
+	PlistObject *retval;
+
+	g_return_val_if_fail(object != NULL, NULL);
+
+	retval = plist_object_new(object->type);
+
+	switch(object->type) {
+		case PLIST_OBJECT_BOOLEAN:
+			retval->boolean.val = object->boolean.val;
+			break;
+		case PLIST_OBJECT_REAL:
+			retval->real.val = object->real.val;
+			break;
+		case PLIST_OBJECT_INTEGER:
+			retval->integer.val = object->integer.val;
+			break;
+		case PLIST_OBJECT_STRING:
+			retval->string.val = g_strdup(object->string.val);
+			break;
+		case PLIST_OBJECT_DATE:
+			retval->date.val = object->date.val;
+			break;
+		case PLIST_OBJECT_ARRAY:
+			retval->array.val = NULL;
+			g_list_foreach(object->array.val, (GFunc)insert_copied_element, &(retval->array.val));
+			retval->array.val = g_list_reverse(retval->array.val);
+			break;
+		case PLIST_OBJECT_DICT:
+			g_hash_table_foreach(object->dict.val, (GHFunc)insert_copied_key_and_value, retval->dict.val);
+			break;
+		case PLIST_OBJECT_DATA:
+			retval->data.length = object->data.length;
+			memcpy(retval->data.val, object->data.val, object->data.length);
+			break;
+		default:
+			g_assert_not_reached();
+	}
+
+	return retval;
+}
+
+/**
+ * plist_object_free: (skip):
  * @object: The #PlistObject to free.
  *
  * Deallocates a #PlistObject. If @object is a container type, also deallocates
