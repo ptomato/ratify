@@ -222,8 +222,10 @@ typedef enum {
  */
 #define PLIST_ERROR plist_error_quark()
 
+#define PLIST_TYPE_OBJECT (plist_object_get_type())
+
 GQuark plist_error_quark(void);
-GType plist_object_get_type(void);
+GType plist_object_get_type(void) G_GNUC_CONST;
 PlistObject *plist_object_new(const PlistObjectType type);
 PlistObject *plist_object_copy(PlistObject *object);
 void plist_object_free(PlistObject *object);
