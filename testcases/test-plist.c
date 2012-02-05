@@ -1,3 +1,4 @@
+#include <string.h>
 #include <glib.h>
 #include <osxcart/plist.h>
 
@@ -239,6 +240,56 @@ plist_accessor_test()
 	plist_object_free(list);
 }
 
+/* Test the setter functions */
+static void
+plist_set_accessor_test()
+{
+	PlistObject *obj = NULL;
+	GHashTable *hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)plist_object_free);
+
+	obj = plist_object_new(PLIST_OBJECT_BOOLEAN);
+	plist_object_set_boolean(obj, TRUE);
+	g_assert(obj->boolean.val);
+	plist_object_free(obj);
+
+	obj = plist_object_new(PLIST_OBJECT_REAL);
+	plist_object_set_real(obj, 2.718281828);
+	g_assert_cmpfloat(obj->real.val, ==, 2.718281828);
+	plist_object_free(obj);
+
+	obj = plist_object_new(PLIST_OBJECT_INTEGER);
+	plist_object_set_integer(obj, -1);
+	g_assert_cmpint(obj->integer.val, ==, -1);
+	plist_object_free(obj);
+
+	obj = plist_object_new(PLIST_OBJECT_DATE);
+	plist_object_set_date(obj, (GTimeVal){ 1234567, 123456 });
+	g_assert_cmpint(obj->date.val.tv_sec, ==, 1234567);
+	g_assert_cmpint(obj->date.val.tv_usec, ==, 123456);
+	plist_object_free(obj);
+
+	obj = plist_object_new(PLIST_OBJECT_STRING);
+	plist_object_set_string(obj, "Now is the time for all");
+	g_assert_cmpstr(obj->string.val, ==, "Now is the time for all");
+	plist_object_free(obj);
+
+	obj = plist_object_new(PLIST_OBJECT_ARRAY);
+	plist_object_set_array(obj, NULL);
+	g_assert_cmpuint(g_list_length(obj->array.val), ==, 0);
+	plist_object_free(obj);
+
+	obj = plist_object_new(PLIST_OBJECT_DICT);
+	plist_object_set_dict(obj, hash);
+	g_assert_cmpuint(g_hash_table_size(obj->dict.val), ==, 0);
+	plist_object_free(obj);
+
+	obj = plist_object_new(PLIST_OBJECT_DATA);
+	plist_object_set_data(obj, (unsigned char *)"01234567", 5);
+	g_assert_cmpuint(obj->data.length, ==, 5);
+	g_assert_cmpint(strncmp((char *)obj->data.val, "01234", 5), ==, 0);
+	plist_object_free(obj);
+}
+
 const gchar *failcases[] = {
     "Nonexistent filename", "",
     "Badly formed XML", "badlyformed.fail.plist",
@@ -292,4 +343,5 @@ add_plist_tests()
 	g_test_add_func("/plist/misc/Lookup test", plist_lookup_test);
 	g_test_add_func("/plist/misc/Copy test", plist_copy_test);
 	g_test_add_func("/plist/misc/Accessor test", plist_accessor_test);
+	g_test_add_func("/plist/misc/Accessor set test", plist_set_accessor_test);
 }
