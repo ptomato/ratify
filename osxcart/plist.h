@@ -252,6 +252,15 @@ GList *plist_object_get_array(PlistObject *object);
 GHashTable *plist_object_get_dict(PlistObject *object);
 unsigned char *plist_object_get_data(PlistObject *object, size_t *length);
 
+void plist_object_set_boolean(PlistObject *object, gboolean val);
+void plist_object_set_real(PlistObject *object, double val);
+void plist_object_set_integer(PlistObject *object, int val);
+void plist_object_set_string(PlistObject *object, const char *val);
+void plist_object_set_date(PlistObject *object, GTimeVal val);
+void plist_object_set_array(PlistObject *object, GList *val);
+void plist_object_set_dict(PlistObject *object, GHashTable *val);
+void plist_object_set_data(PlistObject *object, unsigned char *val, size_t length);
+
 PlistObject *plist_object_lookup(PlistObject *tree, ...);
 PlistObject *plist_read(const gchar *filename, GError **error);
 PlistObject *plist_read_file(GFile *file, GCancellable *cancellable, GError **error);

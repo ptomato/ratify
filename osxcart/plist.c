@@ -395,6 +395,128 @@ plist_object_get_data(PlistObject *object, size_t *length)
 }
 
 /**
+ * plist_object_set_boolean:
+ * @object: a #PlistObject holding a boolean
+ * @val: a new boolean value
+ *
+ * This function is intended for bindings to other programming languages; in C,
+ * you can simply use <code>object->boolean.val</code>.
+ */
+void
+plist_object_set_boolean(PlistObject *object, gboolean val)
+{
+	object->boolean.val = val;
+}
+
+/**
+ * plist_object_set_real:
+ * @object: a #PlistObject holding a real value
+ * @val: a new real value
+ *
+ * This function is intended for bindings to other programming languages; in C,
+ * you can simply use <code>object->real.val</code>.
+ */
+void
+plist_object_set_real(PlistObject *object, double val)
+{
+	object->real.val = val;
+}
+
+/**
+ * plist_object_set_integer:
+ * @object: a #PlistObject holding an integer
+ * @val: a new integer value
+ *
+ * This function is intended for bindings to other programming languages; in C,
+ * you can simply use <code>object->integer.val</code>.
+ */
+void
+plist_object_set_integer(PlistObject *object, int val)
+{
+	object->integer.val = val;
+}
+
+/**
+ * plist_object_set_string:
+ * @object: a #PlistObject holding a string
+ * @val: a new string value
+ *
+ * This function is intended for bindings to other programming languages; in C,
+ * you can simply use <code>object->string.val</code>.
+ */
+void
+plist_object_set_string(PlistObject *object, const char *val)
+{
+	g_free(object->string.val);
+	object->string.val = g_strdup(val);
+}
+
+/**
+ * plist_object_set_date:
+ * @object: a #PlistObject holding a date value
+ * @val: a new date value
+ *
+ * This function is intended for bindings to other programming languages; in C,
+ * you can simply use <code>object->date.val</code>.
+ */
+void
+plist_object_set_date(PlistObject *object, GTimeVal val)
+{
+	object->date.val = val;
+}
+
+/**
+ * plist_object_set_array:
+ * @object: a #PlistObject holding an array
+ * @val: (transfer none) (element-type PlistObject): a new array
+ *
+ * This function is intended for bindings to other programming languages; in C,
+ * you can simply use <code>object->array.val</code>.
+ */
+void
+plist_object_set_array(PlistObject *object, GList *val)
+{
+	g_list_foreach(object->array.val, (GFunc)plist_object_free, NULL);
+	g_list_free(object->array.val);
+	object->array.val = NULL;
+	g_list_foreach(val, (GFunc)insert_copied_element, &(object->array.val));
+	object->array.val = g_list_reverse(object->array.val);
+}
+
+/**
+ * plist_object_set_dict:
+ * @object: a #PlistObject holding a dictionary
+ * @val: (transfer none) (element-type char* PlistObject): a new dictionary
+ *
+ * This function is intended for bindings to other programming languages; in C,
+ * you can simply use <code>object->dict.val</code>.
+ */
+void
+plist_object_set_dict(PlistObject *object, GHashTable *val)
+{
+	g_hash_table_remove_all(object->dict.val);
+	g_hash_table_foreach(val, (GHFunc)insert_copied_key_and_value, object->dict.val);
+}
+
+/**
+ * plist_object_set_data:
+ * @object: a #PlistObject holding binary data
+ * @val: (transfer none) (array length=length): new binary data
+ * @length: length of @val
+ *
+ * This function is intended for bindings to other programming languages; in C,
+ * you can simply use <code>object->data.val</code> and
+ * <code>object->data.length</code>.
+ */
+void
+plist_object_set_data(PlistObject *object, unsigned char *val, size_t length)
+{
+	object->data.length = length;
+	object->data.val = g_realloc(object->data.val, length);
+	memcpy(object->data.val, val, length);
+}
+
+/**
  * plist_object_lookup:
  * @tree: The root object of the plist
  * @...: A path consisting of dictionary keys and array indices, terminated
