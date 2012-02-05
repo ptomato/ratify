@@ -70,7 +70,7 @@ static void
 plist_lookup_test()
 {
 	GError *error = NULL;
-	PlistObject *list, *obj;
+	PlistObject *list = NULL, *obj = NULL;
 	
 	list = plist_read("oneofeach.plist", &error);
 	g_assert(error == NULL);
@@ -92,6 +92,150 @@ plist_lookup_test()
 	obj = plist_object_lookup(list, "True value", -1);
 	g_assert(obj->boolean.val);
 	
+	plist_object_free(list);
+}
+
+/* Copy the "one-of-each" plist and test that each object was copied */
+static void
+plist_copy_test()
+{
+	GError *error = NULL;
+	PlistObject *list = NULL, *copy = NULL, *obj = NULL;
+
+	list = plist_read("oneofeach.plist", &error);
+	g_assert(error == NULL);
+	g_assert(list);
+
+	copy = plist_object_copy(list);
+	plist_object_free(list);
+	g_assert(copy);
+
+	obj = plist_object_lookup(copy, "Array", -1);
+	g_assert(obj->type == PLIST_OBJECT_ARRAY);
+
+	obj = plist_object_lookup(copy, "Array", 0, -1);
+	g_assert(obj->type == PLIST_OBJECT_INTEGER);
+	g_assert_cmpint(obj->integer.val, ==, 1);
+
+	obj = plist_object_lookup(copy, "Array", 1, -1);
+	g_assert(obj->type == PLIST_OBJECT_STRING);
+	g_assert_cmpstr(obj->string.val, ==, "2");
+
+	obj = plist_object_lookup(copy, "Array", 2, -1);
+	g_assert(obj->type == PLIST_OBJECT_REAL);
+	g_assert_cmpfloat(obj->real.val, ==, 3.0);
+
+	obj = plist_object_lookup(copy, "Data", -1);
+	g_assert(obj->type == PLIST_OBJECT_DATA);
+	g_assert_cmpstr((const char *)obj->data.val, ==, "sure.");
+	g_assert_cmpint(obj->data.length, ==, 5);
+
+	obj = plist_object_lookup(copy, "Date", -1);
+	g_assert(obj->type == PLIST_OBJECT_DATE);
+	g_assert_cmpint(obj->date.val.tv_sec, ==, 1240436323);
+	g_assert_cmpint(obj->date.val.tv_usec, ==, 501773);
+
+	obj = plist_object_lookup(copy, "Dict", -1);
+	g_assert(obj->type == PLIST_OBJECT_DICT);
+
+	obj = plist_object_lookup(copy, "Dict", "Integer", -1);
+	g_assert(obj->type == PLIST_OBJECT_INTEGER);
+	g_assert_cmpint(obj->integer.val, ==, 1);
+
+	obj = plist_object_lookup(copy, "Dict", "Real", -1);
+	g_assert(obj->type == PLIST_OBJECT_REAL);
+	g_assert_cmpfloat(obj->real.val, ==, 2.0);
+
+	obj = plist_object_lookup(copy, "Dict", "String", -1);
+	g_assert(obj->type == PLIST_OBJECT_STRING);
+	g_assert_cmpstr(obj->string.val, ==, "3");
+
+	obj = plist_object_lookup(copy, "False value", -1);
+	g_assert(obj->type == PLIST_OBJECT_BOOLEAN);
+	g_assert(!obj->boolean.val);
+
+	obj = plist_object_lookup(copy, "Integer", -1);
+	g_assert(obj->type == PLIST_OBJECT_INTEGER);
+	g_assert_cmpint(obj->integer.val, ==, -1);
+
+	obj = plist_object_lookup(copy, "Real", -1);
+	g_assert(obj->type == PLIST_OBJECT_REAL);
+	g_assert_cmpfloat(obj->real.val, ==, 3.14159265358979);
+
+	obj = plist_object_lookup(copy, "String", -1);
+	g_assert(obj->type == PLIST_OBJECT_STRING);
+	g_assert_cmpstr(obj->string.val, ==, "Hello, world");
+
+	obj = plist_object_lookup(copy, "True value", -1);
+	g_assert(obj->type == PLIST_OBJECT_BOOLEAN);
+	g_assert(obj->boolean.val);
+
+	plist_object_free(copy);
+}
+
+/* Test the accessor functions for language bindings */
+static void
+plist_accessor_test()
+{
+	GError *error = NULL;
+	PlistObject *list = NULL, *obj = NULL;
+	const unsigned char *data;
+	size_t length;
+	GTimeVal timeval;
+
+	list = plist_read("oneofeach.plist", &error);
+	g_assert(error == NULL);
+	g_assert(list);
+
+	obj = plist_object_lookup(list, "Array", -1);
+	g_assert(plist_object_get_array(obj));
+
+	obj = plist_object_lookup(list, "Array", 0, -1);
+	g_assert_cmpint(plist_object_get_integer(obj), ==, 1);
+
+	obj = plist_object_lookup(list, "Array", 1, -1);
+	g_assert_cmpstr(plist_object_get_string(obj), ==, "2");
+
+	obj = plist_object_lookup(list, "Array", 2, -1);
+	g_assert_cmpfloat(plist_object_get_real(obj), ==, 3.0);
+
+	obj = plist_object_lookup(list, "Data", -1);
+	data = plist_object_get_data(obj, &length);
+	g_assert_cmpstr((const char *)data, ==, "sure.");
+	g_assert_cmpint(length, ==, 5);
+
+	obj = plist_object_lookup(list, "Date", -1);
+	timeval = plist_object_get_date(obj);
+	g_assert_cmpint(timeval.tv_sec, ==, 1240436323);
+	g_assert_cmpint(timeval.tv_usec, ==, 501773);
+
+	obj = plist_object_lookup(list, "Dict", -1);
+	g_assert(plist_object_get_dict(obj));
+
+	obj = plist_object_lookup(list, "Dict", "Integer", -1);
+	g_assert_cmpint(plist_object_get_integer(obj), ==, 1);
+
+	obj = plist_object_lookup(list, "Dict", "Real", -1);
+	g_assert_cmpfloat(plist_object_get_real(obj), ==, 2.0);
+
+	obj = plist_object_lookup(list, "Dict", "String", -1);
+	g_assert_cmpstr(plist_object_get_string(obj), ==, "3");
+
+	obj = plist_object_lookup(list, "False value", -1);
+	g_assert(!plist_object_get_boolean(obj));
+
+	obj = plist_object_lookup(list, "Integer", -1);
+	g_assert_cmpint(plist_object_get_integer(obj), ==, -1);
+
+	obj = plist_object_lookup(list, "Real", -1);
+	g_assert_cmpfloat(plist_object_get_real(obj), ==, 3.14159265358979);
+
+	obj = plist_object_lookup(list, "String", -1);
+	g_assert_cmpstr(plist_object_get_string(obj), ==, "Hello, world");
+
+	obj = plist_object_lookup(list, "True value", -1);
+	g_assert(plist_object_get_boolean(obj));
+
 	plist_object_free(list);
 }
 
@@ -146,4 +290,6 @@ add_plist_tests()
 	add_tests(passcases, "/plist/compare/", plist_compare_case);
 	/* Other cases */
 	g_test_add_func("/plist/misc/Lookup test", plist_lookup_test);
+	g_test_add_func("/plist/misc/Copy test", plist_copy_test);
+	g_test_add_func("/plist/misc/Accessor test", plist_accessor_test);
 }
