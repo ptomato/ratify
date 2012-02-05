@@ -153,14 +153,14 @@ typedef struct {
 /**
  * PlistObject:
  * @type: The type of value stored in this object.
- * @boolean: (skip): The object as a #PlistObjectBoolean.
- * @real: (skip): The object as a #PlistObjectReal.
- * @integer: (skip): The object as a #PlistObjectInteger.
- * @string: (skip): The object as a #PlistObjectString.
- * @date: (skip): The object as a #PlistObjectDate.
- * @array: (skip): The object as a #PlistObjectArray.
- * @dict: (skip): The object as a #PlistObjectDict.
- * @data: (skip): The object as a #PlistObjectData.
+ * @boolean: The object as a #PlistObjectBoolean.
+ * @real: The object as a #PlistObjectReal.
+ * @integer: The object as a #PlistObjectInteger.
+ * @string: The object as a #PlistObjectString.
+ * @date: The object as a #PlistObjectDate.
+ * @array: The object as a #PlistObjectArray.
+ * @dict: The object as a #PlistObjectDict.
+ * @data: The object as a #PlistObjectData.
  * 
  * The #PlistObject type is a union of all the types that can be stored in a
  * property list. It is similar to a <code>NSValue</code> or

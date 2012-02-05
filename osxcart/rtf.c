@@ -1,4 +1,4 @@
-/* Copyright 2009, 2011 P. F. Chimento
+/* Copyright 2009, 2011, 2012 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
@@ -28,6 +28,7 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 /**
  * SECTION:rtf
+ * @title: RTF tools
  * @short_description: Tools for reading and writing Rich Text Format
  * @stability: Unstable
  * @include: osxcart/rtf.h

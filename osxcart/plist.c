@@ -23,6 +23,7 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 /**
  * SECTION:plist
+ * @title: Property list tools
  * @short_description: Tools for manipulating property lists
  * @stability: Unstable
  * @include: osxcart/plist.h
@@ -168,7 +169,7 @@ insert_copied_key_and_value(char *key, PlistObject *value, GHashTable *new_dict)
 }
 
 /**
- * plist_object_copy: (skip):
+ * plist_object_copy: (skip)
  * @object: The #PlistObject to copy.
  *
  * Makes a copy of a #PlistObject.
@@ -221,7 +222,7 @@ plist_object_copy(PlistObject *object)
 }
 
 /**
- * plist_object_free: (skip):
+ * plist_object_free: (skip)
  * @object: The #PlistObject to free.
  *
  * Deallocates a #PlistObject. If @object is a container type, also deallocates

@@ -48,7 +48,14 @@ CFILE_GLOB=$(top_srcdir)/osxcart/*.c
 EXTRA_HFILES=
 
 # Header files to ignore when scanning. Use base file name, no paths
-IGNORE_HFILES=plist-common.h rtf-deserialize.h rtf-document.h rtf-ignore.h rtf-state.h
+IGNORE_HFILES=\
+	init.h \
+	rtf-serialize.h \
+	rtf-deserialize.h \
+	rtf-document.h \
+	rtf-ignore.h \
+	rtf-state.h \
+	rtf-langcode.h
 
 # Images to copy into HTML directory.
 HTML_IMAGES=
@@ -64,7 +71,7 @@ expand_content_files=
 # Only needed if you are using gtkdoc-scangobj to dynamically query widget
 # signals and properties.
 GTKDOC_CFLAGS=
-GTKDOC_LIBS=
+GTKDOC_LIBS=$(top_srcdir)/osxcart/libosxcart.la
 
 # This includes the standard gtk-doc make rules, copied by gtkdocize.
 include $(top_srcdir)/gtk-doc.make

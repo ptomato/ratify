@@ -5,8 +5,6 @@
 ]>
 <book id="index" xmlns:xi="http://www.w3.org/2003/XInclude">
 
-  <xi:include href="xml/annotation-glossary.xml"><xi:fallback /></xi:include>
-
   <bookinfo>
     <title>Osxcart Reference Manual</title>
     <releaseinfo>
@@ -16,9 +14,18 @@
     </releaseinfo>
   </bookinfo>
 
-  <chapter>
+  <chapter id="osxcart-api-reference">
     <title>Osxcart API Reference</title>
     <xi:include href="xml/plist.xml"/>
     <xi:include href="xml/rtf.xml"/>
   </chapter>
+
+  <xi:include href="xml/annotation-glossary.xml"><xi:fallback /></xi:include>
+
+  <!-- Index -->
+  <index id="api-index">
+   <title>Index of symbols</title>
+   <xi:include href="xml/api-index-full.xml"><xi:fallback /></xi:include>
+  </index>
+
 </book>
