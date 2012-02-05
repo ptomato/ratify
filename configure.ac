@@ -31,7 +31,7 @@ AC_PATH_PROG([ECHO], [echo])
 LT_INIT                    # Libtool
 PKG_PROG_PKG_CONFIG        # Pkg-config
 AM_GNU_GETTEXT([external]) # Gettext, link to system libintl
-GTK_DOC_CHECK(1.9)         # Gtk-Doc
+GTK_DOC_CHECK(1.12)        # Gtk-Doc
 
 ### LIBRARIES ##################################################################
 
@@ -93,6 +93,11 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [GETTEXT package name])
 ### INTROSPECTION ##############################################################
 
 GOBJECT_INTROSPECTION_CHECK([0.6.7])
+
+### WHETHER TO GENERATE A .VAPI FILE ##########################################
+# Requires vapigen
+AC_PATH_PROG([VAPIGEN], [vapigen], [notfound])
+AM_CONDITIONAL(BUILDING_VAPI, $TEST "x$VAPIGEN" != xnotfound)
 
 # DECLARE OUTPUT FILES #########################################################
 
