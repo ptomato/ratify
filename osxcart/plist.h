@@ -227,6 +227,29 @@ GType plist_object_get_type(void);
 PlistObject *plist_object_new(const PlistObjectType type);
 PlistObject *plist_object_copy(PlistObject *object);
 void plist_object_free(PlistObject *object);
+
+gboolean plist_object_get_boolean(PlistObject *object);
+double plist_object_get_real(PlistObject *object);
+int plist_object_get_integer(PlistObject *object);
+const char *plist_object_get_string(PlistObject *object);
+/* We silence a warning about ignored const for plist_object_get_date(); the
+const has a meaning to the introspection bindings. The push/pop pragmas are only
+supported from GCC 4.6 onwards, and the warning option is only supported from
+4.3 onwards, so this is quite messy. */
+#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
+#pragma GCC diagnostic push
+#endif /* GCC 4.6 */
+#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))
+#pragma GCC diagnostic ignored "-Wignored-qualifiers"
+#endif /* GCC 4.3 */
+const GTimeVal plist_object_get_date(PlistObject *object);
+#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
+#pragma GCC diagnostic pop
+#endif /* GCC 4.6 */
+GList *plist_object_get_array(PlistObject *object);
+GHashTable *plist_object_get_dict(PlistObject *object);
+unsigned char *plist_object_get_data(PlistObject *object, size_t *length);
+
 PlistObject *plist_object_lookup(PlistObject *tree, ...);
 PlistObject *plist_read(const gchar *filename, GError **error);
 PlistObject *plist_read_file(GFile *file, GCancellable *cancellable, GError **error);

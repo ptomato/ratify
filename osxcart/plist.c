@@ -210,6 +210,7 @@ plist_object_copy(PlistObject *object)
 			break;
 		case PLIST_OBJECT_DATA:
 			retval->data.length = object->data.length;
+			retval->data.val = g_malloc(retval->data.length);
 			memcpy(retval->data.val, object->data.val, object->data.length);
 			break;
 		default:
@@ -253,6 +254,143 @@ plist_object_free(PlistObject *object)
 	}
 	
 	g_slice_free(PlistObject, object);
+}
+
+/**
+ * plist_object_get_boolean:
+ * @object: a #PlistObject holding a boolean
+ *
+ * This function is intended for bindings to other programming languages; in C,
+ * you can simply use <code>object->boolean.val</code>.
+ *
+ * Returns: the boolean value held by @object.
+ */
+gboolean
+plist_object_get_boolean(PlistObject *object)
+{
+	return object->boolean.val;
+}
+
+/**
+ * plist_object_get_real:
+ * @object: a #PlistObject holding a real value
+ *
+ * This function is intended for bindings to other programming languages; in C,
+ * you can simply use <code>object->real.val</code>.
+ *
+ * Returns: the real value held by @object.
+ */
+double
+plist_object_get_real(PlistObject *object)
+{
+	return object->real.val;
+}
+
+/**
+ * plist_object_get_integer:
+ * @object: a #PlistObject holding an integer
+ *
+ * This function is intended for bindings to other programming languages; in C,
+ * you can simply use <code>object->integer.val</code>.
+ *
+ * Returns: the integer value held by @object.
+ */
+int
+plist_object_get_integer(PlistObject *object)
+{
+	return object->integer.val;
+}
+
+/**
+ * plist_object_get_string:
+ * @object: a #PlistObject holding a string
+ *
+ * This function is intended for bindings to other programming languages; in C,
+ * you can simply use <code>object->string.val</code>.
+ *
+ * Returns: (transfer none): the string value held by @object.
+ */
+const char *
+plist_object_get_string(PlistObject *object)
+{
+	return object->string.val;
+}
+
+/* See explanation in plist.h */
+#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
+#pragma GCC diagnostic push
+#endif /* GCC 4.6 */
+#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))
+#pragma GCC diagnostic ignored "-Wignored-qualifiers"
+#endif /* GCC 4.3 */
+/**
+ * plist_object_get_date:
+ * @object: a #PlistObject holding a date
+ *
+ * This function is intended for bindings to other programming languages; in C,
+ * you can simply use <code>object->date.val</code>.
+ *
+ * Returns: (transfer none): the date value held by @object as a #GTimeVal.
+ */
+const GTimeVal
+plist_object_get_date(PlistObject *object)
+{
+	return object->date.val;
+}
+#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
+#pragma GCC diagnostic pop
+#endif /* GCC 4.6 */
+
+/**
+ * plist_object_get_array:
+ * @object: a #PlistObject holding an array
+ *
+ * This function is intended for bindings to other programming languages; in C,
+ * you can simply use <code>object->array.val</code>.
+ *
+ * Returns: (transfer none) (element-type PlistObject): the #GList held by
+ * @object.
+ */
+GList *
+plist_object_get_array(PlistObject *object)
+{
+	return object->array.val;
+}
+
+/**
+ * plist_object_get_dict:
+ * @object: a #PlistObject holding a dictionary
+ *
+ * This function is intended for bindings to other programming languages; in C,
+ * you can simply use <code>object->dict.val</code>.
+ *
+ * Returns: (transfer none) (element-type char* PlistObject): the #GHashTable
+ * held by @object.
+ */
+GHashTable *
+plist_object_get_dict(PlistObject *object)
+{
+	return object->dict.val;
+}
+
+/**
+ * plist_object_get_data:
+ * @object: a #PlistObject holding binary data
+ * @length: (out): return location for the length of the data
+ *
+ * This function is intended for bindings to other programming languages; in C,
+ * you can simply use <code>object->data.val</code> and
+ * <code>object->data.length</code>.
+ *
+ * Returns: (transfer none) (array length=length): a pointer to the data held by
+ * @object
+ */
+unsigned char *
+plist_object_get_data(PlistObject *object, size_t *length)
+{
+	g_return_val_if_fail(length != NULL, NULL);
+	*length = object->data.length;
+	return object->data.val;
 }
 
 /**
