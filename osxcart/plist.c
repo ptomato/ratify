@@ -269,6 +269,8 @@ plist_object_free(PlistObject *object)
 gboolean
 plist_object_get_boolean(PlistObject *object)
 {
+	g_return_val_if_fail(object != NULL, FALSE);
+	g_return_val_if_fail(object->type == PLIST_OBJECT_BOOLEAN, FALSE);
 	return object->boolean.val;
 }
 
@@ -284,6 +286,8 @@ plist_object_get_boolean(PlistObject *object)
 double
 plist_object_get_real(PlistObject *object)
 {
+	g_return_val_if_fail(object != NULL, 0.0);
+	g_return_val_if_fail(object->type == PLIST_OBJECT_REAL, 0.0);
 	return object->real.val;
 }
 
@@ -299,6 +303,8 @@ plist_object_get_real(PlistObject *object)
 int
 plist_object_get_integer(PlistObject *object)
 {
+	g_return_val_if_fail(object != NULL, 0);
+	g_return_val_if_fail(object->type == PLIST_OBJECT_INTEGER, 0);
 	return object->integer.val;
 }
 
@@ -314,6 +320,8 @@ plist_object_get_integer(PlistObject *object)
 const char *
 plist_object_get_string(PlistObject *object)
 {
+	g_return_val_if_fail(object != NULL, NULL);
+	g_return_val_if_fail(object->type == PLIST_OBJECT_STRING, NULL);
 	return object->string.val;
 }
 
@@ -336,6 +344,8 @@ plist_object_get_string(PlistObject *object)
 const GTimeVal
 plist_object_get_date(PlistObject *object)
 {
+	g_return_val_if_fail(object != NULL, ((GTimeVal){0, 0}));
+	g_return_val_if_fail(object->type == PLIST_OBJECT_DATE, ((GTimeVal){0, 0}));
 	return object->date.val;
 }
 #if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
@@ -355,6 +365,8 @@ plist_object_get_date(PlistObject *object)
 GList *
 plist_object_get_array(PlistObject *object)
 {
+	g_return_val_if_fail(object != NULL, NULL);
+	g_return_val_if_fail(object->type == PLIST_OBJECT_ARRAY, NULL);
 	return object->array.val;
 }
 
@@ -371,6 +383,8 @@ plist_object_get_array(PlistObject *object)
 GHashTable *
 plist_object_get_dict(PlistObject *object)
 {
+	g_return_val_if_fail(object != NULL, NULL);
+	g_return_val_if_fail(object->type == PLIST_OBJECT_DICT, NULL);
 	return object->dict.val;
 }
 
@@ -389,7 +403,9 @@ plist_object_get_dict(PlistObject *object)
 unsigned char *
 plist_object_get_data(PlistObject *object, size_t *length)
 {
+	g_return_val_if_fail(object != NULL, NULL);
 	g_return_val_if_fail(length != NULL, NULL);
+	g_return_val_if_fail(object->type == PLIST_OBJECT_DATA, NULL);
 	*length = object->data.length;
 	return object->data.val;
 }
@@ -405,6 +421,8 @@ plist_object_get_data(PlistObject *object, size_t *length)
 void
 plist_object_set_boolean(PlistObject *object, gboolean val)
 {
+	g_return_if_fail(object != NULL);
+	g_return_if_fail(object->type == PLIST_OBJECT_BOOLEAN);
 	object->boolean.val = val;
 }
 
@@ -419,6 +437,8 @@ plist_object_set_boolean(PlistObject *object, gboolean val)
 void
 plist_object_set_real(PlistObject *object, double val)
 {
+	g_return_if_fail(object != NULL);
+	g_return_if_fail(object->type == PLIST_OBJECT_REAL);
 	object->real.val = val;
 }
 
@@ -433,6 +453,8 @@ plist_object_set_real(PlistObject *object, double val)
 void
 plist_object_set_integer(PlistObject *object, int val)
 {
+	g_return_if_fail(object != NULL);
+	g_return_if_fail(object->type == PLIST_OBJECT_INTEGER);
 	object->integer.val = val;
 }
 
@@ -447,6 +469,9 @@ plist_object_set_integer(PlistObject *object, int val)
 void
 plist_object_set_string(PlistObject *object, const char *val)
 {
+	g_return_if_fail(object != NULL);
+	g_return_if_fail(val != NULL);
+	g_return_if_fail(object->type == PLIST_OBJECT_STRING);
 	g_free(object->string.val);
 	object->string.val = g_strdup(val);
 }
@@ -462,6 +487,8 @@ plist_object_set_string(PlistObject *object, const char *val)
 void
 plist_object_set_date(PlistObject *object, GTimeVal val)
 {
+	g_return_if_fail(object != NULL);
+	g_return_if_fail(object->type == PLIST_OBJECT_DATE);
 	object->date.val = val;
 }
 
@@ -476,6 +503,8 @@ plist_object_set_date(PlistObject *object, GTimeVal val)
 void
 plist_object_set_array(PlistObject *object, GList *val)
 {
+	g_return_if_fail(object != NULL);
+	g_return_if_fail(object->type == PLIST_OBJECT_ARRAY);
 	g_list_foreach(object->array.val, (GFunc)plist_object_free, NULL);
 	g_list_free(object->array.val);
 	object->array.val = NULL;
@@ -494,6 +523,9 @@ plist_object_set_array(PlistObject *object, GList *val)
 void
 plist_object_set_dict(PlistObject *object, GHashTable *val)
 {
+	g_return_if_fail(object != NULL);
+	g_return_if_fail(val != NULL);
+	g_return_if_fail(object->type == PLIST_OBJECT_DICT);
 	g_hash_table_remove_all(object->dict.val);
 	g_hash_table_foreach(val, (GHFunc)insert_copied_key_and_value, object->dict.val);
 }
@@ -511,6 +543,9 @@ plist_object_set_dict(PlistObject *object, GHashTable *val)
 void
 plist_object_set_data(PlistObject *object, unsigned char *val, size_t length)
 {
+	g_return_if_fail(object != NULL);
+	g_return_if_fail(val != NULL || length == 0);
+	g_return_if_fail(object->type == PLIST_OBJECT_DATA);
 	object->data.length = length;
 	object->data.val = g_realloc(object->data.val, length);
 	memcpy(object->data.val, val, length);
