@@ -24,8 +24,12 @@
 
   <!-- Index -->
   <index id="api-index">
-   <title>Index of symbols</title>
+   <title>Index of all symbols</title>
    <xi:include href="xml/api-index-full.xml"><xi:fallback /></xi:include>
+  </index>
+  <index id="api-index-1-1" role="1.1">
+    <title>Index of new symbols in 1.1</title>
+    <xi:include href="xml/api-index-1.1.xml"><xi:fallback /></xi:include>
   </index>
 
 </book>
