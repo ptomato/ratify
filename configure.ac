@@ -65,24 +65,6 @@ AC_CHECK_FUNCS([strchr strrchr strstr strtol])
 
 AC_C_INLINE
 
-### RPM CONFIGURATION ##########################################################
-# --enable-rpm requires rpm and rpmbuild
-AC_PATH_PROG([RPMBUILD], [rpmbuild], [notfound])
-AC_PATH_PROG([RPM], [rpm], [notfound])
-AC_ARG_ENABLE([rpm],
-	[AS_HELP_STRING([--enable-rpm=@<:@yes/no@:>@],
-		[Configure for building RPM package @<:@default=no@:>@ (requires rpm and rpmbuild)])],
-	[AS_IF([$TEST "x$enable_rpm" = xyes],
-		[AS_IF([$TEST "x$RPMBUILD" = xnotfound],
-			[AC_MSG_ERROR([rpmbuild is required for --enable-rpm])],
-		[$TEST "x$RPM" = xnotfound],
-			[AC_MSG_ERROR([rpm is required for --enable-rpm])])])],
-	[enable_rpm=no])
-AM_CONDITIONAL(BUILDING_RPM, $TEST "x$enable_rpm" = xyes)
-# The user can specify the RPM release number in the environment (e.g. '1.fc10')
-AC_ARG_VAR([RPM_RELEASE], [Release number to build RPMs with [1]])
-AS_IF([$TEST "x$RPM_RELEASE" = x], [RPM_RELEASE=1])
-
 ### INTERNATIONALIZATION ######################################################
 
 AM_GNU_GETTEXT_VERSION([0.17])
@@ -104,7 +86,6 @@ AM_CONDITIONAL(BUILDING_VAPI, $TEST "x$VAPIGEN" != xnotfound)
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([
 	osxcart.pc
-	osxcart.spec
 	Makefile
 	osxcart/Makefile
 	testcases/Makefile
