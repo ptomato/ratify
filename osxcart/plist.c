@@ -175,6 +175,8 @@ insert_copied_key_and_value(char *key, PlistObject *value, GHashTable *new_dict)
  * Makes a copy of a #PlistObject.
  *
  * Returns: (transfer full): a newly-allocated #PlistObject.
+ *
+ * Since: 1.1
  */
 PlistObject *
 plist_object_copy(PlistObject *object)
@@ -265,6 +267,8 @@ plist_object_free(PlistObject *object)
  * you can simply use <code>object->boolean.val</code>.
  *
  * Returns: the boolean value held by @object.
+ *
+ * Since: 1.1
  */
 gboolean
 plist_object_get_boolean(PlistObject *object)
@@ -282,6 +286,8 @@ plist_object_get_boolean(PlistObject *object)
  * you can simply use <code>object->real.val</code>.
  *
  * Returns: the real value held by @object.
+ *
+ * Since: 1.1
  */
 double
 plist_object_get_real(PlistObject *object)
@@ -299,6 +305,8 @@ plist_object_get_real(PlistObject *object)
  * you can simply use <code>object->integer.val</code>.
  *
  * Returns: the integer value held by @object.
+ *
+ * Since: 1.1
  */
 int
 plist_object_get_integer(PlistObject *object)
@@ -316,6 +324,8 @@ plist_object_get_integer(PlistObject *object)
  * you can simply use <code>object->string.val</code>.
  *
  * Returns: (transfer none): the string value held by @object.
+ *
+ * Since: 1.1
  */
 const char *
 plist_object_get_string(PlistObject *object)
@@ -340,6 +350,8 @@ plist_object_get_string(PlistObject *object)
  * you can simply use <code>object->date.val</code>.
  *
  * Returns: (transfer none): the date value held by @object as a #GTimeVal.
+ *
+ * Since: 1.1
  */
 const GTimeVal
 plist_object_get_date(PlistObject *object)
@@ -361,6 +373,8 @@ plist_object_get_date(PlistObject *object)
  *
  * Returns: (transfer none) (element-type PlistObject): the #GList held by
  * @object.
+ *
+ * Since: 1.1
  */
 GList *
 plist_object_get_array(PlistObject *object)
@@ -379,6 +393,8 @@ plist_object_get_array(PlistObject *object)
  *
  * Returns: (transfer none) (element-type char* PlistObject): the #GHashTable
  * held by @object.
+ *
+ * Since: 1.1
  */
 GHashTable *
 plist_object_get_dict(PlistObject *object)
@@ -398,7 +414,9 @@ plist_object_get_dict(PlistObject *object)
  * <code>object->data.length</code>.
  *
  * Returns: (transfer none) (array length=length): a pointer to the data held by
- * @object
+ * @object.
+ *
+ * Since: 1.1
  */
 unsigned char *
 plist_object_get_data(PlistObject *object, size_t *length)
@@ -417,6 +435,8 @@ plist_object_get_data(PlistObject *object, size_t *length)
  *
  * This function is intended for bindings to other programming languages; in C,
  * you can simply use <code>object->boolean.val</code>.
+ *
+ * Since: 1.1
  */
 void
 plist_object_set_boolean(PlistObject *object, gboolean val)
@@ -433,6 +453,8 @@ plist_object_set_boolean(PlistObject *object, gboolean val)
  *
  * This function is intended for bindings to other programming languages; in C,
  * you can simply use <code>object->real.val</code>.
+ *
+ * Since: 1.1
  */
 void
 plist_object_set_real(PlistObject *object, double val)
@@ -449,6 +471,8 @@ plist_object_set_real(PlistObject *object, double val)
  *
  * This function is intended for bindings to other programming languages; in C,
  * you can simply use <code>object->integer.val</code>.
+ *
+ * Since: 1.1
  */
 void
 plist_object_set_integer(PlistObject *object, int val)
@@ -465,6 +489,8 @@ plist_object_set_integer(PlistObject *object, int val)
  *
  * This function is intended for bindings to other programming languages; in C,
  * you can simply use <code>object->string.val</code>.
+ *
+ * Since: 1.1
  */
 void
 plist_object_set_string(PlistObject *object, const char *val)
@@ -483,6 +509,8 @@ plist_object_set_string(PlistObject *object, const char *val)
  *
  * This function is intended for bindings to other programming languages; in C,
  * you can simply use <code>object->date.val</code>.
+ *
+ * Since: 1.1
  */
 void
 plist_object_set_date(PlistObject *object, GTimeVal val)
@@ -499,6 +527,8 @@ plist_object_set_date(PlistObject *object, GTimeVal val)
  *
  * This function is intended for bindings to other programming languages; in C,
  * you can simply use <code>object->array.val</code>.
+ *
+ * Since: 1.1
  */
 void
 plist_object_set_array(PlistObject *object, GList *val)
@@ -519,6 +549,8 @@ plist_object_set_array(PlistObject *object, GList *val)
  *
  * This function is intended for bindings to other programming languages; in C,
  * you can simply use <code>object->dict.val</code>.
+ *
+ * Since: 1.1
  */
 void
 plist_object_set_dict(PlistObject *object, GHashTable *val)
@@ -539,6 +571,8 @@ plist_object_set_dict(PlistObject *object, GHashTable *val)
  * This function is intended for bindings to other programming languages; in C,
  * you can simply use <code>object->data.val</code> and
  * <code>object->data.length</code>.
+ *
+ * Since: 1.1
  */
 void
 plist_object_set_data(PlistObject *object, unsigned char *val, size_t length)
@@ -595,6 +629,8 @@ plist_object_set_data(PlistObject *object, unsigned char *val, size_t length)
  * did not exist. The returned object is a pointer to the object within the
  * original @tree, and is not copied. Therefore, it should not be freed
  * separately from @tree.
+ *
+ * Since: 1.1
  */
 PlistObject *
 plist_object_lookup(PlistObject *tree, ...)

@@ -134,6 +134,8 @@ rtf_register_deserialize_format(GtkTextBuffer *buffer)
  *
  * Returns: %TRUE if the operation was successful, %FALSE if not, in which case
  * @error is set.
+ *
+ * Since: 1.1
  */ 
 gboolean
 rtf_text_buffer_import_file(GtkTextBuffer *buffer, GFile *file, GCancellable *cancellable, GError **error)
@@ -298,6 +300,8 @@ rtf_text_buffer_import_from_string(GtkTextBuffer *buffer, const gchar *string, G
  *
  * Returns: %TRUE if the operation succeeded, %FALSE if not, in which case
  * @error is set.
+ *
+ * Since: 1.1
  */
 gboolean
 rtf_text_buffer_export_file(GtkTextBuffer *buffer, GFile *file, GCancellable *cancellable, GError **error)
