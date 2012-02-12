@@ -1,14 +1,14 @@
 # DUTCH TRANSLATION OF OSXCART.
-# Copyright (C) 2009 P. F. Chimento
+# Copyright (C) 2009, 2012 P. F. Chimento
 # This file is distributed under the same license as the Osxcart package.
-# P. F. Chimento <philip.chimento@gmail.com>, 2009, 2012.
+# Philip Chimento <philip.chimento@gmail.com>, 2009, 2012.
 msgid ""
 msgstr ""
-"Project-Id-Version: Osxcart 0.1\n"
+"Project-Id-Version: Osxcart 1.1\n"
 "Report-Msgid-Bugs-To: http://sourceforge.net/apps/trac/osxcart/wiki\n"
-"POT-Creation-Date: 2011-11-24 23:00+0100\n"
-"PO-Revision-Date: 2012-02-05 17:23+0200\n"
-"Last-Translator: P. F. Chimento <philip.chimento@gmail.com>\n"
+"POT-Creation-Date: 2012-02-12 19:07+0100\n"
+"PO-Revision-Date: 2012-02-12 19:36+0200\n"
+"Last-Translator: Philip Chimento <philip.chimento@gmail.com>\n"
 "Language-Team: Osxcart <philip.chimento@gmail.com>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
@@ -18,27 +18,27 @@ msgstr ""
 "X-Generator: Virtaal 0.7.1\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
-#: osxcart/plist-parser.c:74
+#: osxcart/plist-parser.c:75
 #, c-format
 msgid "<plist> root element not found; got <%s> instead"
 msgstr "<%s> gevonden in plaats van <plist> wortelelement"
 
-#: osxcart/plist-parser.c:85
+#: osxcart/plist-parser.c:86
 #, c-format
 msgid "Unsupported plist version '%s'"
 msgstr "Geen ondersteuning voor plistversie '%s'"
 
-#: osxcart/plist-parser.c:95
+#: osxcart/plist-parser.c:96
 #, c-format
 msgid "<%s> should have no content, but found '%s'"
 msgstr "<%s> mag geen inhoud hebben, maar heeft '%s'"
 
-#: osxcart/plist-parser.c:110
+#: osxcart/plist-parser.c:111
 #, c-format
 msgid "Could not parse date '%s'"
 msgstr "Kan datum '%s' niet verwerken"
 
-#: osxcart/plist-parser.c:167
+#: osxcart/plist-parser.c:168
 #, c-format
 msgid ""
 "Unexpected object <%s>; subsequent objects ought to be enclosed in an "
@@ -47,30 +47,30 @@ msgstr ""
 "Onverwacht object <%s>; opeenvolgende objecten moeten binnen een <array> of "
 "<dict> worden geplaatst"
 
-#: osxcart/plist-parser.c:172
+#: osxcart/plist-parser.c:173
 #, c-format
 msgid "Missing <key> for object <%s> in <dict>"
 msgstr "Object <%s> heeft geen <key> in <dict>"
 
-#: osxcart/plist-parser.c:198
+#: osxcart/plist-parser.c:199
 msgid "<key> element found outside of <dict>"
 msgstr "<key> element gevonden buiten <dict>"
 
-#: osxcart/plist-parser.c:240
+#: osxcart/plist-parser.c:241
 #, c-format
 msgid "Unknown object <%s>"
 msgstr "Onbekend object <%s>"
 
-#: osxcart/plist-parser.c:287
+#: osxcart/plist-parser.c:288
 msgid "No objects found within <plist> root element"
 msgstr "Geen objecten gevonden binnen <plist> wortelelement"
 
-#: osxcart/rtf.c:174
+#: osxcart/rtf.c:186
 #, c-format
 msgid "Could not change directory to '%s': %s"
 msgstr "Kan niet naar map '%s' navigeren: %s"
 
-#: osxcart/rtf.c:183 osxcart/rtf.c:193
+#: osxcart/rtf.c:195 osxcart/rtf.c:205
 #, c-format
 msgid "Could not restore current directory: %s"
 msgstr "Kan huidige map niet heropenen: %s"
@@ -223,8 +223,3 @@ msgid "Could not serialize picture, skipping: %s"
 msgstr ""
 "Serialisatie van afbeelding mislukt; de afbeelding wordt overgeslagen: %s"
 
-#~ msgid "Unknown element <%s>"
-#~ msgstr "Onbekend element <%s>"
-
-#~ msgid "Unexpected object <%s>"
-#~ msgstr "Onverwacht object <%s>"
