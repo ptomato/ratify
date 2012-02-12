@@ -1,3 +1,8 @@
+2012-02-12 20:12  pchimento
+
+    * ChangeLog: The ChangeLog will not be maintained anymore. This information
+    is available from the git log.
+
 2009-09-06 13:33  pchimento
 
 	* /ChangeLog, /Makefile.am, /NEWS, /configure.ac, /osxcart.spec.in,
