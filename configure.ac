@@ -5,7 +5,7 @@ AC_PREREQ([2.62]) # Earliest version that works with gobject introspection
 
 ### INITIALIZATION #############################################################
 
-AC_INIT([Osxcart], [1.0])
+AC_INIT([Osxcart], [1.1])
 AC_CONFIG_SRCDIR([testcases/test.c]) # Sanity check
 AC_CONFIG_MACRO_DIR(m4)
 AM_INIT_AUTOMAKE([-Wall -Wno-portability])
@@ -15,9 +15,9 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 ### LIBRARY VERSIONING #########################################################
 # Only update immediately before a public release
 
-OSXCART_CURRENT=0  # Increment if interface changes
-OSXCART_REVISION=1 # Increment if source code changes; set 0 if interface
-OSXCART_AGE=0 # Increment if interfaces added; set 0 if removed
+OSXCART_CURRENT=1  # Increment if interface changes
+OSXCART_REVISION=0 # Increment if source code changes; set 0 if interface
+OSXCART_AGE=1 # Increment if interfaces added; set 0 if removed
 LT_VERSION_INFO="$OSXCART_CURRENT:$OSXCART_REVISION:$OSXCART_AGE"
 AC_SUBST(LT_VERSION_INFO)
 

@@ -1,5 +1,5 @@
 Name: osxcart
-Version: 1.0
+Version: 1.1
 Release: 1%{?dist}
 Summary: Library for interfacing OS X file formats with GTK+
 URL: http://sourceforge.net/apps/trac/osxcart/wiki
