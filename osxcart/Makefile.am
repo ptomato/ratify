@@ -34,6 +34,7 @@ libosxcart_includedir = $(includedir)/osxcart/osxcart
 libosxcart_include_HEADERS = plist.h rtf.h
 
 CLEANFILES=
+MAINTAINERCLEANFILES=
 
 # Introspection boilerplate
 -include $(INTROSPECTION_MAKEFILE)
@@ -73,22 +74,23 @@ typelibdir = $(libdir)/girepository-1.0
 typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
 CLEANFILES += $(gir_DATA) $(typelib_DATA)
-endif
-GITIGNOREFILES = \
-	OsxcartPlist-1.0.gir OsxcartPlist-1.0.typelib \
-	OsxcartRtf-1.0.gir OsxcartRtf-1.0.typelib
-
-MAINTAINERCLEANFILES =
 
 if BUILDING_VAPI
 vapidir = $(datadir)/vala/vapi
 dist_vapi_DATA = osxcart.vapi
 
 osxcart.vapi: $(INTROSPECTION_GIRS)
-	$(AM_V_GEN)$(VAPIGEN) --library=osxcart --pkg gtk+-2.0 OsxcartPlist-1.0.gir OsxcartRtf-1.0.gir && \
+	$(AM_V_GEN)$(VAPIGEN) --library=osxcart --pkg gtk+-2.0 $(INTROSPECTION_GIRS) && \
 	touch $@  # Doesn't update the timestamp if unchanged?
 
 MAINTAINERCLEANFILES += osxcart.vapi
-endif
+
+endif # BUILDING_VAPI
+endif # HAVE_INTROSPECTION
+
+GITIGNOREFILES = \
+	OsxcartPlist-1.0.gir OsxcartPlist-1.0.typelib \
+	OsxcartRtf-1.0.gir OsxcartRtf-1.0.typelib \
+	osxcart.vapi
 
 -include $(top_srcdir)/git.mk
