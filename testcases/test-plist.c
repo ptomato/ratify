@@ -128,8 +128,8 @@ plist_copy_test()
 
 	obj = plist_object_lookup(copy, "Data", -1);
 	g_assert(obj->type == PLIST_OBJECT_DATA);
-	g_assert_cmpstr((const char *)obj->data.val, ==, "sure.");
 	g_assert_cmpint(obj->data.length, ==, 5);
+	g_assert(strncmp((const char *)obj->data.val, "sure.", 5) == 0);
 
 	obj = plist_object_lookup(copy, "Date", -1);
 	g_assert(obj->type == PLIST_OBJECT_DATE);
