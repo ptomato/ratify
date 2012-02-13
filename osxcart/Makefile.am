@@ -78,15 +78,17 @@ GITIGNOREFILES = \
 	OsxcartPlist-1.0.gir OsxcartPlist-1.0.typelib \
 	OsxcartRtf-1.0.gir OsxcartRtf-1.0.typelib
 
+MAINTAINERCLEANFILES =
+
+if BUILDING_VAPI
 vapidir = $(datadir)/vala/vapi
 dist_vapi_DATA = osxcart.vapi
 
-if BUILDING_VAPI
 osxcart.vapi: $(INTROSPECTION_GIRS)
 	$(AM_V_GEN)$(VAPIGEN) --library=osxcart --pkg gtk+-2.0 OsxcartPlist-1.0.gir OsxcartRtf-1.0.gir && \
 	touch $@  # Doesn't update the timestamp if unchanged?
-endif
 
-MAINTAINERCLEANFILES = osxcart.vapi
+MAINTAINERCLEANFILES += osxcart.vapi
+endif
 
 -include $(top_srcdir)/git.mk
