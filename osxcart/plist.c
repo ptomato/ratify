@@ -112,7 +112,9 @@ plist_error_quark(void)
 	return g_quark_from_static_string("plist-error-quark");
 }
 
+#if GLIB_CHECK_VERSION(2,26,0)
 G_DEFINE_BOXED_TYPE(PlistObject, plist_object, plist_object_copy, plist_object_free);
+#endif
 
 /**
  * plist_object_new:
