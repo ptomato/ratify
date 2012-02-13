@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Osxcart 1.1\n"
 "Report-Msgid-Bugs-To: http://sourceforge.net/apps/trac/osxcart/wiki\n"
-"POT-Creation-Date: 2012-02-12 19:07+0100\n"
+"POT-Creation-Date: 2012-02-13 01:55+0100\n"
 "PO-Revision-Date: 2012-02-12 19:36+0200\n"
 "Last-Translator: Philip Chimento <philip.chimento@gmail.com>\n"
 "Language-Team: Osxcart <philip.chimento@gmail.com>\n"
@@ -65,12 +65,12 @@ msgstr "Onbekend object <%s>"
 msgid "No objects found within <plist> root element"
 msgstr "Geen objecten gevonden binnen <plist> wortelelement"
 
-#: osxcart/rtf.c:186
+#: osxcart/rtf.c:188
 #, c-format
 msgid "Could not change directory to '%s': %s"
 msgstr "Kan niet naar map '%s' navigeren: %s"
 
-#: osxcart/rtf.c:195 osxcart/rtf.c:205
+#: osxcart/rtf.c:197 osxcart/rtf.c:207
 #, c-format
 msgid "Could not restore current directory: %s"
 msgstr "Kan huidige map niet heropenen: %s"
@@ -222,4 +222,3 @@ msgstr "Ongeldig bitmaptype '%i' in \\wbitmap commando"
 msgid "Could not serialize picture, skipping: %s"
 msgstr ""
 "Serialisatie van afbeelding mislukt; de afbeelding wordt overgeslagen: %s"
-
