@@ -100,7 +100,7 @@ OsxcartRtf_@OSXCART_API_VERSION@_gir_FILES = \
 	$(rtf_introspection_sources) \
 	$(NULL)
 OsxcartRtf_@OSXCART_API_VERSION@_gir_LIBS = libosxcart-@OSXCART_API_VERSION@.la
-OsxcartRtf_@OSXCART_API_VERSION@_gir_INCLUDES = Gtk-2.0
+OsxcartRtf_@OSXCART_API_VERSION@_gir_INCLUDES = Gtk-3.0
 OsxcartRtf_@OSXCART_API_VERSION@_gir_CFLAGS = @OSXCART_CFLAGS@
 # Otherwise can't find gtk/gtk.h?
 OsxcartRtf_@OSXCART_API_VERSION@_gir_SCANNERFLAGS = \
@@ -120,7 +120,7 @@ if BUILDING_VAPI
 vapidir = $(datadir)/vala/vapi
 dist_vapi_DATA = osxcart-@OSXCART_API_VERSION@.vapi
 osxcart-@OSXCART_API_VERSION@.vapi: $(INTROSPECTION_GIRS)
-	$(AM_V_GEN)$(VAPIGEN) --library=osxcart --pkg gtk+-2.0 $(INTROSPECTION_GIRS) && \
+	$(AM_V_GEN)$(VAPIGEN) --library=osxcart --pkg gtk+-3.0 $(INTROSPECTION_GIRS) && \
 	mv osxcart.vapi $@ && \
 	touch $@  # Doesn't update the timestamp if unchanged?
 DISTCLEANFILES += osxcart-@OSXCART_API_VERSION@.vapi

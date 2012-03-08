@@ -11,9 +11,9 @@ License: LGPLv3
 Group: Development/Libraries
 Source: http://github.com/ptomato/%{name}/releases/download/%{version}/%{name}-%{version}.tar.xz
 Requires: glib2%{?_isa} >= 2.18
-Requires: gtk2%{?_isa} >= 2.10
+Requires: gtk3%{?_isa}
 BuildRequires: glib2-devel%{?_isa} >= 2.18
-BuildRequires: gtk2-devel%{?_isa} >= 2.10
+BuildRequires: gtk3-devel%{?_isa}
 BuildRequires: gettext
 BuildRequires: libtool >= 2.2
 BuildRequires: pkgconfig(gobject-introspection-1.0)
