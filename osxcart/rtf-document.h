@@ -1,7 +1,7 @@
 #ifndef __OSXCART_RTF_DOCUMENT_H__
 #define __OSXCART_RTF_DOCUMENT_H__
 
-/* Copyright 2009 P. F. Chimento
+/* Copyright 2009, 2012 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
@@ -35,11 +35,11 @@ typedef gboolean DocParamFunc(ParserContext *, Attributes *, gint32, GError **);
 G_GNUC_INTERNAL DocFunc doc_chftn, doc_ltrch, doc_ltrpar, doc_nosupersub, 
     doc_pard, doc_plain, doc_qc, doc_qj, doc_ql, doc_qr, doc_rtlch, doc_rtlpar, 
     doc_sub, doc_super, doc_ud, doc_ulnone, doc_upr;
-G_GNUC_INTERNAL DocParamFunc doc_b, doc_cb, doc_cf, doc_dn, doc_f, doc_fi, 
-    doc_fs, doc_fsmilli, doc_highlight, doc_i, doc_lang, doc_li, doc_ri, doc_s, 
-    doc_sa, doc_saauto, doc_sb, doc_sbauto, doc_scaps, doc_slleading, 
-    doc_strike, doc_tx, doc_u, doc_uc, doc_ul, doc_uldb, doc_ulstyle,
-    doc_ulwave, doc_up, doc_v;
+G_GNUC_INTERNAL DocParamFunc doc_b, doc_cb, doc_cf, doc_charscalex, doc_dn,
+    doc_f, doc_fi, doc_fs, doc_fsmilli, doc_highlight, doc_i, doc_lang, doc_li,
+    doc_ri, doc_s, doc_sa, doc_saauto, doc_sb, doc_sbauto, doc_scaps,
+    doc_slleading, doc_strike, doc_tx, doc_u, doc_uc, doc_ul, doc_uldb,
+    doc_ulstyle, doc_ulwave, doc_up, doc_v;
 
 extern const DestinationInfo shppict_destination;
 
@@ -78,6 +78,7 @@ extern const DestinationInfo shppict_destination;
     { "b", OPTIONAL_PARAMETER, TRUE, doc_b, 1 }, \
 	{ "cb", OPTIONAL_PARAMETER, TRUE, doc_cb, 0 }, \
 	{ "cf", OPTIONAL_PARAMETER, TRUE, doc_cf, 0 }, \
+	{ "charscalex", OPTIONAL_PARAMETER, TRUE, doc_charscalex, 100 }, \
 	{ "chcbpat", OPTIONAL_PARAMETER, TRUE, doc_cb, 0 }, \
 	{ "dn", OPTIONAL_PARAMETER, TRUE, doc_dn, 6 }, \
 	{ "f", REQUIRED_PARAMETER, TRUE, doc_f }, \

@@ -34,6 +34,7 @@ set_default_character_attributes(Attributes *attr)
 	attr->chardirection = -1;
 	attr->language = 1024;
 	attr->rise = 0;
+	attr->scale = 100;
 }
 
 void

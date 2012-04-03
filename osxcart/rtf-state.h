@@ -59,6 +59,7 @@ typedef struct {
     GtkTextDirection chardirection;
 	gint language;
 	gint rise;
+	int scale;
 
 	/* Number of characters to skip after \u */
 	gint unicode_skip;

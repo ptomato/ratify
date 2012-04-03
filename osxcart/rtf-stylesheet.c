@@ -133,6 +133,11 @@ stylesheet_text(ParserContext *ctx)
 		             "indent", PANGO_PIXELS(TWIPS_TO_PANGO(attr->indent)),
 		             "indent-set", TRUE,
 		             NULL);
+    if(attr->scale != 100)
+		g_object_set(tag,
+		             "scale", (double)(attr->scale) / 100.0,
+		             "scale-set", TRUE,
+		             NULL);
 
 	/* Add each character attribute to the tag */
 	if(attr->foreground != -1)

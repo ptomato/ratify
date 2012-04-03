@@ -1,4 +1,4 @@
-/* Copyright 2009 P. F. Chimento
+/* Copyright 2009, 2012 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
@@ -126,6 +126,8 @@ apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTe
 	        ((attr->rise > 0)? 1 : -1) * attr->rise);
 	if(attr->leading != 0)
 	    apply_attribute(ctx, start, end, "osxcart-rtf-leading-%i", attr->leading);
+	if(attr->scale != 100)
+	    apply_attribute(ctx, start, end, "osxcart-rtf-scale-%i", attr->scale);
 	/* Boolean tags */
 	if(attr->italic)
 		gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-italic", start, end);
@@ -318,6 +320,31 @@ doc_cf(ParserContext *ctx, Attributes *attr, gint32 param, GError **error)
 	g_free(tagname);
     
     attr->foreground = param;
+    return TRUE;
+}
+
+gboolean
+doc_charscalex(ParserContext *ctx, Attributes *attr, gint32 scale, GError **error)
+{
+	if(scale <= 0)
+	{
+		g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_FONT_SIZE, _("\\charscalex%d is invalid, negative or zero scales not allowed"), scale);
+		return FALSE; 
+	}
+
+    char *tagname = g_strdup_printf("osxcart-rtf-scale-%i", scale);
+    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
+    {
+        GtkTextTag *tag = gtk_text_tag_new(tagname);
+        g_object_set(tag, 
+                     "scale", (double)scale / 100.0, 
+                     "scale-set", TRUE,
+                     NULL);
+        gtk_text_tag_table_add(ctx->tags, tag);
+    }
+    g_free(tagname);
+
+    attr->scale = scale;
     return TRUE;
 }
 
