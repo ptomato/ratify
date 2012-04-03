@@ -140,7 +140,8 @@ EXTRA_DIST = \
 	RtfParserTest_fail_5.rtf \
 	RtfParserTest_fail_6.rtf \
 	rtfdtest.rtfd/TXT.rtf \
-	rtfdtest.rtfd/rtfpocketguide.jpeg
-
+	rtfdtest.rtfd/rtfpocketguide.jpeg \
+	charscalex.rtf \
+	charscalexfail.rtf
 
 -include $(top_srcdir)/git.mk

@@ -276,6 +276,16 @@ const gchar *codeprojectfailcases[] = {
 	NULL, NULL
 };
 
+const char *variouspasscases[] = {
+	"Character scaling", "charscalex.rtf",
+	NULL, NULL
+};
+
+const char *variousfailcases[] = {
+	"Incorrect character scaling", "charscalexfail.rtf",
+	NULL, NULL
+};
+
 /* Whether WMF and EMF loading is available */
 gboolean have_wmf = FALSE;
 gboolean have_emf = FALSE;
@@ -326,15 +336,20 @@ add_rtf_tests(void)
 	g_test_add_data_func("/rtf/parse/fail/Nonexistent filename", "", rtf_fail_case);
 	/* Cases from http://www.codeproject.com/KB/recipes/RtfConverter.aspx */
 	add_tests(codeprojectfailcases, "/rtf/parse/fail/", rtf_fail_case);
+	/* Other */
+	add_tests(variousfailcases, "/rtf/parse/fail/", rtf_fail_case);
 
 	/* Pass cases */
 	/* Examples from 'RTF Pocket Guide' by Sean M. Burke */
 	add_tests(rtfbookexamples, "/rtf/parse/pass/", rtf_parse_pass_case);
 	/* From http://www.codeproject.com/KB/recipes/RtfConverter.aspx */
 	add_tests(codeprojectpasscases, "/rtf/parse/pass/", rtf_parse_pass_case);
+	/* Other */
+	add_tests(variouspasscases, "/rtf/parse/pass/", rtf_parse_pass_case);
 	/* These tests export the RTF to a string and re-import it */
 	add_tests(rtfbookexamples, "/rtf/write/", rtf_write_pass_case);
 	add_tests(codeprojectpasscases, "/rtf/write/", rtf_write_pass_case);
+	add_tests(variouspasscases, "/rtf/write/", rtf_write_pass_case);
     /* RTFD tests */
     g_test_add_data_func("/rtf/parse/pass/RTFD test", "rtfdtest.rtfd", rtf_parse_pass_case);
     g_test_add_data_func("/rtf/write/RTFD test", "rtfdtest.rtfd", rtf_write_pass_case);
@@ -344,5 +359,6 @@ add_rtf_tests(void)
     {
         add_tests(rtfbookexamples, "/rtf/parse/human/", rtf_parse_human_approval_case);
         add_tests(codeprojectpasscases, "/rtf/parse/human/", rtf_parse_human_approval_case);
+        add_tests(variouspasscases, "/rtf/parse/human/", rtf_parse_human_approval_case);
     }
 }
