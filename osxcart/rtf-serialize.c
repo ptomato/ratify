@@ -1,4 +1,4 @@
-/* Copyright 2009 P. F. Chimento
+/* Copyright 2009, 2012 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
@@ -573,6 +573,8 @@ write_rtf_paragraphs(WriterContext *ctx)
             lineend = *(ctx->end);
         
         /* Copy the entire paragraph to a separate buffer */
+        if(ctx->linebuffer)
+            g_object_unref(ctx->linebuffer);
         ctx->linebuffer = gtk_text_buffer_new(gtk_text_buffer_get_tag_table(ctx->textbuffer));
         gtk_text_buffer_get_start_iter(ctx->linebuffer, &start);
         gtk_text_buffer_insert_range(ctx->linebuffer, &start, &linestart, &lineend);
