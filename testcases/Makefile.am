@@ -1,16 +1,17 @@
 AM_CFLAGS = -Wall
 
-noinst_PROGRAMS = test-osxcart
+check_PROGRAMS = test-osxcart
 test_osxcart_CPPFLAGS = -I$(top_srcdir) -DTESTFILEDIR=\""$(abs_srcdir)"\"
 test_osxcart_SOURCES = test-plist.c test-rtf.c test.c
 test_osxcart_CFLAGS = @TEST_CFLAGS@ $(AM_CFLAGS)
 test_osxcart_LDADD = @TEST_LIBS@ ../osxcart/libosxcart.la
 
-check-local: test-report
+TESTS = test-osxcart
+AM_TESTS_ENVIRONMENT = export GNOME_DISABLE_CRASH_DIALOG=1;
+LOG_COMPILER = gtester
+AM_LOG_FLAGS = -k
 
-.PHONY: test test-report perf-report full-report
-test: test-osxcart
-	GNOME_DISABLE_CRASH_DIALOG=1 gtester test-osxcart
+.PHONY: test-report perf-report full-report
 test-report: test-osxcart 
 	GNOME_DISABLE_CRASH_DIALOG=1 gtester -k test-osxcart -o=testlog.xml; \
 	gtester-report testlog.xml > testlog.html
