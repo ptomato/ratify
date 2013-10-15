@@ -20,7 +20,7 @@ DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.sgml
 # The directory containing the source code. Relative to $(srcdir).
 # gtk-doc will search all .c & .h files beneath here for inline comments
 # documenting the functions and macros.
-DOC_SOURCE_DIR=../../osxcart
+DOC_SOURCE_DIR=$(top_srcdir)/osxcart
 
 # Extra options to pass to gtkdoc-scangobj. Not normally needed.
 SCANGOBJ_OPTIONS=
@@ -70,8 +70,8 @@ expand_content_files=
 # CFLAGS and LDFLAGS for compiling gtkdoc-scangobj with your library.
 # Only needed if you are using gtkdoc-scangobj to dynamically query widget
 # signals and properties.
-GTKDOC_CFLAGS=
-GTKDOC_LIBS=$(top_srcdir)/osxcart/libosxcart.la
+GTKDOC_CFLAGS=@OSXCART_CFLAGS@
+GTKDOC_LIBS=$(top_builddir)/osxcart/libosxcart.la
 
 # This includes the standard gtk-doc make rules, copied by gtkdocize.
 include $(top_srcdir)/gtk-doc.make

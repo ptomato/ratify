@@ -72,8 +72,10 @@ plist_lookup_test()
 {
 	GError *error = NULL;
 	PlistObject *list = NULL, *obj = NULL;
-	
-	list = plist_read("oneofeach.plist", &error);
+	char *filename = build_filename("oneofeach.plist");
+
+	list = plist_read(filename, &error);
+	g_free(filename);
 	g_assert(error == NULL);
 	g_assert(list);
 	
@@ -102,8 +104,10 @@ plist_copy_test()
 {
 	GError *error = NULL;
 	PlistObject *list = NULL, *copy = NULL, *obj = NULL;
+	char *filename = build_filename("oneofeach.plist");
 
-	list = plist_read("oneofeach.plist", &error);
+	list = plist_read(filename, &error);
+	g_free(filename);
 	g_assert(error == NULL);
 	g_assert(list);
 
@@ -183,8 +187,10 @@ plist_accessor_test()
 	const unsigned char *data;
 	size_t length;
 	GTimeVal timeval;
+	char *filename = build_filename("oneofeach.plist");
 
-	list = plist_read("oneofeach.plist", &error);
+	list = plist_read(filename, &error);
+	g_free(filename);
 	g_assert(error == NULL);
 	g_assert(list);
 

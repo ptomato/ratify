@@ -34,6 +34,7 @@ libosxcart_includedir = $(includedir)/osxcart/osxcart
 libosxcart_include_HEADERS = plist.h rtf.h
 
 CLEANFILES=
+DISTCLEANFILES=
 MAINTAINERCLEANFILES=
 
 # Introspection boilerplate
@@ -83,7 +84,7 @@ osxcart.vapi: $(INTROSPECTION_GIRS)
 	$(AM_V_GEN)$(VAPIGEN) --library=osxcart --pkg gtk+-2.0 $(INTROSPECTION_GIRS) && \
 	touch $@  # Doesn't update the timestamp if unchanged?
 
-MAINTAINERCLEANFILES += osxcart.vapi
+DISTCLEANFILES += osxcart.vapi
 
 endif # BUILDING_VAPI
 endif # HAVE_INTROSPECTION
