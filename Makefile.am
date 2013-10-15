@@ -16,10 +16,11 @@ EXTRA_DIST = \
 
 DISTCLEANFILES = osxcart.pc
 
-MAINTAINERCLEANFILES = ABOUT-NLS INSTALL aclocal.m4 compile config.guess \
-        config.h.in config.rpath config.sub depcomp install-sh gtk-doc.make \
-        intltool-extract.in intltool-merge.in intltool-update.in ltmain.sh \
-        missing autom4te.cache m4
+MAINTAINERCLEANFILES = ABOUT-NLS INSTALL config.rpath gtk-doc.make m4 \
+        intltool-extract.in intltool-merge.in intltool-update.in \
+        $(GITIGNORE_MAINTAINERCLEANFILES_TOPLEVEL) \
+        $(GITIGNORE_MAINTAINERCLEANFILES_M4_LIBTOOL) \
+        $(NULL)
 
 ACLOCAL_AMFLAGS = -I m4
 
