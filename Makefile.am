@@ -5,13 +5,11 @@ pkgconfig_DATA = osxcart.pc
 
 EXTRA_DIST = \
     osxcart.pc.in \
-    README \
+	README.md \
 	COPYING \
 	COPYING.LESSER \
-	AUTHORS \
+	AUTHORS.md \
 	ChangeLog \
-	INSTALL \
-	NEWS \
 	m4/introspection.m4
 
 DISTCLEANFILES = osxcart.pc
