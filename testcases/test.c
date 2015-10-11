@@ -145,7 +145,7 @@ rtf_parse_human_approval_case(gconstpointer name)
 
 	/* Build the interface widgets */
 	label = gtk_label_new("Is the RTF code rendered correctly?");
-	pane = gtk_hpaned_new();
+	pane = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
 	codescroll = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(codescroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	codeview = gtk_text_view_new();
@@ -155,12 +155,12 @@ rtf_parse_human_approval_case(gconstpointer name)
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(rtfscroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	rtfview = gtk_text_view_new_with_buffer(rtfbuffer);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(rtfview), GTK_WRAP_WORD);
-	buttons = gtk_hbutton_box_new();
+	buttons = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
 	gtk_button_box_set_layout(GTK_BUTTON_BOX(buttons), GTK_BUTTONBOX_END);
 	gtk_box_set_spacing(GTK_BOX(buttons), 6);
 	yes = gtk_button_new_with_mnemonic("_Yes");
 	no = gtk_button_new_with_mnemonic("_No");
-	vbox = gtk_vbox_new(FALSE, 0);
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 	/* Pack everything into containers */
 	gtk_container_add(GTK_CONTAINER(codescroll), codeview);
 	gtk_container_add(GTK_CONTAINER(rtfscroll), rtfview);
