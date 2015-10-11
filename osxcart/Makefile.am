@@ -101,11 +101,4 @@ DISTCLEANFILES += osxcart-@OSXCART_API_VERSION@.vapi
 endif # BUILDING_VAPI
 endif # HAVE_INTROSPECTION
 
-GITIGNOREFILES = \
-	OsxcartPlist-@OSXCART_API_VERSION@.gir \
-	OsxcartPlist-@OSXCART_API_VERSION@.typelib \
-	OsxcartRtf-@OSXCART_API_VERSION@.gir \
-	OsxcartRtf-@OSXCART_API_VERSION@.typelib \
-	osxcart-@OSXCART_API_VERSION@.vapi
-
 -include $(top_srcdir)/git.mk
