@@ -1,13 +1,13 @@
 # DUTCH TRANSLATION OF OSXCART.
-# Copyright (C) 2009, 2012 P. F. Chimento
+# Copyright (C) 2009, 2012, 2015 P. F. Chimento
 # This file is distributed under the same license as the Osxcart package.
-# Philip Chimento <philip.chimento@gmail.com>, 2009, 2012.
+# Philip Chimento <philip.chimento@gmail.com>, 2009, 2012, 2015.
 msgid ""
 msgstr ""
 "Project-Id-Version: Osxcart 1.1\n"
-"Report-Msgid-Bugs-To: http://sourceforge.net/apps/trac/osxcart/wiki\n"
-"POT-Creation-Date: 2012-02-13 01:55+0100\n"
-"PO-Revision-Date: 2012-02-12 19:36+0200\n"
+"Report-Msgid-Bugs-To: http://github.com/ptomato/osxcart/issues\n"
+"POT-Creation-Date: 2015-10-11 13:12-0700\n"
+"PO-Revision-Date: 2015-10-11 14:47-0700\n"
 "Last-Translator: Philip Chimento <philip.chimento@gmail.com>\n"
 "Language-Team: Osxcart <philip.chimento@gmail.com>\n"
 "Language: nl\n"
@@ -110,37 +110,43 @@ msgstr "Tekens gevonden na sluitaccolade"
 msgid "RTF format must begin with '{\\rtf'"
 msgstr "RTF-formaat moet beginnen met '{\\rtf'"
 
-#: osxcart/rtf-document.c:277 osxcart/rtf-document.c:304
-#: osxcart/rtf-document.c:475
+#: osxcart/rtf-document.c:279 osxcart/rtf-document.c:306
+#: osxcart/rtf-document.c:502
 #, c-format
 msgid "Color '%i' undefined"
 msgstr "Ongedefinieerde kleur '%i'"
 
-#: osxcart/rtf-document.c:374
+#: osxcart/rtf-document.c:331
+#, c-format
+msgid "\\charscalex%d is invalid, negative or zero scales not allowed"
+msgstr ""
+"\\charscalex%d is ongeldig, nul of negatieve schaling is niet toegestaan"
+
+#: osxcart/rtf-document.c:401
 #, c-format
 msgid "Font '%i' undefined"
 msgstr "Ongedefinieerd lettertype '%i'"
 
-#: osxcart/rtf-document.c:421
+#: osxcart/rtf-document.c:448
 #, c-format
 msgid "\\fs%d is invalid, negative or zero font sizes not allowed"
 msgstr ""
 "\\fs%d is ongeldig, lettergrootte nul of negatieve lettergroottes zijn niet "
 "toegestaan"
 
-#: osxcart/rtf-document.c:447
+#: osxcart/rtf-document.c:474
 #, c-format
 msgid "\\fsmilli%d is invalid, negative or zero font sizes not allowed"
 msgstr ""
 "\\fsmilli%d is ongeldig, lettergrootte nul of negatieve lettergroottes zijn "
 "niet toegestaan"
 
-#: osxcart/rtf-document.c:744
+#: osxcart/rtf-document.c:771
 #, c-format
 msgid "Unsupported RTF version '%i'"
 msgstr "Geen ondersteuning voor RTF-versie '%i'"
 
-#: osxcart/rtf-document.c:782
+#: osxcart/rtf-document.c:809
 #, c-format
 msgid "Style '%i' undefined"
 msgstr "Ongedefinieerde stijl '%i'"
