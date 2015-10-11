@@ -111,7 +111,7 @@ static gboolean
 yes_not_clicked(void)
 {
 	gtk_main_quit();
-	return TRUE;  /* we'll destroy the window after main loop exits */
+	return GDK_EVENT_STOP;  /* we'll destroy the window after main loop exits */
 }
 
 /* This test reads an RTF file into a string, and imports the RTF string into a
