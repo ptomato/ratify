@@ -1,5 +1,5 @@
 Name: osxcart
-Version: 1.1
+Version: 1.2.0
 Release: 1%{?dist}
 Summary: Library for interfacing OS X file formats with GTK+
 URL: https://github.com/ptomato/%{name}
@@ -38,7 +38,7 @@ make %{?_smp_mflags}
 
 %install
 make DESTDIR=$RPM_BUILD_ROOT install
-rm -f $RPM_BUILD_ROOT/%{_libdir}/libosxcart.la
+rm -f $RPM_BUILD_ROOT/%{_libdir}/libosxcart-*.la
 %find_lang %{name}
 
 %post -p /sbin/ldconfig
@@ -47,20 +47,23 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libosxcart.la
 
 %files -f %{name}.lang
 %defattr(-,root,root,-)
-%doc README NEWS COPYING ChangeLog
-%{_libdir}/libosxcart.so.0*
-%{_libdir}/girepository-1.0/Osxcart*1.0.typelib
+%doc README.md AUTHORS.md COPYING COPYING.LESSER ChangeLog
+%{_libdir}/libosxcart-*.so.0*
+%{_libdir}/girepository-1.0/Osxcart*.typelib
 
 %files devel
 %defattr(-,root,root,-)
-%{_libdir}/libosxcart.so
-%{_libdir}/pkgconfig/osxcart.pc
-%{_includedir}/%{name}/osxcart/*.h
-%{_datadir}/gtk-doc/html/osxcart/*
-%{_datadir}/gir-1.0/Osxcart*1.0.gir
-%{_datadir}/vala/vapi/osxcart.vapi
+%{_libdir}/libosxcart-*.so
+%{_libdir}/pkgconfig/%{name}-*.pc
+%{_includedir}/%{name}-*/%{name}/*.h
+%{_datadir}/gtk-doc/html/%{name}-*/*
+%{_datadir}/gir-1.0/Osxcart*.gir
+%{_datadir}/vala/vapi/%{name}-*.vapi
 
 %changelog
+* Sun Oct 11 2015 Philip Chimento <philip.chimento@gmail.com> - 1.2.0-1
+- Update URIs for project which moved from SourceForge to GitHub.
+- Release new version.
 * Sun Feb 12 2012 P. F. Chimento <philip.chimento@gmail.com> - 1.1-1
 - Fix typo in spec file.
 - Read various spec file guidelines and improved the spec file.
