@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ptomato/osxcart.png?branch=master)](https://travis-ci.org/ptomato/osxcart)
+
 # The Osxcart Library #
 
 Osxcart, or **OS X C**onverting **A**nd **R**eading **T**ool, is a
