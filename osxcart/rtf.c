@@ -1,4 +1,4 @@
-/* Copyright 2009, 2011, 2012 P. F. Chimento
+/* Copyright 2009, 2011, 2012, 2015 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the

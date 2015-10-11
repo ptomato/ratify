@@ -1,7 +1,7 @@
 #ifndef __OSXCART_RTF_STATE_H__
 #define __OSXCART_RTF_STATE_H__
 
-/* Copyright 2009 P. F. Chimento
+/* Copyright 2009, 2015 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
