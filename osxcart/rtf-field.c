@@ -461,7 +461,7 @@ format_integer(gint number, GeneralNumberFormat format)
 				return g_strdup_printf("%dst", number);
 			if(number % 10 == 2 && number % 100 != 12)
 				return g_strdup_printf("%dnd", number);
-			if(number % 10 == 3 && number % 100 != 13);
+			if(number % 10 == 3 && number % 100 != 13)
 				return g_strdup_printf("%drd", number);
 			return g_strdup_printf("%dth", number);
 		case NUMBER_ROMAN:
