@@ -9,7 +9,7 @@ AC_INIT([Osxcart], [1.1])
 AC_CONFIG_SRCDIR([testcases/test.c]) # Sanity check
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.11 -Wall -Wno-portability foreign parallel-tests
-	dist-xz no-dist-gzip])
+	subdir-objects dist-xz no-dist-gzip])
 # Shut up and tell libtool to shut up too
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
@@ -104,9 +104,6 @@ AS_IF([test "x$XVFB" != "xnotfound"],
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([
 	Makefile
-	osxcart/Makefile
-	testcases/Makefile
-	docs/Makefile
 	docs/reference/Makefile
 	docs/reference/version.xml
 	po/Makefile.in
