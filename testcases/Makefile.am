@@ -8,7 +8,7 @@ test_osxcart_LDADD = @TEST_LIBS@ ../osxcart/libosxcart.la
 
 TESTS = test-osxcart
 AM_TESTS_ENVIRONMENT = export GNOME_DISABLE_CRASH_DIALOG=1;
-LOG_COMPILER = gtester
+LOG_COMPILER = $(XVFB_RUN) gtester
 AM_LOG_FLAGS = -k
 
 .PHONY: test-report perf-report full-report
