@@ -93,8 +93,10 @@ TESTS_ENVIRONMENT = \
 	SRCDIR=$(abs_srcdir) \
 	BUILDDIR=$(abs_builddir) \
 	$(NULL)
-TESTS = gtkdoc-check.test
-LOG_COMPILER = $(GTKDOC_CHECK)
+TESTS = gtkdoc-check-dummy.test
 endif
+
+# For earlier Gtk-Doc, this is required. Later ones handle this better.
+EXTRA_DIST += gtkdoc-check-dummy.test
 
 -include $(top_srcdir)/git.mk
