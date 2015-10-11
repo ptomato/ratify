@@ -8,9 +8,9 @@ mkdir -p m4
 ### GTK-DOC #########################################################
 # Run before autotools
 echo "Setting up Gtk-Doc"
-gtkdocize || exit 1
+gtkdocize || exit $?
 
 ### AUTOTOOLS #######################################################
 # Runs autoconf, autoheader, aclocal, automake, autopoint, libtoolize
 echo "Regenerating autotools files"
-autoreconf --force --install || exit 1
+autoreconf --force --install || exit $?
