@@ -128,17 +128,21 @@ rtf_parse_human_approval_case(gconstpointer name)
     GtkTextBuffer *rtfbuffer = gtk_text_buffer_new(NULL);
     gchar *text, *filename = build_filename(name);
 	gboolean was_correct = FALSE;
+	GFile *file = g_file_new_for_path(filename);
 
 	/* Get RTF code */
 	if(!g_file_get_contents(filename, &text, NULL, &error))
 	    g_test_message("Error message: %s", error->message);
 	g_assert(error == NULL);
-	
-	/* Import RTF code into text buffer */
-    if(!rtf_text_buffer_import_from_string(rtfbuffer, text, &error))
+
+	/* Import RTF code into text buffer. Import it from a file, even though we
+	have already loaded the RTF code to display in the left-hand pane, because
+	the RTF code may contain references to images. */
+	if(!rtf_text_buffer_import_file(rtfbuffer, file, NULL, &error))
 	    g_test_message("Error message: %s", error->message);
 	g_assert(error == NULL);
-	
+	g_object_unref(file);
+
 	/* Build the interface widgets */
 	label = gtk_label_new("Is the RTF code rendered correctly?");
 	pane = gtk_hpaned_new();

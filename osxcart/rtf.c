@@ -249,7 +249,17 @@ rtf_text_buffer_import(GtkTextBuffer *buffer, const char *filename, GError **err
  *
  * Deserializes the contents of @string to @buffer. See 
  * rtf_text_buffer_import_file() for details.
- * 
+ *
+ * <note><para>
+ *   If @string contains references to external files, such as images, then
+ *   these will be resolved relative to the current working directory.
+ *   That's usually not what you want.
+ *   If you want to load images, then you must change the current working
+ *   directory appropriately before calling this function, or embed the images
+ *   in the RTF code, or use rtf_text_buffer_import() or
+ *   rtf_text_buffer_import_file().
+ * </para></note>
+ *
  * Returns: %TRUE if the operation was successful, %FALSE if not, in which case
  * @error is set.
  */
