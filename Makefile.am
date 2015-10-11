@@ -1,10 +1,9 @@
 SUBDIRS = osxcart testcases docs po
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = osxcart.pc
+pkgconfig_DATA = osxcart-@OSXCART_API_VERSION@.pc
 
 EXTRA_DIST = \
-    osxcart.pc.in \
 	README.md \
 	COPYING \
 	COPYING.LESSER \
@@ -12,7 +11,7 @@ EXTRA_DIST = \
 	ChangeLog \
 	m4/introspection.m4
 
-DISTCLEANFILES = osxcart.pc
+DISTCLEANFILES = $(pkgconfig_DATA)
 
 MAINTAINERCLEANFILES = ABOUT-NLS INSTALL config.rpath gtk-doc.make m4 \
         intltool-extract.in intltool-merge.in intltool-update.in \

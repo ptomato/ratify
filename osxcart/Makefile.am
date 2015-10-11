@@ -1,8 +1,8 @@
 AM_CFLAGS = -Wall
 
-lib_LTLIBRARIES = libosxcart.la
+lib_LTLIBRARIES = libosxcart-@OSXCART_API_VERSION@.la
 
-libosxcart_la_SOURCES = \
+libosxcart_@OSXCART_API_VERSION@_la_SOURCES = \
 	init.c init.h \
 	plist.c plist.h \
 	plist-write.c \
@@ -20,17 +20,19 @@ libosxcart_la_SOURCES = \
 	rtf-stylesheet.c \
 	rtf-langcode.c rtf-langcode.h \
 	rtf-state.c rtf-state.h
-	
-libosxcart_la_CPPFLAGS = \
+
+libosxcart_@OSXCART_API_VERSION@_la_CPPFLAGS = \
 	-DG_LOG_DOMAIN=\"@PACKAGE_NAME@\" \
 	-DLOCALEDIR=\""$(datadir)/locale"\" \
 	-I$(top_srcdir)
-libosxcart_la_CFLAGS = @OSXCART_CFLAGS@ $(AM_CFLAGS)
-libosxcart_la_LIBADD = @OSXCART_LIBS@
-libosxcart_la_LDFLAGS = -version-info $(LT_VERSION_INFO) \
-						-no-undefined \
-						-export-symbols-regex "^(plist|rtf)_"
-libosxcart_includedir = $(includedir)/osxcart/osxcart
+libosxcart_@OSXCART_API_VERSION@_la_CFLAGS = @OSXCART_CFLAGS@ $(AM_CFLAGS)
+libosxcart_@OSXCART_API_VERSION@_la_LIBADD = @OSXCART_LIBS@
+libosxcart_@OSXCART_API_VERSION@_la_LDFLAGS = \
+	-version-info $(LT_VERSION_INFO) \
+	-no-undefined \
+	-export-symbols-regex "^(plist|rtf)_" \
+	$(NULL)
+libosxcart_includedir = $(includedir)/osxcart-@OSXCART_API_VERSION@/osxcart
 libosxcart_include_HEADERS = plist.h rtf.h
 
 CLEANFILES=
@@ -47,26 +49,35 @@ if HAVE_INTROSPECTION
 
 # There can't be two namespaces in one .gir file?
 
-OsxcartPlist-1.0.gir: libosxcart.la
-OsxcartPlist_1_0_gir_FILES = plist.h plist.c plist-parser.c plist-write.c
-OsxcartPlist_1_0_gir_LIBS = libosxcart.la
-OsxcartPlist_1_0_gir_INCLUDES = GLib-2.0 Gio-2.0
-OsxcartPlist_1_0_gir_SCANNERFLAGS = \
+OsxcartPlist-@OSXCART_API_VERSION@.gir: libosxcart-@OSXCART_API_VERSION@.la
+OsxcartPlist_@OSXCART_API_VERSION@_gir_FILES = \
+	plist.h plist.c \
+	plist-parser.c \
+	plist-write.c \
+	$(NULL)
+OsxcartPlist_@OSXCART_API_VERSION@_gir_LIBS = \
+	libosxcart-@OSXCART_API_VERSION@.la \
+	$(NULL)
+OsxcartPlist_@OSXCART_API_VERSION@_gir_INCLUDES = GLib-2.0 Gio-2.0
+OsxcartPlist_@OSXCART_API_VERSION@_gir_SCANNERFLAGS = \
 	--identifier-prefix=Plist \
 	--c-include='osxcart/plist.h' \
 	--warn-all
-INTROSPECTION_GIRS += OsxcartPlist-1.0.gir
+INTROSPECTION_GIRS += OsxcartPlist-@OSXCART_API_VERSION@.gir
 
-OsxcartRtf-1.0.gir: libosxcart.la
-OsxcartRtf_1_0_gir_FILES = rtf.h rtf.c
-OsxcartRtf_1_0_gir_LIBS = libosxcart.la
-OsxcartRtf_1_0_gir_INCLUDES = Gtk-2.0
-OsxcartRtf_1_0_gir_CFLAGS = @OSXCART_CFLAGS@  # Otherwise can't find gtk/gtk.h?
-OsxcartRtf_1_0_gir_SCANNERFLAGS = \
+OsxcartRtf-@OSXCART_API_VERSION@.gir: libosxcart-@OSXCART_API_VERSION@.la
+OsxcartRtf_@OSXCART_API_VERSION@_gir_FILES = rtf.h rtf.c
+OsxcartRtf_@OSXCART_API_VERSION@_gir_LIBS = libosxcart-@OSXCART_API_VERSION@.la
+OsxcartRtf_@OSXCART_API_VERSION@_gir_INCLUDES = Gtk-2.0
+OsxcartRtf_@OSXCART_API_VERSION@_gir_CFLAGS = \
+	@OSXCART_CFLAGS@ \
+	$(NULL)
+# Otherwise can't find gtk/gtk.h?
+OsxcartRtf_@OSXCART_API_VERSION@_gir_SCANNERFLAGS = \
 	--identifier-prefix=Rtf \
 	--c-include='osxcart/rtf.h' \
 	--warn-all
-INTROSPECTION_GIRS += OsxcartRtf-1.0.gir
+INTROSPECTION_GIRS += OsxcartRtf-@OSXCART_API_VERSION@.gir
 
 girdir = $(datadir)/gir-1.0
 gir_DATA = $(INTROSPECTION_GIRS)
@@ -78,20 +89,23 @@ CLEANFILES += $(gir_DATA) $(typelib_DATA)
 
 if BUILDING_VAPI
 vapidir = $(datadir)/vala/vapi
-dist_vapi_DATA = osxcart.vapi
+dist_vapi_DATA = osxcart-@OSXCART_API_VERSION@.vapi
 
-osxcart.vapi: $(INTROSPECTION_GIRS)
+osxcart-@OSXCART_API_VERSION@.vapi: $(INTROSPECTION_GIRS)
 	$(AM_V_GEN)$(VAPIGEN) --library=osxcart --pkg gtk+-2.0 $(INTROSPECTION_GIRS) && \
+	mv osxcart.vapi $@ && \
 	touch $@  # Doesn't update the timestamp if unchanged?
 
-DISTCLEANFILES += osxcart.vapi
+DISTCLEANFILES += osxcart-@OSXCART_API_VERSION@.vapi
 
 endif # BUILDING_VAPI
 endif # HAVE_INTROSPECTION
 
 GITIGNOREFILES = \
-	OsxcartPlist-1.0.gir OsxcartPlist-1.0.typelib \
-	OsxcartRtf-1.0.gir OsxcartRtf-1.0.typelib \
-	osxcart.vapi
+	OsxcartPlist-@OSXCART_API_VERSION@.gir \
+	OsxcartPlist-@OSXCART_API_VERSION@.typelib \
+	OsxcartRtf-@OSXCART_API_VERSION@.gir \
+	OsxcartRtf-@OSXCART_API_VERSION@.typelib \
+	osxcart-@OSXCART_API_VERSION@.vapi
 
 -include $(top_srcdir)/git.mk

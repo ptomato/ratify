@@ -23,6 +23,8 @@ dnl    and set revision to 0.
 dnl 3. If any interfaces have been added, increment age.
 dnl 4. If any interfaces have been removed or changed, set age to 0.
 AC_SUBST([LT_VERSION_INFO], [1:0:1])
+OSXCART_API_VERSION=0
+AC_SUBST([OSXCART_API_VERSION])
 
 ### PROGRAMS ###################################################################
 
@@ -72,7 +74,7 @@ AC_C_INLINE
 ### INTERNATIONALIZATION ######################################################
 
 AM_GNU_GETTEXT_VERSION([0.17])
-GETTEXT_PACKAGE=AC_PACKAGE_TARNAME
+GETTEXT_PACKAGE=AC_PACKAGE_TARNAME-"$OSXCART_API_VERSION"
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [GETTEXT package name])
 
@@ -101,7 +103,6 @@ AS_IF([test "x$XVFB" != "xnotfound"],
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([
-	osxcart.pc
 	Makefile
 	osxcart/Makefile
 	testcases/Makefile
@@ -110,6 +111,8 @@ AC_CONFIG_FILES([
 	docs/reference/version.xml
 	po/Makefile.in
 ])
+AC_CONFIG_FILES([osxcart-$OSXCART_API_VERSION.pc:osxcart.pc.in], [],
+	[OSXCART_API_VERSION='$OSXCART_API_VERSION'])
 
 # Do it
 AC_OUTPUT

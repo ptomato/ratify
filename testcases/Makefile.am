@@ -4,7 +4,7 @@ check_PROGRAMS = test-osxcart
 test_osxcart_CPPFLAGS = -I$(top_srcdir) -DTESTFILEDIR=\""$(abs_srcdir)"\"
 test_osxcart_SOURCES = test-plist.c test-rtf.c test.c
 test_osxcart_CFLAGS = @TEST_CFLAGS@ $(AM_CFLAGS)
-test_osxcart_LDADD = @TEST_LIBS@ ../osxcart/libosxcart.la
+test_osxcart_LDADD = @TEST_LIBS@ ../osxcart/libosxcart-@OSXCART_API_VERSION@.la
 
 TESTS = test-osxcart
 AM_TESTS_ENVIRONMENT = export GNOME_DISABLE_CRASH_DIALOG=1;
