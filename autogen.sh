@@ -8,7 +8,7 @@ mkdir -p m4
 ### GTK-DOC #########################################################
 # Run before autotools
 echo "Setting up Gtk-Doc"
-gtkdocize --copy --flavour no-tmpl || exit 1
+gtkdocize || exit 1
 
 ### AUTOTOOLS #######################################################
 # Runs autoconf, autoheader, aclocal, automake, autopoint, libtoolize

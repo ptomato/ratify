@@ -31,7 +31,8 @@ AC_PATH_PROG([ECHO], [echo])
 LT_INIT                    # Libtool
 PKG_PROG_PKG_CONFIG        # Pkg-config
 AM_GNU_GETTEXT([external]) # Gettext, link to system libintl
-GTK_DOC_CHECK(1.12)        # Gtk-Doc
+GTK_DOC_CHECK([1.14], [--copy --flavour no-tmpl])
+dnl Adding arguments in configure.ac requires gtk-doc 1.14
 
 ### LIBRARIES ##################################################################
 
