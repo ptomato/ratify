@@ -100,6 +100,20 @@ rtf_write_pass_case(gconstpointer name)
 	g_free(string);
 }
 
+static void
+yes_clicked(GtkButton *button, gboolean *was_correct)
+{
+	*was_correct = TRUE;
+	gtk_main_quit();
+}
+
+static gboolean
+yes_not_clicked(void)
+{
+	gtk_main_quit();
+	return TRUE;  /* we'll destroy the window after main loop exits */
+}
+
 /* This test reads an RTF file into a string, and imports the RTF string into a
 GtkTextBuffer, failing if either of these operations fail. It then displays the
 RTF code and its rendered result side by side, asking the user whether the RTF
@@ -109,11 +123,12 @@ static void
 rtf_parse_human_approval_case(gconstpointer name)
 {
     GError *error = NULL;
-    GtkWidget *label, *pane, *codescroll, *codeview, *rtfscroll, *rtfview, *dialog, *vbox;
+	GtkWidget *label, *pane, *codescroll, *codeview, *rtfscroll, *rtfview,
+		*window, *vbox, *buttons, *yes, *no;
     GtkTextBuffer *rtfbuffer = gtk_text_buffer_new(NULL);
     gchar *text, *filename = build_filename(name);
-    gint response;
-	
+	gboolean was_correct = FALSE;
+
 	/* Get RTF code */
 	if(!g_file_get_contents(filename, &text, NULL, &error))
 	    g_test_message("Error message: %s", error->message);
@@ -136,29 +151,42 @@ rtf_parse_human_approval_case(gconstpointer name)
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(rtfscroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	rtfview = gtk_text_view_new_with_buffer(rtfbuffer);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(rtfview), GTK_WRAP_WORD);
+	buttons = gtk_hbutton_box_new();
+	gtk_button_box_set_layout(GTK_BUTTON_BOX(buttons), GTK_BUTTONBOX_END);
+	gtk_box_set_spacing(GTK_BOX(buttons), 6);
+	yes = gtk_button_new_with_mnemonic("_Yes");
+	no = gtk_button_new_with_mnemonic("_No");
+	vbox = gtk_vbox_new(FALSE, 0);
 	/* Pack everything into containers */
 	gtk_container_add(GTK_CONTAINER(codescroll), codeview);
 	gtk_container_add(GTK_CONTAINER(rtfscroll), rtfview);
 	gtk_paned_add1(GTK_PANED(pane), codescroll);
 	gtk_paned_add2(GTK_PANED(pane), rtfscroll);
-	/* Build dialog box */
-	dialog = gtk_dialog_new_with_buttons(filename, NULL, GTK_DIALOG_MODAL,
-	    GTK_STOCK_YES, GTK_RESPONSE_YES,
-	    GTK_STOCK_NO,  GTK_RESPONSE_NO,
-	    NULL);
-	gtk_window_set_default_size(GTK_WINDOW(dialog), 1000, 400);
-	vbox = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+	gtk_container_add(GTK_CONTAINER(buttons), yes);
+	gtk_container_add(GTK_CONTAINER(buttons), no);
 	gtk_box_pack_start(GTK_BOX(vbox), pane, TRUE, TRUE, 6);
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 6);
+	gtk_box_pack_start(GTK_BOX(vbox), buttons, FALSE, FALSE, 6);
+	/* Build window */
+	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(GTK_WINDOW(window), filename);
+	gtk_window_set_modal(GTK_WINDOW(window), TRUE);
+	gtk_window_set_default_size(GTK_WINDOW(window), 1000, 400);
 	gtk_paned_set_position(GTK_PANED(pane), 500);
-	gtk_widget_show_all(vbox);
+	gtk_container_add(GTK_CONTAINER(window), vbox);
+	/* Connect signals */
+	g_signal_connect(yes, "clicked", G_CALLBACK(yes_clicked), &was_correct);
+	g_signal_connect(no, "clicked", G_CALLBACK(yes_not_clicked), NULL);
+	g_signal_connect(window, "delete-event", G_CALLBACK(yes_not_clicked), NULL);
+	gtk_widget_show_all(window);
 	g_free(filename);
 
 	/* Run it */
-	response = gtk_dialog_run(GTK_DIALOG(dialog));
-	gtk_widget_destroy(dialog);
+	gtk_main();
+	gtk_widget_destroy(window);
+
 	g_free(text);
-	g_assert(response == GTK_RESPONSE_YES);
+	g_assert(was_correct);
 }
 
 const gchar *rtfbookexamples[] = {
