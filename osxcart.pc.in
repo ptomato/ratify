@@ -6,7 +6,7 @@ includedir=@includedir@
 Name: Osxcart
 Description: GLib/GTK+ library for handling OS X data formats
 Version: @PACKAGE_VERSION@
-URL: http://sourceforge.net/projects/osxcart
+URL: https://github.com/ptomato/osxcart
 Requires: glib-2.0 >= @GLIB_REQUIRED_VERSION@ gtk+-2.0 >= @GTK_REQUIRED_VERSION@ gdk-2.0 gdk-pixbuf-2.0 >= @GDK_PIXBUF_REQUIRED_VERSION@
 Libs: -L${libdir} -losxcart
 Cflags: -I${includedir}/osxcart

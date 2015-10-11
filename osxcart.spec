@@ -2,10 +2,10 @@ Name: osxcart
 Version: 1.1
 Release: 1%{?dist}
 Summary: Library for interfacing OS X file formats with GTK+
-URL: http://sourceforge.net/apps/trac/osxcart/wiki
+URL: https://github.com/ptomato/%{name}
 License: LGPLv3
 Group: Development/Libraries
-Source: http://downloads.sourceforge.net/%{name}/%{name}-%{version}.tar.gz
+Source: http://github.com/ptomato/%{name}/releases/download/%{version}/%{name}-%{version}.tar.xz
 Requires: glib2%{?_isa} >= 2.18
 Requires: gtk2%{?_isa} >= 2.10
 BuildRequires: glib2-devel%{?_isa} >= 2.18
