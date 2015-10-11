@@ -9,3 +9,6 @@ addons:
 compiler:
   - clang
   - gcc
+after_failure:
+  - test -f test-suite.log && cat test-suite.log
+  - test -f osxcart-1.1/_build/test-suite.log && cat osxcart-1.1/_build/test-suite.log
