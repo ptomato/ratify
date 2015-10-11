@@ -85,7 +85,6 @@ DISTCLEANFILES = \
 	$(DOC_MODULE)-sections.txt \
 	$(DOC_MODULE)-overrides.txt
 
-# Comment this out if you want your docs-status tested during 'make check'
 if ENABLE_GTK_DOC
 TESTS_ENVIRONMENT = \
 	DOC_MODULE=$(DOC_MODULE) \
