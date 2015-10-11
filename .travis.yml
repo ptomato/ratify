@@ -6,6 +6,7 @@ addons:
   apt:
     packages:
       - gtk-doc-tools
+      - valac
 compiler:
   - clang
   - gcc
