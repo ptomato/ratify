@@ -8,7 +8,8 @@ AC_PREREQ([2.62]) # Earliest version that works with gobject introspection
 AC_INIT([Osxcart], [1.1])
 AC_CONFIG_SRCDIR([testcases/test.c]) # Sanity check
 AC_CONFIG_MACRO_DIR(m4)
-AM_INIT_AUTOMAKE([1.11 -Wall -Wno-portability foreign parallel-tests])
+AM_INIT_AUTOMAKE([1.11 -Wall -Wno-portability foreign parallel-tests
+	dist-xz no-dist-gzip])
 # Shut up and tell libtool to shut up too
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
