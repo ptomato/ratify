@@ -14,3 +14,8 @@ gtkdocize || exit $?
 # Runs autoconf, autoheader, aclocal, automake, autopoint, libtoolize
 echo "Regenerating autotools files"
 autoreconf --force --install || exit $?
+
+### DONE ############################################################
+# Run configure automatically unless NOCONFIGURE in environment
+# This is required for autobuilders such as JHbuild
+test -n $NOCONFIGURE && ./configure $@
