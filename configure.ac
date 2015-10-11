@@ -14,13 +14,15 @@ AM_INIT_AUTOMAKE([1.11 -Wall -Wno-portability foreign parallel-tests
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 ### LIBRARY VERSIONING #########################################################
-# Only update immediately before a public release
 
-OSXCART_CURRENT=1  # Increment if interface changes
-OSXCART_REVISION=0 # Increment if source code changes; set 0 if interface
-OSXCART_AGE=1 # Increment if interfaces added; set 0 if removed
-LT_VERSION_INFO="$OSXCART_CURRENT:$OSXCART_REVISION:$OSXCART_AGE"
-AC_SUBST(LT_VERSION_INFO)
+dnl Only update immediately before a public release.
+dnl current:revision:age
+dnl 1. If source code has changed at all, then increment revision.
+dnl 2. If any interfaces have been added, changed, or removed, increment current
+dnl    and set revision to 0.
+dnl 3. If any interfaces have been added, increment age.
+dnl 4. If any interfaces have been removed or changed, set age to 0.
+AC_SUBST([LT_VERSION_INFO], [1:0:1])
 
 ### PROGRAMS ###################################################################
 
