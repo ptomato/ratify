@@ -7,6 +7,7 @@ addons:
     packages:
       - gtk-doc-tools
       - valac
+      - libgirepository1.0-dev
 compiler:
   - clang
   - gcc
