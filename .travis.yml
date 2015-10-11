@@ -1,6 +1,11 @@
 ---
 language: c
 script: ./autogen.sh && make all check distcheck
+sudo: false
+addons:
+  apt:
+    packages:
+      - gtk-doc-tools
 compiler:
   - clang
   - gcc
