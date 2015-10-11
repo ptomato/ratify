@@ -93,7 +93,8 @@ TESTS_ENVIRONMENT = \
 	SRCDIR=$(abs_srcdir) \
 	BUILDDIR=$(abs_builddir) \
 	$(NULL)
-TESTS = $(GTKDOC_CHECK)
+TESTS = gtkdoc-check.test
+LOG_COMPILER = $(GTKDOC_CHECK)
 endif
 
 -include $(top_srcdir)/git.mk
