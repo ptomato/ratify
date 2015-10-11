@@ -29,8 +29,8 @@ typedef struct {
 	
 	/* Paragraph formatting */
 	
-	GtkJustification justification;
-	GtkTextDirection pardirection;
+	int justification;  /* GtkJustification value or -1 if unset */
+	int pardirection;  /* GtkTextDirection value or -1 if unset */
 	gint space_before;
 	gint space_after;
 	gboolean ignore_space_before;
@@ -55,8 +55,8 @@ typedef struct {
 	gboolean subscript;
 	gboolean superscript;
 	gboolean invisible;
-	PangoUnderline underline;
-    GtkTextDirection chardirection;
+	int underline;  /* PangoUnderline value or -1 if unset */
+	int chardirection;  /* GtkTextDirection value or -1 if unset */
 	gint language;
 	gint rise;
 	int scale;
