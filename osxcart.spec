@@ -12,7 +12,7 @@ BuildRequires: glib2-devel%{?_isa} >= 2.18
 BuildRequires: gtk2-devel%{?_isa} >= 2.10
 BuildRequires: gettext
 BuildRequires: libtool >= 2.2
-BuildRequires: vala-tools
+BuildRequires: pkgconfig(vapigen)
 BuildRequires: gtk-doc
 
 %description
