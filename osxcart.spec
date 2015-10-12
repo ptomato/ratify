@@ -33,7 +33,7 @@ Development files for Osxcart.
 %setup -q
 
 %build
-%configure --disable-static
+%configure --disable-static --enable-introspection --enable-gtk-doc --with-xvfb-tests
 make %{?_smp_mflags}
 
 %install
@@ -63,6 +63,7 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libosxcart-*.la
 %changelog
 * Mon Oct 12 2015 Philip Chimento <philip.chimento@gmail.com> - 1.2.0-1
 - Require pkgconfig(vapigen) instead of vala-tools, to support OpenSUSE.
+- Configure with gtk-doc, introspection, and run tests under XVFB.
 * Sun Oct 11 2015 Philip Chimento <philip.chimento@gmail.com>
 - Update URIs for project which moved from SourceForge to GitHub.
 - Release new version.
