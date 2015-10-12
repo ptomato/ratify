@@ -56,8 +56,8 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libosxcart-*.la
 %defattr(-,root,root,-)
 %{_libdir}/libosxcart-*.so
 %{_libdir}/pkgconfig/%{name}-*.pc
-%{_includedir}/%{name}-*/%{name}/*.h
-%{_datadir}/gtk-doc/html/%{name}-*/*
+%{_includedir}/%{name}-*
+%{_datadir}/gtk-doc/html/%{name}-*
 %{_datadir}/gir-1.0/Osxcart*.gir
 %{_datadir}/vala/vapi/%{name}-*.vapi
 
@@ -65,6 +65,7 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libosxcart-*.la
 * Mon Oct 12 2015 Philip Chimento <philip.chimento@gmail.com> - 1.2.0-1
 - Require pkgconfig(vapigen) instead of vala-tools, to support OpenSUSE.
 - Configure with gtk-doc, introspection, and run tests under XVFB.
+- Fix ownership of directories.
 * Sun Oct 11 2015 Philip Chimento <philip.chimento@gmail.com>
 - Update URIs for project which moved from SourceForge to GitHub.
 - Release new version.
