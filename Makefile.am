@@ -160,7 +160,7 @@ endif # HAVE_INTROSPECTION
 check_PROGRAMS = test-osxcart
 test_osxcart_CPPFLAGS = \
 	-I$(top_srcdir) \
-	-DTESTFILEDIR=\""$(abs_srcdir)/testcases"\"
+	-DTESTFILEDIR=\""$(abs_srcdir)/testcases"\" \
 	$(NULL)
 test_osxcart_SOURCES = \
 	testcases/test-plist.c \
