@@ -5,7 +5,7 @@ AC_PREREQ([2.62]) # Earliest version that works with gobject introspection
 
 ### INITIALIZATION #############################################################
 
-AC_INIT([Osxcart], [1.2.0])
+AC_INIT([Osxcart], [1.2.1])
 AC_CONFIG_SRCDIR([testcases/test.c]) # Sanity check
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.11 -Wall -Wno-portability foreign parallel-tests
