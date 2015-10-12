@@ -21,3 +21,7 @@ include /usr/share/dpkg/default.mk
 
 override_dh_auto_configure:
 	dh_auto_configure -- --with-xvfb-tests --enable-gtk-doc
+
+# Print out test log on failure, so that we can diagnose on OBS
+override_dh_auto_test:
+	dh_auto_test || (find . -name test-suite.log | xargs cat; exit 1)
