@@ -1,3 +1,7 @@
+%if 0%{?suse_version}
+%define dist .%{vendor}
+%endif
+
 Name: osxcart
 Version: 1.2.0
 Release: 1%{?dist}
@@ -15,6 +19,10 @@ BuildRequires: libtool >= 2.2
 BuildRequires: pkgconfig(gobject-introspection-1.0)
 BuildRequires: pkgconfig(vapigen) >= 0.20
 BuildRequires: gtk-doc
+%if 0%{?suse_version}
+BuildRequires: vala
+%define vala_version %(rpm -q --queryformat='%{VERSION}' vala | sed 's/\.[0-9]*$//g')
+%endif
 
 %description
 Osxcart, or OS X Converting And Reading Tool, is a library designed to import 
@@ -40,6 +48,13 @@ make %{?_smp_mflags}
 %install
 make DESTDIR=$RPM_BUILD_ROOT install
 rm -f $RPM_BUILD_ROOT/%{_libdir}/libosxcart-*.la
+# Install vapi file in versioned vala directories on OpenSUSE
+%if 0%{?suse_version}
+mkdir -pv %{buildroot}%{_datadir}/vala-%{vala_version}
+mv %{buildroot}%{_datadir}/vala/* %{buildroot}%{_datadir}/vala-%{vala_version}
+rm -rf %{buildroot}%{_datadir}/vala
+%endif
+
 %find_lang %{name}
 
 %post -p /sbin/ldconfig
@@ -59,13 +74,18 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libosxcart-*.la
 %{_includedir}/%{name}-*
 %{_datadir}/gtk-doc/html/%{name}-*
 %{_datadir}/gir-1.0/Osxcart*.gir
+%if 0%{?suse_version}
+%{_datadir}/vala-%{vala_version}/vapi/%{name}-*.vapi
+%else
 %{_datadir}/vala/vapi/%{name}-*.vapi
+%endif
 
 %changelog
 * Mon Oct 12 2015 Philip Chimento <philip.chimento@gmail.com> - 1.2.0-1
 - Require pkgconfig(vapigen) instead of vala-tools, to support OpenSUSE.
 - Configure with gtk-doc, introspection, and run tests under XVFB.
 - Fix ownership of directories.
+- Install vapi file into versioned vala directory on OpenSUSE.
 * Sun Oct 11 2015 Philip Chimento <philip.chimento@gmail.com>
 - Update URIs for project which moved from SourceForge to GitHub.
 - Release new version.
