@@ -12,7 +12,7 @@ BuildRequires: glib2-devel%{?_isa} >= 2.18
 BuildRequires: gtk2-devel%{?_isa} >= 2.10
 BuildRequires: gettext
 BuildRequires: libtool >= 2.2
-BuildRequires: pkgconfig(vapigen)
+BuildRequires: pkgconfig(vapigen) >= 0.20
 BuildRequires: gtk-doc
 
 %description
@@ -61,7 +61,9 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libosxcart-*.la
 %{_datadir}/vala/vapi/%{name}-*.vapi
 
 %changelog
-* Sun Oct 11 2015 Philip Chimento <philip.chimento@gmail.com> - 1.2.0-1
+* Mon Oct 12 2015 Philip Chimento <philip.chimento@gmail.com> - 1.2.0-1
+- Require pkgconfig(vapigen) instead of vala-tools, to support OpenSUSE.
+* Sun Oct 11 2015 Philip Chimento <philip.chimento@gmail.com>
 - Update URIs for project which moved from SourceForge to GitHub.
 - Release new version.
 * Sun Feb 12 2012 P. F. Chimento <philip.chimento@gmail.com> - 1.1-1
