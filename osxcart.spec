@@ -12,6 +12,7 @@ BuildRequires: glib2-devel%{?_isa} >= 2.18
 BuildRequires: gtk2-devel%{?_isa} >= 2.10
 BuildRequires: gettext
 BuildRequires: libtool >= 2.2
+BuildRequires: pkgconfig(gobject-introspection-1.0)
 BuildRequires: pkgconfig(vapigen) >= 0.20
 BuildRequires: gtk-doc
 
