@@ -22,7 +22,7 @@ dnl 2. If any interfaces have been added, changed, or removed, increment current
 dnl    and set revision to 0.
 dnl 3. If any interfaces have been added, increment age.
 dnl 4. If any interfaces have been removed or changed, set age to 0.
-AC_SUBST([LT_VERSION_INFO], [1:0:1])
+AC_SUBST([LT_VERSION_INFO], [1:1:1])
 OSXCART_API_VERSION=0
 AC_SUBST([OSXCART_API_VERSION])
 
