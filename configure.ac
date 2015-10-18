@@ -85,6 +85,12 @@ AS_IF([test "x$XVFB" != "xnotfound"],
 	[AS_IF([test "x$with_vfb_tests" = "yes"],
 		[AC_MSG_ERROR([XVFB tests requested, but xvfb-run not found])])])
 
+### DEFINE OTHER VARIABLES #####################################################
+
+# Compiler flags
+AX_APPEND_COMPILE_FLAGS([-Wall], [WARNINGFLAGS])
+AC_SUBST([WARNINGFLAGS])
+
 # DECLARE OUTPUT FILES #########################################################
 
 AC_CONFIG_HEADERS([config.h])

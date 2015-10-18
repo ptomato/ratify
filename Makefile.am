@@ -26,7 +26,7 @@ MAINTAINERCLEANFILES = ABOUT-NLS config.rpath gtk-doc.make \
 
 ACLOCAL_AMFLAGS = -I m4
 AM_DISTCHECK_CONFIGURE_FLAGS = --enable-gtk-doc --enable-introspection
-AM_CFLAGS = -Wall
+AM_CFLAGS = $(WARNINGFLAGS)
 
 ### C LIBRARY AND HEADERS ######################################################
 
