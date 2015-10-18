@@ -338,12 +338,15 @@ plist_object_get_string(PlistObject *object)
 }
 
 /* See explanation in plist.h */
-#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
+#ifndef __GTK_DOC_IGNORE__
+#define GCC_AT_LEAST(maj, min) defined(__GNUC__) && (__GNUC__ > maj || (__GNUC__ == maj && __GNUC_MINOR__ >= min))
+#if GCC_AT_LEAST(4, 6) || defined(__clang__)
 #pragma GCC diagnostic push
-#endif /* GCC 4.6 */
-#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))
+#endif /* GCC 4.6 or Clang */
+#if GCC_AT_LEAST(4, 3) || defined(__clang__)
 #pragma GCC diagnostic ignored "-Wignored-qualifiers"
-#endif /* GCC 4.3 */
+#endif /* GCC 4.3 or Clang */
+#endif /* __GTK_DOC_IGNORE__ */
 /**
  * plist_object_get_date:
  * @object: a #PlistObject holding a date
@@ -362,9 +365,12 @@ plist_object_get_date(PlistObject *object)
 	g_return_val_if_fail(object->type == PLIST_OBJECT_DATE, ((GTimeVal){0, 0}));
 	return object->date.val;
 }
-#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
+#ifndef __GTK_DOC_IGNORE__
+#if GCC_AT_LEAST(4, 6) || defined(__clang__)
 #pragma GCC diagnostic pop
-#endif /* GCC 4.6 */
+#endif /* GCC 4.6 or Clang*/
+#undef GCC_AT_LEAST
+#endif /* __GTK_DOC_IGNORE__ */
 
 /**
  * plist_object_get_array:
