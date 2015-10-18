@@ -160,7 +160,7 @@ font does not exist */
 FontProperties *
 get_font_properties(ParserContext *ctx, int index)
 {
-    gint i;
+    unsigned i;
     FontProperties *properties;
 
     for (i = 0; i < g_slist_length(ctx->font_table); i++) {

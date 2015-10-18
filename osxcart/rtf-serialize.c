@@ -533,7 +533,7 @@ write_rtf_text_and_pictures(WriterContext *ctx, const GtkTextIter *start, const 
     
     if(gdk_pixbuf_save_to_buffer(pixbuf, &pngbuffer, &bufsize, "png", &error, "compression", "9", NULL))
     {
-        int count;
+        size_t count;
         g_string_append_printf(ctx->output, "{\\pict\\pngblip\\picw%d\\pich%d", gdk_pixbuf_get_width(pixbuf), gdk_pixbuf_get_height(pixbuf));
         for(count = 0; count < bufsize; count++)
         {

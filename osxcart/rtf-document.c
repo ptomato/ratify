@@ -167,7 +167,7 @@ apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTe
     /* Special */
 	if(attr->font != -1)
 	    apply_attribute(ctx, start, end, "osxcart-rtf-font-%i", attr->font);
-	else if(ctx->default_font != -1 && g_slist_length(ctx->font_table) > ctx->default_font)
+    else if(ctx->default_font != -1 && g_slist_length(ctx->font_table) > (unsigned)ctx->default_font)
 	    apply_attribute(ctx, start, end, "osxcart-rtf-font-%i", ctx->default_font);
 	if(attr->tabs != NULL)
 	{
