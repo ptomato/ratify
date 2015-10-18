@@ -88,7 +88,14 @@ AS_IF([test "x$XVFB" != "xnotfound"],
 ### DEFINE OTHER VARIABLES #####################################################
 
 # Compiler flags
-AX_APPEND_COMPILE_FLAGS([-Wall], [WARNINGFLAGS])
+# Justification for -Wno-missing-field-initializers: We make extensive use of
+# partially initializing structs, and the code for all the control word tables
+# would be quite verbose if we didn't.
+# Justification for -Wno-unused-parameter: GLib's callback-style code has many
+# callback types with certain signatures, and more often than not we don't need
+# to use all the parameters passed to a callback.
+AX_APPEND_COMPILE_FLAGS([-Wall -Wextra -Wno-missing-field-initializers \
+	-Wno-unused-parameter], [WARNINGFLAGS])
 AC_SUBST([WARNINGFLAGS])
 
 # DECLARE OUTPUT FILES #########################################################
