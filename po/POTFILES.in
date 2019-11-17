@@ -1,6 +1,5 @@
 # List of source files containing translatable strings.
 
-osxcart/plist-parser.c
 osxcart/rtf.c
 osxcart/rtf-deserialize.c
 osxcart/rtf-document.c

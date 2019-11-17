@@ -16,7 +16,6 @@
 
   <chapter id="osxcart-api-reference">
     <title>Osxcart API Reference</title>
-    <xi:include href="xml/plist.xml"/>
     <xi:include href="xml/rtf.xml"/>
   </chapter>
 

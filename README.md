@@ -8,8 +8,7 @@ GnuSTEP into GTK+/GLib-based programs easily, using a lightweight
 interface.
 The "s" in Osxcart is silent.
 
-Right now, the Osxcart library includes a module for reading and writing
-property lists (".plist" files) in XML format, and a module for
+Right now, the Osxcart library includes a module for
 importing and exporting RTF documents to and from GtkTextBuffers.
 
 ## How To Use It ##
