@@ -15,6 +15,7 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "config.h"
 
+#include <stdbool.h>
 #include <string.h>
 
 #include <glib.h>
@@ -48,19 +49,19 @@ typedef enum {
 } FieldType;
 
 typedef struct {
-    const gchar *name;
+    const char *name;
     FieldType type;
-    gboolean has_argument;        /* Whether the field itself has an argument */
-    const gchar *switches;        /* 1-character switches without argument */
-    const gchar *argswitches;     /* 1-character switches with argument */
-    const gchar *wideswitches;    /* 2-character switches without argument */
-    const gchar *wideargswitches; /* 2-character switches with argument */
+    bool has_argument;        /* Whether the field itself has an argument */
+    const char *switches;        /* 1-character switches without argument */
+    const char *argswitches;     /* 1-character switches with argument */
+    const char *wideswitches;    /* 2-character switches without argument */
+    const char *wideargswitches; /* 2-character switches with argument */
 } FieldInfo;
 
 const FieldInfo fields[] = {
-    { "HYPERLINK", FIELD_TYPE_HYPERLINK, TRUE, "mn", "lot", "", "" },
-    { "INCLUDEPICTURE", FIELD_TYPE_INCLUDEPICTURE, TRUE, "d", "c", "", "" },
-    { "PAGE", FIELD_TYPE_PAGE, FALSE, "", "", "", "" },
+    { "HYPERLINK", FIELD_TYPE_HYPERLINK, true, "mn", "lot", "", "" },
+    { "INCLUDEPICTURE", FIELD_TYPE_INCLUDEPICTURE, true, "d", "c", "", "" },
+    { "PAGE", FIELD_TYPE_PAGE, false, "", "", "", "" },
     { NULL }
 };
 
@@ -84,18 +85,18 @@ typedef struct {
     GString *scanbuffer;
     FieldType type;
     GeneralNumberFormat general_number_format;
-    gchar *argument;
-    gchar *date_format;
-    gchar *numeric_format;
+    char *argument;
+    char *date_format;
+    char *numeric_format;
 } FieldInstructionState;
 
 typedef struct {
-    gboolean ignore_field_result;
+    bool ignore_field_result;
 } FieldState;
 
 static void field_instruction_text(ParserContext *ctx);
 static void field_instruction_end(ParserContext *ctx);
-static gchar *format_integer(gint number, GeneralNumberFormat format);
+static char *format_integer(int number, GeneralNumberFormat format);
 
 #define FLDINST_STATE_INIT \
     state->scanbuffer = g_string_new(""); \
@@ -106,7 +107,7 @@ DEFINE_SIMPLE_STATE_FUNCTIONS(FieldState, field)
 DEFINE_ATTR_STATE_FUNCTIONS(Attributes, fldrslt)
 
 const ControlWord field_instruction_word_table[] = {
-    { "\\", SPECIAL_CHARACTER, FALSE, NULL, 0, "\\" },
+    { "\\", SPECIAL_CHARACTER, false, NULL, 0, "\\" },
     { NULL }
 };
 
@@ -132,12 +133,12 @@ const DestinationInfo field_result_destination = {
     fldrslt_state_free
 };
 
-typedef gboolean FieldFunc(ParserContext *, FieldState *, GError **);
+typedef bool FieldFunc(ParserContext *, FieldState *, GError **);
 static FieldFunc field_fldrslt;
 
 const ControlWord field_word_table[] = {
-    { "*fldinst", DESTINATION, FALSE, NULL, 0, NULL, &field_instruction_destination },
-    { "fldrslt", NO_PARAMETER, FALSE, field_fldrslt },
+    { "*fldinst", DESTINATION, false, NULL, 0, NULL, &field_instruction_destination },
+    { "fldrslt", NO_PARAMETER, false, field_fldrslt },
     { NULL }
 };
 
@@ -157,30 +158,30 @@ const GScannerConfig field_parser = {
     NULL, /* cpair_comment_single */
 
     /* Should symbol lookup be case sensitive? */
-    TRUE, /* case_sensitive */
+    true, /* case_sensitive */
 
     /* Boolean values to be adjusted "on the fly" to configure scanning behaviour. */
-    FALSE, /* skip_comment_multi */
-    FALSE, /* skip_comment_single */
-    FALSE, /* scan_comment_multi */
-    TRUE,  /* scan_identifier */
-    FALSE, /* scan_identifier_1char */
-    FALSE, /* scan_identifier_NULL */
-    FALSE, /* scan_symbols */
-    FALSE, /* scan_binary */
-    FALSE, /* scan_octal */
-    FALSE, /* scan_float */
-    FALSE, /* scan_hex */
-    FALSE, /* scan_hex_dollar */
-    FALSE, /* scan_string_sq */
-    TRUE,  /* scan_string_dq */
-    TRUE,  /* numbers_2_int */
-    FALSE, /* int_2_float */
-    TRUE,  /* identifier_2_string */
-    FALSE, /* char_2_token */
-    FALSE, /* symbol_2_token */
-    FALSE, /* scope_0_fallback */
-    FALSE  /* store_int64 */
+    false, /* skip_comment_multi */
+    false, /* skip_comment_single */
+    false, /* scan_comment_multi */
+    true,  /* scan_identifier */
+    false, /* scan_identifier_1char */
+    false, /* scan_identifier_NULL */
+    false, /* scan_symbols */
+    false, /* scan_binary */
+    false, /* scan_octal */
+    false, /* scan_float */
+    false, /* scan_hex */
+    false, /* scan_hex_dollar */
+    false, /* scan_string_sq */
+    true,  /* scan_string_dq */
+    true,  /* numbers_2_int */
+    false, /* int_2_float */
+    true,  /* identifier_2_string */
+    false, /* char_2_token */
+    false, /* symbol_2_token */
+    false, /* scope_0_fallback */
+    false  /* store_int64 */
 };
 
 /* Move all text to the GScanner's scan buffer */
@@ -194,7 +195,7 @@ field_instruction_text(ParserContext *ctx)
 
 /* Get the next token from the scanner and make sure it is a string. Do not free
 the returned value. */
-static gchar *
+static char *
 get_string_token(GScanner *tokenizer)
 {
     GTokenType token;
@@ -216,8 +217,8 @@ get_string_token(GScanner *tokenizer)
 }
 
 typedef struct {
-    gchar *switchname;
-    gchar *switcharg;
+    char *switchname;
+    char *switcharg;
 } SwitchInfo;
 
 static void
@@ -230,9 +231,9 @@ free_switch_info(SwitchInfo *info)
 
 /* Consume all the tokens belonging to the switches named here */
 static GSList *
-get_switches(GScanner *tokenizer, GSList *switcheslist, const gchar *switches, const gchar *argswitches, const gchar *wideswitches, const gchar *wideargswitches)
+get_switches(GScanner *tokenizer, GSList *switcheslist, const char *switches, const char *argswitches, const char *wideswitches, const char *wideargswitches)
 {
-    gboolean found = FALSE;
+    bool found = false;
 
     g_assert(strlen(wideswitches) % 2 == 0);
     g_assert(strlen(wideargswitches) % 2 == 0);
@@ -241,13 +242,13 @@ get_switches(GScanner *tokenizer, GSList *switcheslist, const gchar *switches, c
     while(!g_scanner_eof(tokenizer))
     {
         GTokenType token = g_scanner_peek_next_token(tokenizer);
-        found = FALSE;
+        found = false;
 
         if(token != G_TOKEN_STRING)
             break;
         if(tokenizer->next_value.v_string[0] == '\\')
         {
-            const gchar *ptr;
+            const char *ptr;
             for(ptr = switches; *ptr && !found; ptr++)
                 if(tokenizer->next_value.v_string[1] == ptr[0] && tokenizer->next_value.v_string[2] == '\0')
                 {
@@ -256,7 +257,7 @@ get_switches(GScanner *tokenizer, GSList *switcheslist, const gchar *switches, c
                     info->switcharg = NULL;
                     g_scanner_get_next_token(tokenizer);
                     switcheslist = g_slist_prepend(switcheslist, info);
-                    found = TRUE;
+                    found = true;
                 }
             for(ptr = argswitches; *ptr && !found; ptr++)
                 if(tokenizer->next_value.v_string[1] == ptr[0] && tokenizer->next_value.v_string[2] == '\0')
@@ -266,7 +267,7 @@ get_switches(GScanner *tokenizer, GSList *switcheslist, const gchar *switches, c
                     g_scanner_get_next_token(tokenizer);
                     info->switcharg = g_strdup(get_string_token(tokenizer));
                     switcheslist = g_slist_prepend(switcheslist, info);
-                    found = TRUE;
+                    found = true;
                 }
             for(ptr = wideswitches; *ptr && !found; ptr++)
                 if(tokenizer->next_value.v_string[1] == ptr[0] && tokenizer->next_value.v_string[2] == ptr[1] && tokenizer->next_value.v_string[3] == '\0')
@@ -276,7 +277,7 @@ get_switches(GScanner *tokenizer, GSList *switcheslist, const gchar *switches, c
                     info->switcharg = NULL;
                     g_scanner_get_next_token(tokenizer);
                     switcheslist = g_slist_prepend(switcheslist, info);
-                    found = TRUE;
+                    found = true;
                 }
             for(ptr = wideargswitches; *ptr && !found; ptr += 2)
                 if(tokenizer->next_value.v_string[1] == ptr[0] && tokenizer->next_value.v_string[2] == ptr[1] && tokenizer->next_value.v_string[3] == '\0')
@@ -286,7 +287,7 @@ get_switches(GScanner *tokenizer, GSList *switcheslist, const gchar *switches, c
                     g_scanner_get_next_token(tokenizer);
                     info->switcharg = g_strdup(get_string_token(tokenizer));
                     switcheslist = g_slist_prepend(switcheslist, info);
-                    found = TRUE;
+                    found = true;
                 }
         }
         else
@@ -303,7 +304,7 @@ get_switches(GScanner *tokenizer, GSList *switcheslist, const gchar *switches, c
 static void field_instruction_end(ParserContext *ctx)
 {
     FieldInstructionState *state = get_state(ctx);
-    gchar *field_type, *buffer;
+    char *field_type, *buffer;
     GSList *switches = NULL, *formatswitches = NULL, *iter;
     const FieldInfo *field_info = fields;
     GScanner *tokenizer = g_scanner_new(&field_parser);
@@ -390,14 +391,14 @@ static void field_instruction_end(ParserContext *ctx)
         case FIELD_TYPE_HYPERLINK:
             /* Actually inserting hyperlinks into the text buffer is a whole
             security can of worms I don't want to open! Just use field result */
-            fieldstate->ignore_field_result = FALSE;
+            fieldstate->ignore_field_result = false;
             break;
 
         case FIELD_TYPE_INCLUDEPICTURE:
         {
             GError *error = NULL;
-            gchar **pathcomponents = g_strsplit(state->argument, "\\", 0);
-            gchar *realfilename = g_build_filenamev(pathcomponents);
+            char **pathcomponents = g_strsplit(state->argument, "\\", 0);
+            char *realfilename = g_build_filenamev(pathcomponents);
 
             g_strfreev(pathcomponents);
             GdkPixbuf *picture = gdk_pixbuf_new_from_file(realfilename, &error);
@@ -414,19 +415,19 @@ static void field_instruction_end(ParserContext *ctx)
             g_free(realfilename);
         }
             /* Don't use calculated field result */
-            fieldstate->ignore_field_result = TRUE;
+            fieldstate->ignore_field_result = true;
             break;
 
         case FIELD_TYPE_PAGE:
         {
-            gchar *output = format_integer(1, state->general_number_format);
+            char *output = format_integer(1, state->general_number_format);
             GtkTextIter iter;
             gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &iter, ctx->endmark);
             gtk_text_buffer_insert(ctx->textbuffer, &iter, output, -1);
             g_free(output);
         }
             /* Don't use calculated field result */
-            fieldstate->ignore_field_result = TRUE;
+            fieldstate->ignore_field_result = true;
             break;
 
         default:
@@ -442,8 +443,8 @@ static void field_instruction_end(ParserContext *ctx)
 }
 
 /* Free the return value when done with it */
-static gchar *
-format_integer(gint number, GeneralNumberFormat format)
+static char *
+format_integer(int number, GeneralNumberFormat format)
 {
     switch(format)
     {
@@ -471,15 +472,15 @@ format_integer(gint number, GeneralNumberFormat format)
             if(number < 1)
                 break;
         {
-            const gchar *r_hundred[] = { "", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM" };
-            const gchar *r_ten[] = { "", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC" };
-            const gchar *r_one[] = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX" };
-            gint thousands = number / 1000;
-            gint hundreds = (number % 1000) / 100;
-            gint tens = (number % 100) / 10;
-            gint ones = number % 10;
-            gchar *thousandstring = g_strnfill(thousands, 'M');
-            gchar *retval = g_strconcat(thousandstring, r_hundred[hundreds], r_ten[tens], r_one[ones], NULL);
+            const char *r_hundred[] = { "", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM" };
+            const char *r_ten[] = { "", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC" };
+            const char *r_one[] = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX" };
+            int thousands = number / 1000;
+            int hundreds = (number % 1000) / 100;
+            int tens = (number % 100) / 10;
+            int ones = number % 10;
+            char *thousandstring = g_strnfill(thousands, 'M');
+            char *retval = g_strconcat(thousandstring, r_hundred[hundreds], r_ten[tens], r_one[ones], NULL);
             g_free(thousandstring);
             return retval;
         }
@@ -487,15 +488,15 @@ format_integer(gint number, GeneralNumberFormat format)
             if(number < 1)
                 break;
         {
-            const gchar *r_hundred[] = { "", "c", "cc", "ccc", "cd", "d", "dc", "dcc", "dccc", "cm" };
-            const gchar *r_ten[] = { "", "x", "xx", "xxx", "xl", "l", "lx", "lxx", "lxxx", "xc" };
-            const gchar *r_one[] = { "", "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix" };
-            gint thousands = number / 1000;
-            gint hundreds = (number % 1000) / 100;
-            gint tens = (number % 100) / 10;
-            gint ones = number % 10;
-            gchar *thousandstring = g_strnfill(thousands, 'm');
-            gchar *retval = g_strconcat(thousandstring, r_hundred[hundreds], r_ten[tens], r_one[ones], NULL);
+            const char *r_hundred[] = { "", "c", "cc", "ccc", "cd", "d", "dc", "dcc", "dccc", "cm" };
+            const char *r_ten[] = { "", "x", "xx", "xxx", "xl", "l", "lx", "lxx", "lxxx", "xc" };
+            const char *r_one[] = { "", "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix" };
+            int thousands = number / 1000;
+            int hundreds = (number % 1000) / 100;
+            int tens = (number % 100) / 10;
+            int ones = number % 10;
+            char *thousandstring = g_strnfill(thousands, 'm');
+            char *retval = g_strconcat(thousandstring, r_hundred[hundreds], r_ten[tens], r_one[ones], NULL);
             g_free(thousandstring);
             return retval;
         }
@@ -520,7 +521,7 @@ format_integer(gint number, GeneralNumberFormat format)
     return g_strdup_printf("%d", number);
 }
 
-static gboolean
+static bool
 field_fldrslt(ParserContext *ctx, FieldState *state, GError **error)
 {
     if(state->ignore_field_result)
@@ -531,5 +532,5 @@ field_fldrslt(ParserContext *ctx, FieldState *state, GError **error)
         Attributes *attr = g_queue_peek_head(outerdest->state_stack);
         push_new_destination(ctx, &field_result_destination, attr);
     }
-    return TRUE;
+    return true;
 }

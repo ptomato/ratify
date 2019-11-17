@@ -15,6 +15,7 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "config.h"
 
+#include <stdbool.h>
 #include <string.h>
 
 #include <glib.h>
@@ -24,20 +25,20 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 /* rtf-colortbl.c - \colortbl destination */
 
 typedef struct {
-    gint red;
-    gint green;
-    gint blue;
+    int red;
+    int green;
+    int blue;
 } ColorTableState;
 
 /* Forward declarations */
 static void color_table_text(ParserContext *ctx);
 
 #define DEFINE_COLOR_TABLE_FUNCTION(arg) \
-    static gboolean \
-    G_PASTE_ARGS(ct_, arg)(ParserContext *ctx, ColorTableState *state, gint32 param, GError **error) \
+    static bool \
+    G_PASTE_ARGS(ct_, arg)(ParserContext *ctx, ColorTableState *state, int32_t param, GError **error) \
     { \
         state->arg = param; \
-        return TRUE; \
+        return true; \
     }
 DEFINE_COLOR_TABLE_FUNCTION(red)
 DEFINE_COLOR_TABLE_FUNCTION(green)
@@ -45,9 +46,9 @@ DEFINE_COLOR_TABLE_FUNCTION(blue)
 DEFINE_SIMPLE_STATE_FUNCTIONS(ColorTableState, colortbl)
 
 const ControlWord colortbl_word_table[] = {
-    { "red", REQUIRED_PARAMETER, TRUE, ct_red },
-    { "green", REQUIRED_PARAMETER, TRUE, ct_green },
-    { "blue", REQUIRED_PARAMETER, TRUE, ct_blue },
+    { "red", REQUIRED_PARAMETER, true, ct_red },
+    { "green", REQUIRED_PARAMETER, true, ct_green },
+    { "blue", REQUIRED_PARAMETER, true, ct_blue },
     { NULL }
 };
 
@@ -67,7 +68,7 @@ color_table_text(ParserContext *ctx)
     ColorTableState *state = get_state(ctx);
     if(strchr(ctx->text->str, ';'))
     {
-        gchar *color = g_strdup_printf("#%02x%02x%02x", state->red, state->green, state->blue);
+        char *color = g_strdup_printf("#%02x%02x%02x", state->red, state->green, state->blue);
         ctx->color_table = g_slist_append(ctx->color_table, color);
         state->red = state->green = state->blue = 0;
     }

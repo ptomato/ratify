@@ -15,6 +15,7 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "config.h"
 
+#include <stdbool.h>
 #include <string.h>
 
 #include <glib.h>
@@ -36,7 +37,7 @@ typedef enum {
 
 typedef struct {
     Attributes attr; /* must be first */
-    gint index;
+    int index;
     StyleType type;
 } StylesheetState;
 
@@ -44,12 +45,12 @@ typedef struct {
 static void stylesheet_text(ParserContext *ctx);
 
 #define DEFINE_STYLE_FUNCTION(fn, styletype) \
-    static gboolean \
-    fn(ParserContext *ctx, StylesheetState *state, gint32 param, GError **error) \
+    static bool \
+    fn(ParserContext *ctx, StylesheetState *state, int32_t param, GError **error) \
     { \
         state->index = param; \
         state->type = styletype; \
-        return TRUE; \
+        return true; \
     }
 DEFINE_STYLE_FUNCTION(sty_cs, STYLE_CHARACTER)
 DEFINE_STYLE_FUNCTION(sty_ds, STYLE_SECTION)
@@ -58,10 +59,10 @@ DEFINE_STYLE_FUNCTION(sty_ts, STYLE_TABLE)
 
 const ControlWord stylesheet_word_table[] = {
     FORMATTED_TEXT_CONTROL_WORDS,
-    { "*cs", REQUIRED_PARAMETER, TRUE, sty_cs },
-    { "*ds", REQUIRED_PARAMETER, TRUE, sty_ds },
-    { "s", OPTIONAL_PARAMETER, TRUE, sty_s, 0 },
-    { "*ts", REQUIRED_PARAMETER, TRUE, sty_ts },
+    { "*cs", REQUIRED_PARAMETER, true, sty_cs },
+    { "*ds", REQUIRED_PARAMETER, true, sty_ds },
+    { "s", OPTIONAL_PARAMETER, true, sty_s, 0 },
+    { "*ts", REQUIRED_PARAMETER, true, sty_ts },
     { NULL }
 };
 
@@ -80,7 +81,7 @@ the current style */
 static void
 stylesheet_text(ParserContext *ctx)
 {
-    gchar *semicolon, *tagname;
+    char *semicolon, *tagname;
     StylesheetState *state = get_state(ctx);
     Attributes *attr = (Attributes *)state;
     GtkTextTag *tag;
@@ -102,80 +103,80 @@ stylesheet_text(ParserContext *ctx)
     if(attr->justification != -1)
         g_object_set(tag,
                      "justification", attr->justification,
-                     "justification-set", TRUE,
+                     "justification-set", true,
                      NULL);
     if(attr->pardirection != -1)
         g_object_set(tag, "direction", attr->pardirection, NULL);
     if(attr->space_before != 0 && !attr->ignore_space_before)
         g_object_set(tag,
                      "pixels-above-lines", PANGO_PIXELS(TWIPS_TO_PANGO(attr->space_before)),
-                     "pixels-above-lines-set", TRUE,
+                     "pixels-above-lines-set", true,
                      NULL);
     if(attr->space_after != 0 && !attr->ignore_space_after)
         g_object_set(tag,
                      "pixels-below-lines", PANGO_PIXELS(TWIPS_TO_PANGO(attr->space_after)),
-                     "pixels-below-lines-set", TRUE,
+                     "pixels-below-lines-set", true,
                      NULL);
     if(attr->tabs)
         g_object_set(tag,
                      "tabs", attr->tabs,
-                     "tabs-set", TRUE,
+                     "tabs-set", true,
                      NULL);
     if(attr->left_margin)
         g_object_set(tag,
                      "left-margin", PANGO_PIXELS(TWIPS_TO_PANGO(attr->left_margin)),
-                     "left-margin-set", TRUE,
+                     "left-margin-set", true,
                      NULL);
     if(attr->right_margin)
         g_object_set(tag,
                      "right-margin", PANGO_PIXELS(TWIPS_TO_PANGO(attr->right_margin)),
-                     "right-margin-set", TRUE,
+                     "right-margin-set", true,
                      NULL);
     if(attr->indent)
         g_object_set(tag,
                      "indent", PANGO_PIXELS(TWIPS_TO_PANGO(attr->indent)),
-                     "indent-set", TRUE,
+                     "indent-set", true,
                      NULL);
     if(attr->scale != 100)
         g_object_set(tag,
                      "scale", (double)(attr->scale) / 100.0,
-                     "scale-set", TRUE,
+                     "scale-set", true,
                      NULL);
 
     /* Add each character attribute to the tag */
     if(attr->foreground != -1)
     {
-        gchar *color = g_slist_nth_data(ctx->color_table, attr->foreground);
+        char *color = g_slist_nth_data(ctx->color_table, attr->foreground);
         /* color must exist, because that was already checked when executing
          the \cf command */
         g_object_set(tag,
                      "foreground", color,
-                     "foreground-set", TRUE,
+                     "foreground-set", true,
                      NULL);
     }
     if(attr->background != -1)
     {
-        gchar *color = g_slist_nth_data(ctx->color_table, attr->background);
+        char *color = g_slist_nth_data(ctx->color_table, attr->background);
         /* color must exist, because that was already checked when executing
          the \cf command */
         g_object_set(tag,
                      "background", color,
-                     "background-set", TRUE,
+                     "background-set", true,
                      NULL);
     }
     if(attr->highlight != -1)
     {
-        gchar *color = g_slist_nth_data(ctx->color_table, attr->highlight);
+        char *color = g_slist_nth_data(ctx->color_table, attr->highlight);
         /* color must exist, because that was already checked when executing
          the \cf command */
         g_object_set(tag,
                      "paragraph-background", color,
-                     "paragraph-background-set", TRUE,
+                     "paragraph-background-set", true,
                      NULL);
     }
     if(attr->font != -1)
     {
-        gchar *tagname = g_strdup_printf("osxcart-rtf-font-%d", attr->font);
+        char *tagname = g_strdup_printf("osxcart-rtf-font-%d", attr->font);
         GtkTextTag *fonttag = gtk_text_tag_table_lookup(ctx->tags, tagname);
         PangoFontDescription *fontdesc;
 
@@ -184,7 +185,7 @@ stylesheet_text(ParserContext *ctx)
         {
             g_object_set(tag,
                          "family", g_strdup(pango_font_description_get_family(fontdesc)),
-                         "family-set", TRUE,
+                         "family-set", true,
                          NULL);
         }
         g_free(tagname);
@@ -192,58 +193,58 @@ stylesheet_text(ParserContext *ctx)
     if(attr->size != 0.0)
         g_object_set(tag,
                      "size", POINTS_TO_PANGO(attr->size),
-                     "size-set", TRUE,
+                     "size-set", true,
                      NULL);
     if(attr->italic)
         g_object_set(tag,
                      "style", PANGO_STYLE_ITALIC,
-                     "style-set", TRUE,
+                     "style-set", true,
                      NULL);
     if(attr->bold)
         g_object_set(tag,
                      "weight", PANGO_WEIGHT_BOLD,
-                     "weight-set", TRUE,
+                     "weight-set", true,
                      NULL);
     if(attr->smallcaps)
         g_object_set(tag,
                      "variant", PANGO_VARIANT_SMALL_CAPS,
-                     "variant-set", TRUE,
+                     "variant-set", true,
                      NULL);
     if(attr->strikethrough)
         g_object_set(tag,
-                     "strikethrough", TRUE,
-                     "strikethrough-set", TRUE,
+                     "strikethrough", true,
+                     "strikethrough-set", true,
                      NULL);
     if(attr->subscript)
         g_object_set(tag,
                      "rise", POINTS_TO_PANGO(-6),
-                     "rise-set", TRUE,
+                     "rise-set", true,
                      "scale", PANGO_SCALE_X_SMALL,
-                     "scale-set", TRUE,
+                     "scale-set", true,
                      NULL);
     if(attr->superscript)
         g_object_set(tag,
                      "rise", POINTS_TO_PANGO(6),
-                     "rise-set", TRUE,
+                     "rise-set", true,
                      "scale", PANGO_SCALE_X_SMALL,
-                     "scale-set", TRUE,
+                     "scale-set", true,
                      NULL);
     if(attr->invisible)
         g_object_set(tag,
-                     "invisible", TRUE,
-                     "invisible-set", TRUE,
+                     "invisible", true,
+                     "invisible-set", true,
                      NULL);
     if(attr->underline != -1)
         g_object_set(tag,
                      "underline", attr->underline,
-                     "underline-set", TRUE,
+                     "underline-set", true,
                      NULL);
     if(attr->chardirection != -1)
         g_object_set(tag, "direction", attr->chardirection, NULL);
     if(attr->rise != 0)
         g_object_set(tag,
                      "rise", HALF_POINTS_TO_PANGO(attr->rise),
-                     "rise-set", TRUE,
+                     "rise-set", true,
                      NULL);
 
     gtk_text_tag_table_add(ctx->tags, tag);

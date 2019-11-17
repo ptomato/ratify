@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -7,8 +8,8 @@
 #include <osxcart/rtf.h>
 
 /* Convenience function */
-static gchar *
-build_filename(const gchar *name)
+static char *
+build_filename(const char *name)
 {
     return g_build_filename(TESTFILEDIR, name, NULL);
 }
@@ -16,11 +17,11 @@ build_filename(const gchar *name)
 /* This test tries to import a malformed RTF file, and succeeds if the import
 failed. */
 static void
-rtf_fail_case(gconstpointer name)
+rtf_fail_case(const void *name)
 {
     GError *error = NULL;
     GtkTextBuffer *buffer = gtk_text_buffer_new(NULL);
-    gchar *filename = build_filename(name);
+    char *filename = build_filename(name);
 
     g_assert(!rtf_text_buffer_import(buffer, filename, &error));
     g_free(filename);
@@ -32,11 +33,11 @@ rtf_fail_case(gconstpointer name)
 
 /* This test tries to import an RTF file, and succeeds if the import succeeded. */
 static void
-rtf_parse_pass_case(gconstpointer name)
+rtf_parse_pass_case(const void *name)
 {
     GError *error = NULL;
     GtkTextBuffer *buffer = gtk_text_buffer_new(NULL);
-    gchar *filename = build_filename(name);
+    char *filename = build_filename(name);
 
     if(!rtf_text_buffer_import(buffer, filename, &error))
         g_test_message("Error message: %s", error->message);
@@ -52,12 +53,12 @@ rtf_write_case(gcontpointer name)
 {
     GError *error = NULL;
     GtkTextBuffer *buffer = gtk_text_buffer_new(NULL);
-    gchar *filename = build_filename(name);
+    char *filename = build_filename(name);
 
     g_assert(rtf_text_buffer_import(buffer, filename, &error));
     g_free(filename);
     g_assert(error == NULL);
-    gchar *string = rtf_text_buffer_export_to_string(buffer);
+    char *string = rtf_text_buffer_export_to_string(buffer);
     g_object_unref(buffer);
     g_print("%s\n", string);
     g_free(string);
@@ -71,27 +72,27 @@ test fails. Otherwise, the test succeeds.
 Comparing the plaintext is for lack of a better way to compare the text buffers'
 formatting. */
 static void
-rtf_write_pass_case(gconstpointer name)
+rtf_write_pass_case(const void *name)
 {
     GError *error = NULL;
     GtkTextBuffer *buffer1 = gtk_text_buffer_new(NULL);
     GtkTextBuffer *buffer2 = gtk_text_buffer_new(NULL);
-    gchar *filename = build_filename(name);
+    char *filename = build_filename(name);
 
     if(!rtf_text_buffer_import(buffer1, filename, &error))
         g_test_message("Import error message: %s", error->message);
     g_free(filename);
     g_assert(error == NULL);
-    gchar *string = rtf_text_buffer_export_to_string(buffer1);
+    char *string = rtf_text_buffer_export_to_string(buffer1);
     if(!rtf_text_buffer_import_from_string(buffer2, string, &error))
         g_test_message("Export error message: %s", error->message);
     g_assert(error == NULL);
 
     GtkTextIter start, end;
     gtk_text_buffer_get_bounds(buffer1, &start, &end);
-    gchar *text1 = gtk_text_buffer_get_slice(buffer1, &start, &end, TRUE);
+    char *text1 = gtk_text_buffer_get_slice(buffer1, &start, &end, TRUE);
     gtk_text_buffer_get_bounds(buffer2, &start, &end);
-    gchar *text2 = gtk_text_buffer_get_slice(buffer2, &start, &end, TRUE);
+    char *text2 = gtk_text_buffer_get_slice(buffer2, &start, &end, TRUE);
     g_assert_cmpstr(text1, ==, text2);
 
     g_free(text1);
@@ -102,13 +103,13 @@ rtf_write_pass_case(gconstpointer name)
 }
 
 static void
-yes_clicked(GtkButton *button, gboolean *was_correct)
+yes_clicked(GtkButton *button, bool *was_correct)
 {
-    *was_correct = TRUE;
+    *was_correct = true;
     gtk_main_quit();
 }
 
-static gboolean
+static bool
 yes_not_clicked(void)
 {
     gtk_main_quit();
@@ -121,14 +122,14 @@ RTF code and its rendered result side by side, asking the user whether the RTF
 code is rendered correctly. The test succeeds if the user answers Yes, and fails
 if the user answers No. */
 static void
-rtf_parse_human_approval_case(gconstpointer name)
+rtf_parse_human_approval_case(const void *name)
 {
     GError *error = NULL;
     GtkWidget *label, *pane, *codescroll, *codeview, *rtfscroll, *rtfview,
         *window, *vbox, *buttons, *yes, *no;
     GtkTextBuffer *rtfbuffer = gtk_text_buffer_new(NULL);
-    gchar *text, *filename = build_filename(name);
-    gboolean was_correct = FALSE;
+    char *text, *filename = build_filename(name);
+    bool was_correct = false;
     GFile *file = g_file_new_for_path(filename);
 
     /* Get RTF code */
@@ -169,13 +170,13 @@ rtf_parse_human_approval_case(gconstpointer name)
     gtk_paned_add2(GTK_PANED(pane), rtfscroll);
     gtk_container_add(GTK_CONTAINER(buttons), yes);
     gtk_container_add(GTK_CONTAINER(buttons), no);
-    gtk_box_pack_start(GTK_BOX(vbox), pane, TRUE, TRUE, 6);
-    gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 6);
-    gtk_box_pack_start(GTK_BOX(vbox), buttons, FALSE, FALSE, 6);
+    gtk_box_pack_start(GTK_BOX(vbox), pane, true, true, 6);
+    gtk_box_pack_start(GTK_BOX(vbox), label, false, false, 6);
+    gtk_box_pack_start(GTK_BOX(vbox), buttons, false, false, 6);
     /* Build window */
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), filename);
-    gtk_window_set_modal(GTK_WINDOW(window), TRUE);
+    gtk_window_set_modal(GTK_WINDOW(window), true);
     gtk_window_set_default_size(GTK_WINDOW(window), 1000, 400);
     gtk_paned_set_position(GTK_PANED(pane), 500);
     gtk_container_add(GTK_CONTAINER(window), vbox);
@@ -194,7 +195,7 @@ rtf_parse_human_approval_case(gconstpointer name)
     g_assert(was_correct);
 }
 
-const gchar *rtfbookexamples[] = {
+const char *rtfbookexamples[] = {
     "Hello world 1", "p004_hello_world.rtf",
     "Hello world 2", "p005a_hello_world.rtf",
     "Hello world 3", "p005b_hello_world.rtf",
@@ -260,7 +261,7 @@ const gchar *rtfbookexamples[] = {
     NULL, NULL
 };
 
-const gchar *codeprojectpasscases[] = {
+const char *codeprojectpasscases[] = {
     "Formatting 1", "DefaultText.rtf",
     "Bare minimum file", "minimal.rtf",
     "Hello World 1", "RtfInterpreterTest_0.rtf",
@@ -293,7 +294,7 @@ const gchar *codeprojectpasscases[] = {
     NULL, NULL
 };
 
-const gchar *codeprojectfailcases[] = {
+const char *codeprojectfailcases[] = {
     "Empty document group", "RtfInterpreterTest_fail_0.rtf",
     "Missing version", "RtfInterpreterTest_fail_1.rtf",
     "Unsupported version", "RtfInterpreterTest_fail_2.rtf",
@@ -320,8 +321,8 @@ const char *variousfailcases[] = {
 };
 
 /* Whether WMF and EMF loading is available */
-gboolean have_wmf = FALSE;
-gboolean have_emf = FALSE;
+bool have_wmf = false;
+bool have_emf = false;
 
 /* Determine whether WMF and EMF support were compiled into our GdkPixbuf */
 static void
@@ -332,18 +333,18 @@ check_wmf_and_emf(void)
     for(iter = formats; iter; iter = g_slist_next(iter))
     {
         if(strcmp(gdk_pixbuf_format_get_name(iter->data), "wmf") == 0)
-            have_wmf = TRUE;
+            have_wmf = true;
         else if(strcmp(gdk_pixbuf_format_get_name(iter->data), "emf") == 0)
-            have_emf = TRUE;
+            have_emf = true;
     }
     g_slist_free(formats);
 }
 
 static void
-add_tests(const gchar **testlist, const gchar *path, void (test_func)(gconstpointer))
+add_tests(const char **testlist, const char *path, void (test_func)(const void *))
 {
-    const gchar **ptr;
-    gchar *testname;
+    const char **ptr;
+    char *testname;
 
     for(ptr = testlist; *ptr; ptr += 2)
     {

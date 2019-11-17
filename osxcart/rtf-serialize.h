@@ -18,4 +18,4 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 #include <glib.h>
 #include <gtk/gtk.h>
 
-G_GNUC_INTERNAL guint8 *rtf_serialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, const GtkTextIter *start, const GtkTextIter *end, gsize *length);
+G_GNUC_INTERNAL uint8_t *rtf_serialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, const GtkTextIter *start, const GtkTextIter *end, size_t *length);

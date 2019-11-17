@@ -16,6 +16,7 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 #include "config.h"
 
 #include <ctype.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -54,7 +55,7 @@ words applies.
 /* Allocate a new parser context and initialize it with the main document
 destination */
 static ParserContext *
-parser_context_new(const gchar *rtftext, GtkTextBuffer *textbuffer, GtkTextIter *insert)
+parser_context_new(const char *rtftext, GtkTextBuffer *textbuffer, GtkTextIter *insert)
 {
     ParserContext *ctx;
     Destination *dest;
@@ -77,8 +78,8 @@ parser_context_new(const gchar *rtftext, GtkTextBuffer *textbuffer, GtkTextIter 
 
     ctx->textbuffer = textbuffer;
     ctx->tags = gtk_text_buffer_get_tag_table(textbuffer);
-    ctx->startmark = gtk_text_buffer_create_mark(textbuffer, NULL, insert, TRUE);
-    ctx->endmark = gtk_text_buffer_create_mark(textbuffer, NULL, insert, FALSE);
+    ctx->startmark = gtk_text_buffer_create_mark(textbuffer, NULL, insert, true);
+    ctx->endmark = gtk_text_buffer_create_mark(textbuffer, NULL, insert, false);
 
     dest = g_slice_new0(Destination);
     dest->info = &document_destination;
@@ -104,7 +105,7 @@ font_properties_free(FontProperties *fontprop)
 NULL, then initializes the state stack with a copy of that state, otherwise a
 blank state. */
 void
-push_new_destination(ParserContext *ctx, const DestinationInfo *destinfo, gpointer state_to_copy)
+push_new_destination(ParserContext *ctx, const DestinationInfo *destinfo, void *state_to_copy)
 {
     Destination *dest = g_slice_new0(Destination);
     dest->info = destinfo;
@@ -131,7 +132,7 @@ static void
 parser_context_free(ParserContext *ctx)
 {
     g_assert(ctx != NULL);
-    g_string_free(ctx->convertbuffer, FALSE);
+    g_string_free(ctx->convertbuffer, false);
 
     g_slist_foreach(ctx->color_table, (GFunc)g_free, NULL);
     g_slist_free(ctx->color_table);
@@ -145,13 +146,13 @@ parser_context_free(ParserContext *ctx)
     gtk_text_buffer_delete_mark(ctx->textbuffer, ctx->startmark);
     gtk_text_buffer_delete_mark(ctx->textbuffer, ctx->endmark);
 
-    g_string_free(ctx->text, TRUE);
+    g_string_free(ctx->text, true);
 
     g_slice_free(ParserContext, ctx);
 }
 
 /* Convenience function to get the current state of the current destination */
-gpointer
+void *
 get_state(ParserContext *ctx)
 {
     Destination *dest = g_queue_peek_head(ctx->destination_stack);
@@ -176,15 +177,15 @@ get_font_properties(ParserContext *ctx, int index)
 
 /* Return the name of a GIconv converter for the specified codepage, if it
 exists; otherwise NULL */
-static gchar *
+static char *
 get_charset_for_codepage(int codepage)
 {
     GIConv converter;
-    gchar *charset;
+    char *charset;
     int i = 0;
     struct codepage_to_locale {
         int codepage;
-        const gchar* locale;
+        const char* locale;
     };
 
     static struct codepage_to_locale ansicpgs[] = {
@@ -229,11 +230,11 @@ get_charset_for_codepage(int codepage)
 }
 
 /* Convert the character ch to UTF-8 and add to the context's buffer */
-gboolean
-convert_hex_to_utf8(ParserContext *ctx, gchar ch, GError **error)
+bool
+convert_hex_to_utf8(ParserContext *ctx, char ch, GError **error)
 {
-    gchar *text_to_convert, *converted_text, *charset;
-    gint codepage = -1;
+    char *text_to_convert, *converted_text, *charset;
+    int codepage = -1;
     GError *converterror = NULL;
     Destination *dest;
 
@@ -252,7 +253,7 @@ convert_hex_to_utf8(ParserContext *ctx, gchar ch, GError **error)
     if(charset == NULL)
     {
         g_set_error(error, RTF_ERROR, RTF_ERROR_UNSUPPORTED_CHARSET, _("Character set %d is not supported"), (ctx->default_codepage == -1)? codepage : ctx->default_codepage);
-        return FALSE;
+        return false;
     }
 
     /* Now see if there was any incompletely converted text left over from
@@ -285,7 +286,7 @@ convert_hex_to_utf8(ParserContext *ctx, gchar ch, GError **error)
         g_free(converted_text);
     }
     g_free(text_to_convert);
-    return TRUE;
+    return true;
 }
 
 /* Parses a control word from the input buffer. 'word' is the return location
@@ -293,8 +294,8 @@ for the control word, without a backslash, but with '*' prefixed if the control
 word is preceded by \*, which means that the control word represents a
 destination that should be skipped if it is not recognized.
  */
-static gboolean
-parse_control_word(ParserContext *ctx, gchar **word, GError **error)
+static bool
+parse_control_word(ParserContext *ctx, char **word, GError **error)
 {
     g_assert(ctx != NULL && *(ctx->pos) == '\\');
 
@@ -302,13 +303,13 @@ parse_control_word(ParserContext *ctx, gchar **word, GError **error)
     if(*ctx->pos == '*')
     {
         /* Ignorable destination */
-        gchar *destword;
+        char *destword;
 
         ctx->pos++;
         while(isspace(*ctx->pos))
             ctx->pos++;
         if(!parse_control_word(ctx, &destword, error))
-            return FALSE;
+            return false;
         *word = g_strconcat("*", destword, NULL);
         g_free(destword);
     }
@@ -321,31 +322,31 @@ parse_control_word(ParserContext *ctx, gchar **word, GError **error)
     else
     {
         /* Control word */
-        gsize length = 0;
+        size_t length = 0;
 
         while(g_ascii_isalpha(ctx->pos[length]))
             length++;
         if(length == 0)
         {
             g_set_error(error, RTF_ERROR, RTF_ERROR_INVALID_RTF, _("Backslash encountered without control word"));
-            return FALSE;
+            return false;
         }
         *word = g_strndup(ctx->pos, length);
         ctx->pos += length;
     }
 
-    return TRUE;
+    return true;
 }
 
 /* Reads an integer at the current position. If there's no integer at that
-position the function returns FALSE, otherwise TRUE. The value is stored in the
+position the function returns false, otherwise true. The value is stored in the
 location pointed by the 'value' parameter, unless 'value' is NULL. Eat a space
 after parsing the number. */
-static gboolean
-parse_int_parameter(ParserContext *ctx, gint32 *value)
+static bool
+parse_int_parameter(ParserContext *ctx, int32_t *value)
 {
-    gsize length = 0;
-    gchar *intstr;
+    size_t length = 0;
+    char *intstr;
 
     g_assert(ctx != NULL);
 
@@ -360,7 +361,7 @@ parse_int_parameter(ParserContext *ctx, gint32 *value)
         length++;
 
     if(length == 0)
-    return FALSE;
+    return false;
 
     /* Convert it */
     intstr = g_strndup(ctx->pos, length);
@@ -372,18 +373,18 @@ parse_int_parameter(ParserContext *ctx, gint32 *value)
     if(*(ctx->pos) == ' ')
         ctx->pos++;
 
-    return TRUE;
+    return true;
 }
 
 /* Skip one character or control word according to the RTF spec's convoluted
 skipping rules */
-gboolean
+bool
 skip_character_or_control_word(ParserContext *ctx, GError **error)
 {
     do
     {
         if(*ctx->pos == '{' || *ctx->pos == '}')
-            return TRUE; /* Skippable data ends before scope delimiter */
+            return true; /* Skippable data ends before scope delimiter */
 
         else if(*ctx->pos == '\\')
         {
@@ -393,15 +394,15 @@ skip_character_or_control_word(ParserContext *ctx, GError **error)
                 if(!(isxdigit(ctx->pos[2]) && isxdigit(ctx->pos[3])))
                 {
                     g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_HEX_CODE, _("Expected a two-character hexadecimal code after \\'"));
-                    return FALSE;
+                    return false;
                 }
                 ctx->pos += 4;
-                return TRUE;
+                return true;
             }
             else
             {
-                gchar *word = NULL;
-                gboolean success = parse_control_word(ctx, &word, error);
+                char *word = NULL;
+                bool success = parse_control_word(ctx, &word, error);
                 if(!parse_int_parameter(ctx, NULL) && *(ctx->pos) == ' ')
                     ctx->pos++;
                 g_free(word);
@@ -415,15 +416,15 @@ skip_character_or_control_word(ParserContext *ctx, GError **error)
         else
         {
             ctx->pos++;
-            return TRUE;
+            return true;
         }
-    } while(TRUE);
+    } while(true);
 }
 
 /* Carry out the action associated with the control word 'text', as specified
 in the current destination's control word table */
-static gboolean
-do_word_action(ParserContext *ctx, const gchar *text, GError **error)
+static bool
+do_word_action(ParserContext *ctx, const char *text, GError **error)
 {
     Destination *dest;
     const ControlWord *word;
@@ -436,7 +437,7 @@ do_word_action(ParserContext *ctx, const gchar *text, GError **error)
 
     if(word->word != NULL)
     {
-        gint32 param;
+        int32_t param;
         switch(word->type)
         {
             case NO_PARAMETER:
@@ -470,7 +471,7 @@ do_word_action(ParserContext *ctx, const gchar *text, GError **error)
                 if(!parse_int_parameter(ctx, &param))
                 {
                     g_set_error(error, RTF_ERROR, RTF_ERROR_MISSING_PARAMETER, _("Expected a number after control word '\\%s'"), text);
-                    return FALSE;
+                    return false;
                 }
                 if(word->flush_buffer)
                     dest->info->flush(ctx);
@@ -483,15 +484,15 @@ do_word_action(ParserContext *ctx, const gchar *text, GError **error)
                     ctx->pos++;
                 g_assert(word->replacetext);
                 g_string_append(ctx->text, word->replacetext);
-                return TRUE;
+                return true;
 
             case DESTINATION:
                 if(*ctx->pos == ' ') /* Eat a space */
                     ctx->pos++;
                 if(word->action && !word->action(ctx, get_state(ctx), error))
-                    return FALSE;
+                    return false;
                 push_new_destination(ctx, word->destinfo, NULL);
-                return TRUE;
+                return true;
 
             default:
                 g_assert_not_reached();
@@ -506,7 +507,7 @@ do_word_action(ParserContext *ctx, const gchar *text, GError **error)
     if(text[0] == '*')
         push_new_destination(ctx, &ignore_destination, NULL);
 
-    return TRUE;
+    return true;
 }
 
 /* When exiting a group in the RTF code ('}'), this function is called to pop
@@ -558,7 +559,7 @@ push_state(ParserContext *ctx)
 }
 
 /* The main parser loop */
-static gboolean
+static bool
 parse_rtf(ParserContext *ctx, GError **error)
 {
     do
@@ -566,7 +567,7 @@ parse_rtf(ParserContext *ctx, GError **error)
         if(*ctx->pos == '\0')
         {
             g_set_error(error, RTF_ERROR, RTF_ERROR_MISSING_BRACE, _("File ended unexpectedly"));
-            return FALSE;
+            return false;
         }
         if(*ctx->pos == '{')
         {
@@ -583,12 +584,12 @@ parse_rtf(ParserContext *ctx, GError **error)
             /* Special case: \' doesn't follow the regular syntax */
             if(ctx->pos[1] == '\'')
             {
-                gchar *hexcode, ch;
+                char *hexcode, ch;
 
                 if(!(isxdigit(ctx->pos[2]) && isxdigit(ctx->pos[3])))
                 {
                     g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_HEX_CODE, _("Expected a two-character hexadecimal code after \\'"));
-                    return FALSE;
+                    return false;
                 }
                 hexcode = g_strndup(ctx->pos + 2, 2);
                 ch = strtol(hexcode, NULL, 16);
@@ -596,15 +597,15 @@ parse_rtf(ParserContext *ctx, GError **error)
                 ctx->pos += 4;
 
                 if(!convert_hex_to_utf8(ctx, ch, error))
-                    return FALSE;
+                    return false;
             }
             else
             {
-                gchar *word = NULL;
-                gboolean success = parse_control_word(ctx, &word, error) && do_word_action(ctx, word, error);
+                char *word = NULL;
+                bool success = parse_control_word(ctx, &word, error) && do_word_action(ctx, word, error);
                 g_free(word);
                 if(!success)
-                    return FALSE;
+                    return false;
             }
         }
         /* Ignore newlines */
@@ -620,7 +621,7 @@ parse_rtf(ParserContext *ctx, GError **error)
             if(ctx->convertbuffer->len)
             {
                 if(!convert_hex_to_utf8(ctx, *ctx->pos, error))
-                    return FALSE;
+                    return false;
             }
             else
                 /* Add character to current string */
@@ -637,23 +638,23 @@ parse_rtf(ParserContext *ctx, GError **error)
     if(*ctx->pos != '\0')
     {
         g_set_error(error, RTF_ERROR, RTF_ERROR_EXTRA_CHARACTERS, _("Characters found after final closing brace"));
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 /* This function is called by gtk_text_buffer_deserialize() */
-gboolean
-rtf_deserialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, GtkTextIter *iter, const gchar *data, gsize length, gboolean create_tags, gpointer user_data, GError **error)
+bool
+rtf_deserialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, GtkTextIter *iter, const char *data, size_t length, bool create_tags, void *user_data, GError **error)
 {
     ParserContext *ctx;
-    gboolean success;
+    bool success;
 
     if(!g_str_has_prefix(data, "{\\rtf"))
     {
         g_set_error(error, RTF_ERROR, RTF_ERROR_INVALID_RTF, _("RTF format must begin with '{\\rtf'"));
-        return FALSE;
+        return false;
     }
 
     ctx = parser_context_new(data, content_buffer, iter);

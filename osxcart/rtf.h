@@ -73,11 +73,11 @@ GQuark rtf_error_quark(void);
 GdkAtom rtf_register_serialize_format(GtkTextBuffer *buffer);
 GdkAtom rtf_register_deserialize_format(GtkTextBuffer *buffer);
 gboolean rtf_text_buffer_import_file(GtkTextBuffer *buffer, GFile *file, GCancellable *cancellable, GError **error);
-gboolean rtf_text_buffer_import(GtkTextBuffer *buffer, const gchar *filename, GError **error);
-gboolean rtf_text_buffer_import_from_string(GtkTextBuffer *buffer, const gchar *string, GError **error);
+gboolean rtf_text_buffer_import(GtkTextBuffer *buffer, const char *filename, GError **error);
+gboolean rtf_text_buffer_import_from_string(GtkTextBuffer *buffer, const char *string, GError **error);
 gboolean rtf_text_buffer_export_file(GtkTextBuffer *buffer, GFile *file, GCancellable *cancellable, GError **error);
-gboolean rtf_text_buffer_export(GtkTextBuffer *buffer, const gchar *filename, GError **error);
-gchar *rtf_text_buffer_export_to_string(GtkTextBuffer *buffer);
+gboolean rtf_text_buffer_export(GtkTextBuffer *buffer, const char *filename, GError **error);
+char *rtf_text_buffer_export_to_string(GtkTextBuffer *buffer);
 
 G_END_DECLS
 

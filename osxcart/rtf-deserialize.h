@@ -15,6 +15,8 @@ PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along
 with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
+#include <stdbool.h>
+
 #include <glib.h>
 #include <gtk/gtk.h>
 
@@ -25,19 +27,19 @@ typedef struct _ControlWord ControlWord;
 typedef struct _Destination Destination;
 typedef struct _DestinationInfo DestinationInfo;
 
-#define POINTS_TO_PANGO(pts) ((gint)(pts * PANGO_SCALE))
+#define POINTS_TO_PANGO(pts) ((int)(pts * PANGO_SCALE))
 #define HALF_POINTS_TO_PANGO(halfpts) (halfpts * PANGO_SCALE / 2)
 #define TWIPS_TO_PANGO(twips) (twips * PANGO_SCALE / 20)
 
 struct _ParserContext {
     /* Header information */
-    gint codepage;
-    gint default_codepage;
-    gint default_font;
-    gint default_language;
+    int codepage;
+    int default_codepage;
+    int default_font;
+    int default_language;
 
     /* Destination stack management */
-    gint group_nesting_level;
+    int group_nesting_level;
     GQueue *destination_stack;
 
     /* Tables */
@@ -45,11 +47,11 @@ struct _ParserContext {
     GSList *font_table;
 
     /* Other document attributes */
-    gint footnote_number;
+    int footnote_number;
 
     /* Text information */
-    const gchar *rtftext;
-    const gchar *pos;
+    const char *rtftext;
+    const char *pos;
     GString *convertbuffer;
     /* Text waiting for insertion */
     GString *text;
@@ -68,7 +70,7 @@ struct _DestinationInfo {
     StateCopyFunc *state_copy;
     StateFreeFunc *state_free;
     void (*cleanup)(ParserContext *);
-    gint (*get_codepage)(ParserContext *);
+    int (*get_codepage)(ParserContext *);
 };
 
 typedef enum {
@@ -80,30 +82,30 @@ typedef enum {
 } ControlWordType;
 
 struct _ControlWord {
-    const gchar *word;
+    const char *word;
     ControlWordType type;
-    gboolean flush_buffer;
-    gboolean (*action)();
-    gint32 defaultparam;
-    const gchar *replacetext;
+    bool flush_buffer;
+    bool (*action)();
+    int32_t defaultparam;
+    const char *replacetext;
     const DestinationInfo *destinfo;
 };
 
 struct _Destination {
-    gint nesting_level;
+    int nesting_level;
     GQueue *state_stack;
     const DestinationInfo *info;
 };
 
 typedef struct {
-    gint index;
-    gint codepage;
-    gchar *font_name;
+    int index;
+    int codepage;
+    char *font_name;
 } FontProperties;
 
-G_GNUC_INTERNAL void push_new_destination(ParserContext *ctx, const DestinationInfo *destinfo, gpointer state_to_copy);
-G_GNUC_INTERNAL gpointer get_state(ParserContext *ctx);
+G_GNUC_INTERNAL void push_new_destination(ParserContext *ctx, const DestinationInfo *destinfo, void *state_to_copy);
+G_GNUC_INTERNAL void *get_state(ParserContext *ctx);
 G_GNUC_INTERNAL FontProperties *get_font_properties(ParserContext *ctx, int index);
 G_GNUC_INTERNAL void flush_text(ParserContext *ctx);
-G_GNUC_INTERNAL gboolean skip_character_or_control_word(ParserContext *ctx, GError **error);
-G_GNUC_INTERNAL gboolean rtf_deserialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, GtkTextIter *iter, const gchar *data, gsize length, gboolean create_tags, gpointer user_data, GError **error);
+G_GNUC_INTERNAL bool skip_character_or_control_word(ParserContext *ctx, GError **error);
+G_GNUC_INTERNAL bool rtf_deserialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, GtkTextIter *iter, const char *data, size_t length, bool create_tags, void *user_data, GError **error);

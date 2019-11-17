@@ -20,8 +20,8 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 #include "rtf-deserialize.h"
 
 G_GNUC_INTERNAL void ignore_pending_text(ParserContext *ctx);
-G_GNUC_INTERNAL gpointer ignore_state_new(void);
-G_GNUC_INTERNAL gpointer ignore_state_copy(gconstpointer state);
-G_GNUC_INTERNAL void ignore_state_free(gpointer state);
+G_GNUC_INTERNAL void *ignore_state_new(void);
+G_GNUC_INTERNAL void *ignore_state_copy(const void *state);
+G_GNUC_INTERNAL void ignore_state_free(void *state);
 
 extern const DestinationInfo ignore_destination;

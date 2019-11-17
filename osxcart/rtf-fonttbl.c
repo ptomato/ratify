@@ -15,6 +15,7 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "config.h"
 
+#include <stdbool.h>
 #include <string.h>
 
 #include <glib.h>
@@ -38,18 +39,18 @@ typedef enum {
 } FontFamily;
 
 typedef struct {
-    gint index;
-    gint codepage;
+    int index;
+    int codepage;
     FontFamily family;
-    gchar *name;
+    char *name;
 } FontTableState;
 
 /* Forward declarations */
 static void font_table_text(ParserContext *ctx);
-static gint font_table_get_codepage(ParserContext *ctx);
+static int font_table_get_codepage(ParserContext *ctx);
 
-typedef gboolean FontFunc(ParserContext *, FontTableState *, GError **);
-typedef gboolean FontParamFunc(ParserContext *, FontTableState *, gint32, GError **);
+typedef bool FontFunc(ParserContext *, FontTableState *, GError **);
+typedef bool FontParamFunc(ParserContext *, FontTableState *, int32_t, GError **);
 
 /* Font table destination functions */
 static FontFunc ft_fbidi, ft_fdecor, ft_fmodern, ft_fnil, ft_froman, ft_fscript,
@@ -58,16 +59,16 @@ static FontParamFunc ft_f, ft_fcharset;
 
 const ControlWord fonttbl_word_table[] = {
     SPECIAL_CHARACTER_CONTROL_WORDS,
-    { "f", REQUIRED_PARAMETER, TRUE, ft_f },
-    { "fbidi", NO_PARAMETER, TRUE, ft_fbidi },
-    { "fcharset", REQUIRED_PARAMETER, TRUE, ft_fcharset },
-    { "fdecor", NO_PARAMETER, TRUE, ft_fdecor },
-    { "fmodern", NO_PARAMETER, TRUE, ft_fmodern },
-    { "fnil", NO_PARAMETER, TRUE, ft_fnil },
-    { "froman", NO_PARAMETER, TRUE, ft_froman },
-    { "fscript", NO_PARAMETER, TRUE, ft_fscript },
-    { "fswiss", NO_PARAMETER, TRUE, ft_fswiss },
-    { "ftech", NO_PARAMETER, TRUE, ft_ftech },
+    { "f", REQUIRED_PARAMETER, true, ft_f },
+    { "fbidi", NO_PARAMETER, true, ft_fbidi },
+    { "fcharset", REQUIRED_PARAMETER, true, ft_fcharset },
+    { "fdecor", NO_PARAMETER, true, ft_fdecor },
+    { "fmodern", NO_PARAMETER, true, ft_fmodern },
+    { "fnil", NO_PARAMETER, true, ft_fnil },
+    { "froman", NO_PARAMETER, true, ft_froman },
+    { "fscript", NO_PARAMETER, true, ft_fscript },
+    { "fswiss", NO_PARAMETER, true, ft_fswiss },
+    { "ftech", NO_PARAMETER, true, ft_ftech },
     { NULL }
 };
 
@@ -92,11 +93,11 @@ const DestinationInfo fonttbl_destination = {
 static void
 font_table_text(ParserContext *ctx)
 {
-    gchar *name, *semicolon, *tagname, *fontstring = NULL;
+    char *name, *semicolon, *tagname, *fontstring = NULL;
     FontProperties *fontprop;
     FontTableState *state = (FontTableState *)get_state(ctx);
     GtkTextTag *tag;
-    static gchar *font_suggestions[] = {
+    static char *font_suggestions[] = {
         "Sans", /* Default font for \fnil */
         "Serif", /* \froman */
         "Sans", /* \fswiss */
@@ -111,7 +112,7 @@ font_table_text(ParserContext *ctx)
     semicolon = strchr(name, ';');
     if(!semicolon)
     {
-        gchar *newname = g_strconcat(state->name, name, NULL);
+        char *newname = g_strconcat(state->name, name, NULL);
         g_free(state->name);
         state->name = newname;
         g_string_truncate(ctx->text, 0);
@@ -148,7 +149,7 @@ font_table_text(ParserContext *ctx)
     {
         g_object_set(tag,
                      "family", fontstring,
-                     "family-set", TRUE,
+                     "family-set", true,
                      NULL);
         g_free(fontstring);
     }
@@ -163,8 +164,8 @@ font_table_text(ParserContext *ctx)
 }
 
 /* Convert "font charset" character encoding to "codepage" character encoding */
-static gint
-fcharset_to_codepage(gint charset)
+static int
+fcharset_to_codepage(int charset)
 {
     switch(charset)
     {
@@ -214,33 +215,33 @@ fcharset_to_codepage(gint charset)
 
 /* Assume that text in the \fonttbl destination is in the encoding specified by
 that entry's \fcharset */
-static gint
+static int
 font_table_get_codepage(ParserContext *ctx)
 {
     FontTableState *state = get_state(ctx);
     return state->codepage;
 }
 
-static gboolean
-ft_f(ParserContext *ctx, FontTableState *state, gint32 index, GError **error)
+static bool
+ft_f(ParserContext *ctx, FontTableState *state, int32_t index, GError **error)
 {
     state->index = index;
-    return TRUE;
+    return true;
 }
 
-static gboolean
-ft_fcharset(ParserContext *ctx, FontTableState *state, gint32 charset, GError **error)
+static bool
+ft_fcharset(ParserContext *ctx, FontTableState *state, int32_t charset, GError **error)
 {
     state->codepage = fcharset_to_codepage(charset);
-    return TRUE;
+    return true;
 }
 
 #define DEFINE_FONT_FAMILY_FUNCTION(name, type) \
-    static gboolean \
+    static bool \
     name(ParserContext *ctx, FontTableState *state, GError **error) \
     { \
         state->family = type; \
-        return TRUE; \
+        return true; \
     }
 DEFINE_FONT_FAMILY_FUNCTION(ft_fbidi,   FONT_FAMILY_BIDI)
 DEFINE_FONT_FAMILY_FUNCTION(ft_fdecor,  FONT_FAMILY_DECORATIVE)

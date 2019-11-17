@@ -15,10 +15,12 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "config.h"
 
+#include <stdbool.h>
+
 #include <glib.h>
 #include <glib/gi18n-lib.h>
 
-static gboolean osxcart_initialized = FALSE;
+static bool osxcart_initialized = false;
 
 /* This function is called at every entry point of the library, as suggested in
 chapter 4.10 of the gettext manual. It sets up gettext for the library. */

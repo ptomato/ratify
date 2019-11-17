@@ -16,8 +16,10 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 #include "config.h"
 
 #include <errno.h>
-#include <string.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <glib.h>
@@ -44,21 +46,21 @@ typedef enum {
 
 typedef struct {
     PictType type;
-    gint type_param;
+    int type_param;
     GdkPixbufLoader *loader;
-    gboolean error;
+    bool error;
 
-    glong width;
-    glong height;
-    glong width_goal;
-    glong height_goal;
-    gint xscale;
-    gint yscale;
+    long width;
+    long height;
+    long width_goal;
+    long height_goal;
+    int xscale;
+    int yscale;
 } PictState;
 
 typedef struct {
-    glong width;
-    glong height;
+    long width;
+    long height;
 } NeXTGraphicState;
 
 #define PICT_STATE_INIT \
@@ -75,35 +77,35 @@ static void pict_text(ParserContext *ctx);
 static void pict_end(ParserContext *ctx);
 static void nextgraphic_text(ParserContext *ctx);
 static void nextgraphic_end(ParserContext *ctx);
-static gint nextgraphic_get_codepage(ParserContext *ctx);
+static int nextgraphic_get_codepage(ParserContext *ctx);
 
-typedef gboolean PictFunc(ParserContext *, PictState *, GError **);
-typedef gboolean PictParamFunc(ParserContext *, PictState *, gint32, GError **);
+typedef bool PictFunc(ParserContext *, PictState *, GError **);
+typedef bool PictParamFunc(ParserContext *, PictState *, int32_t, GError **);
 
 static PictFunc pic_emfblip, pic_jpegblip, pic_macpict, pic_pngblip;
 static PictParamFunc pic_dibitmap, pic_pich, pic_pichgoal, pic_picscalex,
                      pic_picscaley, pic_picw, pic_picwgoal, pic_pmmetafile,
                      pic_wbitmap, pic_wmetafile;
 
-typedef gboolean NeXTGraphicParamFunc(ParserContext *, NeXTGraphicState *, gint32, GError **);
+typedef bool NeXTGraphicParamFunc(ParserContext *, NeXTGraphicState *, int32_t, GError **);
 
 static NeXTGraphicParamFunc ng_height, ng_width;
 
 const ControlWord pict_word_table[] = {
-    { "dibitmap", REQUIRED_PARAMETER, FALSE, pic_dibitmap },
-    { "emfblip", NO_PARAMETER, FALSE, pic_emfblip },
-    { "jpegblip", NO_PARAMETER, FALSE, pic_jpegblip },
-    { "macpict", NO_PARAMETER, FALSE, pic_macpict },
-    { "pich", REQUIRED_PARAMETER, FALSE, pic_pich },
-    { "pichgoal", REQUIRED_PARAMETER, FALSE, pic_pichgoal },
-    { "picscalex", OPTIONAL_PARAMETER, FALSE, pic_picscalex, 100 },
-    { "picscaley", OPTIONAL_PARAMETER, FALSE, pic_picscaley, 100 },
-    { "picw", REQUIRED_PARAMETER, FALSE, pic_picw },
-    { "picwgoal", REQUIRED_PARAMETER, FALSE, pic_picwgoal },
-    { "pmmetafile", REQUIRED_PARAMETER, FALSE, pic_pmmetafile },
-    { "pngblip", NO_PARAMETER, FALSE, pic_pngblip },
-    { "wbitmap", REQUIRED_PARAMETER, FALSE, pic_wbitmap },
-    { "wmetafile", OPTIONAL_PARAMETER, FALSE, pic_wmetafile, 1 },
+    { "dibitmap", REQUIRED_PARAMETER, false, pic_dibitmap },
+    { "emfblip", NO_PARAMETER, false, pic_emfblip },
+    { "jpegblip", NO_PARAMETER, false, pic_jpegblip },
+    { "macpict", NO_PARAMETER, false, pic_macpict },
+    { "pich", REQUIRED_PARAMETER, false, pic_pich },
+    { "pichgoal", REQUIRED_PARAMETER, false, pic_pichgoal },
+    { "picscalex", OPTIONAL_PARAMETER, false, pic_picscalex, 100 },
+    { "picscaley", OPTIONAL_PARAMETER, false, pic_picscaley, 100 },
+    { "picw", REQUIRED_PARAMETER, false, pic_picw },
+    { "picwgoal", REQUIRED_PARAMETER, false, pic_picwgoal },
+    { "pmmetafile", REQUIRED_PARAMETER, false, pic_pmmetafile },
+    { "pngblip", NO_PARAMETER, false, pic_pngblip },
+    { "wbitmap", REQUIRED_PARAMETER, false, pic_wbitmap },
+    { "wmetafile", OPTIONAL_PARAMETER, false, pic_wmetafile, 1 },
     { NULL }
 };
 
@@ -117,8 +119,8 @@ const DestinationInfo pict_destination = {
 };
 
 const ControlWord nextgraphic_word_table[] = {
-    { "height", REQUIRED_PARAMETER, FALSE, ng_height },
-    { "width", REQUIRED_PARAMETER, FALSE, ng_width },
+    { "height", REQUIRED_PARAMETER, false, ng_height },
+    { "width", REQUIRED_PARAMETER, false, ng_width },
     { NULL }
 };
 
@@ -133,7 +135,7 @@ const DestinationInfo nextgraphic_destination = {
 };
 
 const ControlWord shppict_word_table[] = {
-    { "pict", DESTINATION, FALSE, NULL, 0, NULL, &pict_destination },
+    { "pict", DESTINATION, false, NULL, 0, NULL, &pict_destination },
     { NULL }
 };
 
@@ -172,8 +174,8 @@ pict_text(ParserContext *ctx)
 {
     GError *error = NULL;
     PictState *state = get_state(ctx);
-    guchar *writebuffer;
-    gint count;
+    uint8_t *writebuffer;
+    int count;
     const char *mimetypes[] = {
         "image/x-emf", "image/png", "image/jpeg", "image/x-pict",
         "OS/2 Presentation Manager", "image/x-wmf", "image/x-bmp", "image-x-bmp"
@@ -190,7 +192,7 @@ pict_text(ParserContext *ctx)
     {
         GSList *formats = gdk_pixbuf_get_formats();
         GSList *iter;
-        gchar **mimes;
+        char **mimes;
 
         /* Make sure the MIME type we want to load is present in the list of
         formats compiled into our GdkPixbuf library */
@@ -206,7 +208,7 @@ pict_text(ParserContext *ctx)
                 if(!state->loader)
                 {
                     g_warning(_("Error loading picture of MIME type '%s': %s"), mimetypes[state->type], error->message);
-                    state->error = TRUE;
+                    state->error = true;
                 }
                 break;
             }
@@ -214,7 +216,7 @@ pict_text(ParserContext *ctx)
         if(!state->loader && !state->error)
         {
             g_warning(_("Module for loading MIME type '%s' not found"), mimetypes[state->type]);
-            state->error = TRUE;
+            state->error = true;
         }
 
         g_slist_free(formats);
@@ -226,20 +228,20 @@ pict_text(ParserContext *ctx)
     }
 
     /* Convert the "text" into binary data */
-    writebuffer = g_new0(guchar, strlen(ctx->text->str));
+    writebuffer = g_new0(uint8_t, strlen(ctx->text->str));
     for(count = 0; ctx->text->str[count * 2] && ctx->text->str[count * 2 + 1]; count++)
     {
-        gchar buf[3];
-        guchar byte;
+        char buf[3];
+        uint8_t byte;
 
         memcpy(buf, ctx->text->str + (count * 2), 2);
         buf[2] = '\0';
         errno = 0;
-        byte = (guchar)strtol(buf, NULL, 16);
+        byte = (uint8_t)strtol(buf, NULL, 16);
         if(errno)
         {
             g_warning(_("Error in \\pict data: '%s'"), buf);
-            state->error = TRUE;
+            state->error = true;
             g_free(writebuffer);
             return;
         }
@@ -249,7 +251,7 @@ pict_text(ParserContext *ctx)
     if(!gdk_pixbuf_loader_write(state->loader, writebuffer, count, &error))
     {
         g_warning(_("Error reading \\pict data: %s"), error->message);
-        state->error = TRUE;
+        state->error = true;
     }
 
     g_free(writebuffer);
@@ -287,120 +289,120 @@ pict_end(ParserContext *ctx)
     }
 }
 
-static gboolean
-pic_dibitmap(ParserContext *ctx, PictState *state, gint32 param, GError **error)
+static bool
+pic_dibitmap(ParserContext *ctx, PictState *state, int32_t param, GError **error)
 {
     if(param != 0)
     {
         g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_PICT_TYPE, _("Invalid bitmap type '%i' for \\dibitmap"), param);
-        return FALSE;
+        return false;
     }
     state->type = PICT_TYPE_DIB;
     state->type_param = 0;
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 pic_emfblip(ParserContext *ctx, PictState *state, GError **error)
 {
     state->type = PICT_TYPE_EMF;
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 pic_jpegblip(ParserContext *ctx, PictState *state, GError **error)
 {
     state->type = PICT_TYPE_JPEG;
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 pic_macpict(ParserContext *ctx, PictState *state, GError **error)
 {
     state->type = PICT_TYPE_MAC;
-    return TRUE;
+    return true;
 }
 
-static gboolean
-pic_pich(ParserContext *ctx, PictState *state, gint32 pixels, GError **error)
+static bool
+pic_pich(ParserContext *ctx, PictState *state, int32_t pixels, GError **error)
 {
     state->height = pixels;
     adjust_loader_size(state);
-    return TRUE;
+    return true;
 }
 
-static gboolean
-pic_pichgoal(ParserContext *ctx, PictState *state, gint32 twips, GError **error)
+static bool
+pic_pichgoal(ParserContext *ctx, PictState *state, int32_t twips, GError **error)
 {
     state->height_goal = PANGO_PIXELS(TWIPS_TO_PANGO(twips));
     adjust_loader_size(state);
-    return TRUE;
+    return true;
 }
 
-static gboolean
-pic_picscalex(ParserContext *ctx, PictState *state, gint32 percent, GError **error)
+static bool
+pic_picscalex(ParserContext *ctx, PictState *state, int32_t percent, GError **error)
 {
     state->xscale = percent;
-    return TRUE;
+    return true;
 }
 
-static gboolean
-pic_picscaley(ParserContext *ctx, PictState *state, gint32 percent, GError **error)
+static bool
+pic_picscaley(ParserContext *ctx, PictState *state, int32_t percent, GError **error)
 {
     state->yscale = percent;
-    return TRUE;
+    return true;
 }
 
-static gboolean
-pic_picw(ParserContext *ctx, PictState *state, gint32 pixels, GError **error)
+static bool
+pic_picw(ParserContext *ctx, PictState *state, int32_t pixels, GError **error)
 {
     state->width = pixels;
     adjust_loader_size(state);
-    return TRUE;
+    return true;
 }
 
-static gboolean
-pic_picwgoal(ParserContext *ctx, PictState *state, gint32 twips, GError **error)
+static bool
+pic_picwgoal(ParserContext *ctx, PictState *state, int32_t twips, GError **error)
 {
     state->width_goal = PANGO_PIXELS(TWIPS_TO_PANGO(twips));
     adjust_loader_size(state);
-    return TRUE;
+    return true;
 }
 
-static gboolean
-pic_pmmetafile(ParserContext *ctx, PictState *state, gint32 param, GError **error)
+static bool
+pic_pmmetafile(ParserContext *ctx, PictState *state, int32_t param, GError **error)
 {
     state->type = PICT_TYPE_OS2;
     state->type_param = param;
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 pic_pngblip(ParserContext *ctx, PictState *state, GError **error)
 {
     state->type = PICT_TYPE_PNG;
-    return TRUE;
+    return true;
 }
 
-static gboolean
-pic_wbitmap(ParserContext *ctx, PictState *state, gint32 param, GError **error)
+static bool
+pic_wbitmap(ParserContext *ctx, PictState *state, int32_t param, GError **error)
 {
     if(param != 0)
     {
         g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_PICT_TYPE, _("Invalid bitmap type '%i' for \\wbitmap"), param);
-        return FALSE;
+        return false;
     }
     state->type = PICT_TYPE_BMP;
     state->type_param = 0;
-    return TRUE;
+    return true;
 }
 
-static gboolean
-pic_wmetafile(ParserContext *ctx, PictState *state, gint32 param, GError **error)
+static bool
+pic_wmetafile(ParserContext *ctx, PictState *state, int32_t param, GError **error)
 {
     state->type = PICT_TYPE_WMF;
     state->type_param = param;
-    return TRUE;
+    return true;
 }
 
 /* Ignore text, but leave it in the pending text buffer, because we use it in
@@ -415,13 +417,13 @@ static void
 nextgraphic_end(ParserContext *ctx)
 {
     GdkPixbuf *pixbuf;
-    gchar *filename;
+    char *filename;
     NeXTGraphicState *state = get_state(ctx);
     GError *error = NULL;
 
     filename = g_strstrip(g_strdup(ctx->text->str));
     g_string_truncate(ctx->text, 0);
-    pixbuf = gdk_pixbuf_new_from_file_at_scale(filename, state->width, state->height, FALSE /* preserve aspect ratio */, &error);
+    pixbuf = gdk_pixbuf_new_from_file_at_scale(filename, state->width, state->height, false /* preserve aspect ratio */, &error);
     if(!pixbuf)
     {
         g_warning(_("Error loading picture from file '%s': %s"), filename, error->message);
@@ -432,22 +434,22 @@ nextgraphic_end(ParserContext *ctx)
     insert_picture_into_textbuffer(ctx, pixbuf);
 }
 
-static gint
+static int
 nextgraphic_get_codepage(ParserContext *ctx)
 {
     return 65001; /* UTF-8 */
 }
 
-static gboolean
-ng_height(ParserContext *ctx, NeXTGraphicState *state, gint32 twips, GError **error)
+static bool
+ng_height(ParserContext *ctx, NeXTGraphicState *state, int32_t twips, GError **error)
 {
     state->height = PANGO_PIXELS(TWIPS_TO_PANGO(twips));
-    return TRUE;
+    return true;
 }
 
-static gboolean
-ng_width(ParserContext *ctx, NeXTGraphicState *state, gint32 twips, GError **error)
+static bool
+ng_width(ParserContext *ctx, NeXTGraphicState *state, int32_t twips, GError **error)
 {
     state->width = PANGO_PIXELS(TWIPS_TO_PANGO(twips));
-    return TRUE;
+    return true;
 }

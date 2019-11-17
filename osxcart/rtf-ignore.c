@@ -38,19 +38,19 @@ ignore_pending_text(ParserContext *ctx)
     g_string_truncate(ctx->text, 0);
 }
 
-gpointer
+void *
 ignore_state_new(void)
 {
     return NULL;
 }
 
-gpointer
-ignore_state_copy(gconstpointer state)
+void *
+ignore_state_copy(const void *state)
 {
     return NULL;
 }
 
 void
-ignore_state_free(gpointer state)
+ignore_state_free(void *state)
 {
 }

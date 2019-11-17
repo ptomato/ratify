@@ -56,7 +56,7 @@ footnote_text(ParserContext *ctx)
     GtkTextMark *placeholder;
     Attributes *attr;
     int length;
-    gchar *text;
+    char *text;
 
     g_assert(ctx != NULL);
 
@@ -71,7 +71,7 @@ footnote_text(ParserContext *ctx)
         text[length] = '\0';
 
     gtk_text_buffer_get_end_iter(ctx->textbuffer, &end);
-    placeholder = gtk_text_buffer_create_mark(ctx->textbuffer, NULL, &end, TRUE);
+    placeholder = gtk_text_buffer_create_mark(ctx->textbuffer, NULL, &end, true);
     gtk_text_buffer_insert(ctx->textbuffer, &end, text, -1);
     gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &start, placeholder);
     gtk_text_buffer_get_end_iter(ctx->textbuffer, &end);

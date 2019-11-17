@@ -23,8 +23,8 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 functions to convert between the two */
 
 typedef struct {
-    gint wincode;
-    const gchar *isocode;
+    int wincode;
+    const char *isocode;
 } IsoLangCode;
 
 /* These are from the RTF spec. The ISO codes are the best I could figure out
@@ -290,8 +290,8 @@ IsoLangCode isolangcodes[] = {
 };
 
 /* Do not free return value */
-const gchar *
-language_to_iso(gint wincode)
+const char *
+language_to_iso(int wincode)
 {
     IsoLangCode *lang;
     for(lang = isolangcodes; lang->isocode != NULL; lang++)
@@ -300,8 +300,8 @@ language_to_iso(gint wincode)
     return "zxx"; /* No language */
 }
 
-gint
-language_to_wincode(const gchar *isocode)
+int
+language_to_wincode(const char *isocode)
 {
     IsoLangCode *lang;
     for(lang = isolangcodes; lang->isocode != NULL; lang++)

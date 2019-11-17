@@ -15,55 +15,57 @@ PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along
 with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
+#include <stdbool.h>
+
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <pango/pango.h>
 
-typedef gpointer StateNewFunc(void);
-typedef gpointer StateCopyFunc(gconstpointer);
-typedef void StateFreeFunc(gpointer);
+typedef void *StateNewFunc(void);
+typedef void *StateCopyFunc(const void *);
+typedef void StateFreeFunc(void *);
 
 typedef struct {
-    gint style; /* Index into style sheet */
+    int style; /* Index into style sheet */
 
     /* Paragraph formatting */
 
     int justification;  /* GtkJustification value or -1 if unset */
     int pardirection;  /* GtkTextDirection value or -1 if unset */
-    gint space_before;
-    gint space_after;
-    gboolean ignore_space_before;
-    gboolean ignore_space_after;
+    int space_before;
+    int space_after;
+    bool ignore_space_before;
+    bool ignore_space_after;
     PangoTabArray *tabs;
-    gint left_margin;
-    gint right_margin;
-    gint indent;
-    gint leading;
+    int left_margin;
+    int right_margin;
+    int indent;
+    int leading;
 
     /* Character formatting */
 
-    gint foreground; /* Index into the color table */
-    gint background;
-    gint highlight;
-    gint font; /* Index into the font table */
-    gdouble size;
-    gboolean italic;
-    gboolean bold;
-    gboolean smallcaps;
-    gboolean strikethrough;
-    gboolean subscript;
-    gboolean superscript;
-    gboolean invisible;
+    int foreground; /* Index into the color table */
+    int background;
+    int highlight;
+    int font; /* Index into the font table */
+    double size;
+    bool italic;
+    bool bold;
+    bool smallcaps;
+    bool strikethrough;
+    bool subscript;
+    bool superscript;
+    bool invisible;
     int underline;  /* PangoUnderline value or -1 if unset */
     int chardirection;  /* GtkTextDirection value or -1 if unset */
-    gint language;
-    gint rise;
+    int language;
+    int rise;
     int scale;
 
     /* Number of characters to skip after \u */
-    gint unicode_skip;
+    int unicode_skip;
     /* Skip characters within \upr but not \*ud */
-    gboolean unicode_ignore;
+    bool unicode_ignore;
 } Attributes;
 
 G_GNUC_INTERNAL void set_default_character_attributes(Attributes *attr);
@@ -77,7 +79,7 @@ G_GNUC_INTERNAL void set_default_paragraph_attributes(Attributes *attr);
     set_default_paragraph_attributes((Attributes *)state); \
     set_default_character_attributes((Attributes *)state); \
     ((Attributes *)state)->unicode_skip = 1; \
-    ((Attributes *)state)->unicode_ignore = FALSE;
+    ((Attributes *)state)->unicode_ignore = false;
 #define ATTR_COPY \
     if(((Attributes *)state)->tabs) \
         ((Attributes *)copy)->tabs = pango_tab_array_copy(((Attributes *)state)->tabs);
@@ -86,15 +88,15 @@ G_GNUC_INTERNAL void set_default_paragraph_attributes(Attributes *attr);
         pango_tab_array_free(((Attributes *)state)->tabs);
 
 #define DEFINE_STATE_FUNCTIONS_FULL(tn, fn, init_code, copy_code, free_code) \
-    static gpointer \
+    static void * \
     G_PASTE_ARGS(fn, _state_new)(void) \
     { \
         tn *state = g_slice_new0(tn); \
         init_code \
         return state; \
     } \
-    static gpointer \
-    G_PASTE_ARGS(fn, _state_copy)(gconstpointer st) \
+    static void * \
+    G_PASTE_ARGS(fn, _state_copy)(const void *st) \
     { \
         const tn *state = (const tn *)st; \
         tn *copy = g_slice_dup(tn, state); \
@@ -102,7 +104,7 @@ G_GNUC_INTERNAL void set_default_paragraph_attributes(Attributes *attr);
         return copy; \
     } \
     static void \
-    G_PASTE_ARGS(fn, _state_free)(gpointer st) \
+    G_PASTE_ARGS(fn, _state_free)(void *st) \
     { \
         tn *state = (tn *)st; \
         free_code \

@@ -17,5 +17,5 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <glib.h>
 
-G_GNUC_INTERNAL const gchar *language_to_iso(gint wincode);
-G_GNUC_INTERNAL gint language_to_wincode(const gchar *isocode);
+G_GNUC_INTERNAL const char *language_to_iso(int wincode);
+G_GNUC_INTERNAL int language_to_wincode(const char *isocode);

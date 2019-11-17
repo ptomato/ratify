@@ -16,6 +16,7 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 #include "config.h"
 
 #include <errno.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include <gdk/gdk.h>
@@ -106,7 +107,7 @@ rtf_register_deserialize_format(GtkTextBuffer *buffer)
     g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), GDK_NONE);
 
     format = gtk_text_buffer_register_deserialize_format(buffer, "text/rtf", (GtkTextBufferDeserializeFunc)rtf_deserialize, NULL, NULL);
-    gtk_text_buffer_deserialize_set_can_create_tags(buffer, format, TRUE);
+    gtk_text_buffer_deserialize_set_can_create_tags(buffer, format, true);
     return format;
 }
 
@@ -145,16 +146,16 @@ rtf_text_buffer_import_file(GtkTextBuffer *buffer, GFile *file, GCancellable *ca
 {
     char *cwd, *contents, *tmpstr, *basename, *newdir;
     GFile *check_file, *real_file, *parent;
-    gboolean retval;
+    bool retval;
 
     osxcart_init();
 
-    g_return_val_if_fail(buffer != NULL, FALSE);
-    g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), FALSE);
-    g_return_val_if_fail(file != NULL, FALSE);
-    g_return_val_if_fail(G_IS_FILE(file), FALSE);
-    g_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), FALSE);
-    g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    g_return_val_if_fail(buffer != NULL, false);
+    g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), false);
+    g_return_val_if_fail(file != NULL, false);
+    g_return_val_if_fail(G_IS_FILE(file), false);
+    g_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), false);
+    g_return_val_if_fail(error == NULL || *error == NULL, false);
 
     /* Save the current directory for later, because the RTF file may refer to
     other files relative to its own path */
@@ -189,7 +190,7 @@ rtf_text_buffer_import_file(GtkTextBuffer *buffer, GFile *file, GCancellable *ca
         g_object_unref(real_file);
         g_free(cwd);
         g_set_error(error, G_FILE_ERROR, g_file_error_from_errno(errno), _("Could not change directory to '%s': %s"), newdir, g_strerror(errno));
-        return FALSE;
+        return false;
     }
     g_free(newdir);
 
@@ -199,7 +200,7 @@ rtf_text_buffer_import_file(GtkTextBuffer *buffer, GFile *file, GCancellable *ca
         if(g_chdir(cwd) == -1)
             g_warning(_("Could not restore current directory: %s"), g_strerror(errno));
         g_free(cwd);
-        return FALSE;
+        return false;
     }
     g_object_unref(real_file);
     retval = rtf_text_buffer_import_from_string(buffer, contents, error);
@@ -229,13 +230,13 @@ gboolean
 rtf_text_buffer_import(GtkTextBuffer *buffer, const char *filename, GError **error)
 {
     GFile *file;
-    gboolean retval;
+    bool retval;
 
     osxcart_init();
-    g_return_val_if_fail(buffer != NULL, FALSE);
-    g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), FALSE);
-    g_return_val_if_fail(filename != NULL, FALSE);
-    g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    g_return_val_if_fail(buffer != NULL, false);
+    g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), false);
+    g_return_val_if_fail(filename != NULL, false);
+    g_return_val_if_fail(error == NULL || *error == NULL, false);
 
     file = g_file_new_for_path(filename);
     retval = rtf_text_buffer_import_file(buffer, file, NULL, error);
@@ -267,24 +268,24 @@ rtf_text_buffer_import(GtkTextBuffer *buffer, const char *filename, GError **err
  * @error is set.
  */
 gboolean
-rtf_text_buffer_import_from_string(GtkTextBuffer *buffer, const gchar *string, GError **error)
+rtf_text_buffer_import_from_string(GtkTextBuffer *buffer, const char *string, GError **error)
 {
     GdkAtom format;
     GtkTextIter start;
-    gboolean retval;
+    bool retval;
 
     osxcart_init();
 
-    g_return_val_if_fail(buffer != NULL, FALSE);
-    g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), FALSE);
-    g_return_val_if_fail(string != NULL, FALSE);
-    g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    g_return_val_if_fail(buffer != NULL, false);
+    g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), false);
+    g_return_val_if_fail(string != NULL, false);
+    g_return_val_if_fail(error == NULL || *error == NULL, false);
 
     gtk_text_buffer_set_text(buffer, "", -1);
     gtk_text_buffer_get_start_iter(buffer, &start);
 
     format = rtf_register_deserialize_format(buffer);
-    retval = gtk_text_buffer_deserialize(buffer, buffer, format, &start, (guint8 *)string, strlen(string), error);
+    retval = gtk_text_buffer_deserialize(buffer, buffer, format, &start, (uint8_t *)string, strlen(string), error);
     gtk_text_buffer_unregister_deserialize_format(buffer, format);
 
     return retval;
@@ -320,19 +321,19 @@ gboolean
 rtf_text_buffer_export_file(GtkTextBuffer *buffer, GFile *file, GCancellable *cancellable, GError **error)
 {
     char *string;
-    gboolean retval;
+    bool retval;
 
     osxcart_init();
 
-    g_return_val_if_fail(buffer != NULL, FALSE);
-    g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), FALSE);
-    g_return_val_if_fail(file != NULL, FALSE);
-    g_return_val_if_fail(G_IS_FILE(file), FALSE);
-    g_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), FALSE);
-    g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    g_return_val_if_fail(buffer != NULL, false);
+    g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), false);
+    g_return_val_if_fail(file != NULL, false);
+    g_return_val_if_fail(G_IS_FILE(file), false);
+    g_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), false);
+    g_return_val_if_fail(error == NULL || *error == NULL, false);
 
     string = rtf_text_buffer_export_to_string(buffer);
-    retval = g_file_replace_contents(file, string, strlen(string), NULL, FALSE, G_FILE_CREATE_NONE, NULL, cancellable, error);
+    retval = g_file_replace_contents(file, string, strlen(string), NULL, false, G_FILE_CREATE_NONE, NULL, cancellable, error);
     g_free(string);
     return retval;
 }
@@ -350,17 +351,17 @@ rtf_text_buffer_export_file(GtkTextBuffer *buffer, GFile *file, GCancellable *ca
  * @error is set.
  */
 gboolean
-rtf_text_buffer_export(GtkTextBuffer *buffer, const gchar *filename, GError **error)
+rtf_text_buffer_export(GtkTextBuffer *buffer, const char *filename, GError **error)
 {
-    gchar *string;
-    gboolean retval;
+    char *string;
+    bool retval;
 
     osxcart_init();
 
-    g_return_val_if_fail(buffer != NULL, FALSE);
-    g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), FALSE);
-    g_return_val_if_fail(filename != NULL, FALSE);
-    g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    g_return_val_if_fail(buffer != NULL, false);
+    g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), false);
+    g_return_val_if_fail(filename != NULL, false);
+    g_return_val_if_fail(error == NULL || *error == NULL, false);
 
     string = rtf_text_buffer_export_to_string(buffer);
     retval = g_file_set_contents(filename, string, -1, error);
@@ -378,13 +379,13 @@ rtf_text_buffer_export(GtkTextBuffer *buffer, const gchar *filename, GError **er
  * Returns: a string containing RTF text. The string must be freed with <link
  * linkend="glib-Memory-Allocation">g_free()</link> when you are done with it.
  */
-gchar *
+char *
 rtf_text_buffer_export_to_string(GtkTextBuffer *buffer)
 {
     GdkAtom format;
     GtkTextIter start, end;
-    gchar *string;
-    gsize length;
+    char *string;
+    size_t length;
 
     osxcart_init();
 
@@ -393,7 +394,7 @@ rtf_text_buffer_export_to_string(GtkTextBuffer *buffer)
     gtk_text_buffer_get_bounds(buffer, &start, &end);
 
     format = rtf_register_serialize_format(buffer);
-    string = (gchar *)gtk_text_buffer_serialize(buffer, buffer, format, &start, &end, &length);
+    string = (char *)gtk_text_buffer_serialize(buffer, buffer, format, &start, &end, &length);
     gtk_text_buffer_unregister_serialize_format(buffer, format);
 
     return string;
