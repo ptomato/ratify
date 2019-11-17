@@ -66,8 +66,7 @@ static void
 color_table_text(ParserContext *ctx)
 {
     ColorTableState *state = get_state(ctx);
-    if(strchr(ctx->text->str, ';'))
-    {
+    if (strchr(ctx->text->str, ';')) {
         char *color = g_strdup_printf("#%02x%02x%02x", state->red, state->green, state->blue);
         ctx->color_table = g_slist_append(ctx->color_table, color);
         state->red = state->green = state->blue = 0;

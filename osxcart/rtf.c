@@ -165,15 +165,12 @@ rtf_text_buffer_import_file(GtkTextBuffer *buffer, GFile *file, GCancellable *ca
     basename = g_file_get_basename(file);
     tmpstr = g_ascii_strdown(basename, -1);
     check_file = g_file_get_child(file, "TXT.rtf");
-    if(g_str_has_suffix(tmpstr, ".rtfd")
-        && g_file_query_file_type(file, G_FILE_QUERY_INFO_NONE, NULL) == G_FILE_TYPE_DIRECTORY
-        && g_file_query_exists(check_file, NULL))
-    {
+    if (g_str_has_suffix(tmpstr, ".rtfd") &&
+        g_file_query_file_type(file, G_FILE_QUERY_INFO_NONE, NULL) == G_FILE_TYPE_DIRECTORY &&
+        g_file_query_exists(check_file, NULL)) {
         /* cd to the package directory and open TXT.rtf */
         real_file = g_object_ref(check_file);
-    }
-    else
-    {
+    } else {
         real_file = g_object_ref(file);
     }
     g_free(tmpstr);
@@ -184,8 +181,7 @@ rtf_text_buffer_import_file(GtkTextBuffer *buffer, GFile *file, GCancellable *ca
     parent = g_file_get_parent(real_file);
     newdir = g_file_get_path(parent);
     g_object_unref(parent);
-    if(g_chdir(newdir) == -1)
-    {
+    if (g_chdir(newdir) == -1) {
         g_free(newdir);
         g_object_unref(real_file);
         g_free(cwd);
@@ -194,10 +190,9 @@ rtf_text_buffer_import_file(GtkTextBuffer *buffer, GFile *file, GCancellable *ca
     }
     g_free(newdir);
 
-    if(!g_file_load_contents(real_file, cancellable, &contents, NULL, NULL, error))
-    {
+    if (!g_file_load_contents(real_file, cancellable, &contents, NULL, NULL, error)) {
         g_object_unref(real_file);
-        if(g_chdir(cwd) == -1)
+        if (g_chdir(cwd) == -1)
             g_warning(_("Could not restore current directory: %s"), g_strerror(errno));
         g_free(cwd);
         return false;
@@ -207,7 +202,7 @@ rtf_text_buffer_import_file(GtkTextBuffer *buffer, GFile *file, GCancellable *ca
     g_free(contents);
 
     /* Change the directory back */
-    if(g_chdir(cwd) == -1)
+    if (g_chdir(cwd) == -1)
         g_warning(_("Could not restore current directory: %s"), g_strerror(errno));
     g_free(cwd);
 

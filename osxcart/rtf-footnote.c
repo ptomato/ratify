@@ -63,11 +63,11 @@ footnote_text(ParserContext *ctx)
     attr = get_state(ctx);
     text = ctx->text->str;
 
-    if(text[0] == '\0')
+    if (text[0] == '\0')
         return;
 
     length = strlen(text) - 1;
-    if(!ctx->group_nesting_level && text[length] == '\n')
+    if (!ctx->group_nesting_level && text[length] == '\n')
         text[length] = '\0';
 
     gtk_text_buffer_get_end_iter(ctx->textbuffer, &end);

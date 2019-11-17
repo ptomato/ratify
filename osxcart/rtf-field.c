@@ -200,15 +200,13 @@ get_string_token(GScanner *tokenizer)
 {
     GTokenType token;
 
-    if(g_scanner_eof(tokenizer))
-    {
+    if (g_scanner_eof(tokenizer)) {
         g_warning(_("Unexpected end of field instructions"));
         g_scanner_destroy(tokenizer);
         return NULL;
     }
     token = g_scanner_get_next_token(tokenizer);
-    if(token != G_TOKEN_STRING)
-    {
+    if (token != G_TOKEN_STRING) {
         g_warning(_("Expected a string in field instructions"));
         g_scanner_destroy(tokenizer);
         return NULL;
@@ -239,19 +237,16 @@ get_switches(GScanner *tokenizer, GSList *switcheslist, const char *switches, co
     g_assert(strlen(wideargswitches) % 2 == 0);
 
     /* Parse switches until an argument without '\' or unexpected switch */
-    while(!g_scanner_eof(tokenizer))
-    {
+    while (!g_scanner_eof(tokenizer)) {
         GTokenType token = g_scanner_peek_next_token(tokenizer);
         found = false;
 
-        if(token != G_TOKEN_STRING)
+        if (token != G_TOKEN_STRING)
             break;
-        if(tokenizer->next_value.v_string[0] == '\\')
-        {
+        if (tokenizer->next_value.v_string[0] == '\\') {
             const char *ptr;
-            for(ptr = switches; *ptr && !found; ptr++)
-                if(tokenizer->next_value.v_string[1] == ptr[0] && tokenizer->next_value.v_string[2] == '\0')
-                {
+            for (ptr = switches; *ptr && !found; ptr++) {
+                if (tokenizer->next_value.v_string[1] == ptr[0] && tokenizer->next_value.v_string[2] == '\0') {
                     SwitchInfo *info = g_slice_new0(SwitchInfo);
                     info->switchname = g_strdup(tokenizer->next_value.v_string + 1);
                     info->switcharg = NULL;
@@ -259,9 +254,9 @@ get_switches(GScanner *tokenizer, GSList *switcheslist, const char *switches, co
                     switcheslist = g_slist_prepend(switcheslist, info);
                     found = true;
                 }
-            for(ptr = argswitches; *ptr && !found; ptr++)
-                if(tokenizer->next_value.v_string[1] == ptr[0] && tokenizer->next_value.v_string[2] == '\0')
-                {
+            }
+            for (ptr = argswitches; *ptr && !found; ptr++) {
+                if (tokenizer->next_value.v_string[1] == ptr[0] && tokenizer->next_value.v_string[2] == '\0') {
                     SwitchInfo *info = g_slice_new0(SwitchInfo);
                     info->switchname = g_strdup(tokenizer->next_value.v_string + 1);
                     g_scanner_get_next_token(tokenizer);
@@ -269,9 +264,9 @@ get_switches(GScanner *tokenizer, GSList *switcheslist, const char *switches, co
                     switcheslist = g_slist_prepend(switcheslist, info);
                     found = true;
                 }
-            for(ptr = wideswitches; *ptr && !found; ptr++)
-                if(tokenizer->next_value.v_string[1] == ptr[0] && tokenizer->next_value.v_string[2] == ptr[1] && tokenizer->next_value.v_string[3] == '\0')
-                {
+            }
+            for (ptr = wideswitches; *ptr && !found; ptr++) {
+                if (tokenizer->next_value.v_string[1] == ptr[0] && tokenizer->next_value.v_string[2] == ptr[1] && tokenizer->next_value.v_string[3] == '\0') {
                     SwitchInfo *info = g_slice_new0(SwitchInfo);
                     info->switchname = g_strdup(tokenizer->next_value.v_string + 1);
                     info->switcharg = NULL;
@@ -279,9 +274,9 @@ get_switches(GScanner *tokenizer, GSList *switcheslist, const char *switches, co
                     switcheslist = g_slist_prepend(switcheslist, info);
                     found = true;
                 }
-            for(ptr = wideargswitches; *ptr && !found; ptr += 2)
-                if(tokenizer->next_value.v_string[1] == ptr[0] && tokenizer->next_value.v_string[2] == ptr[1] && tokenizer->next_value.v_string[3] == '\0')
-                {
+            }
+            for (ptr = wideargswitches; *ptr && !found; ptr += 2) {
+                if (tokenizer->next_value.v_string[1] == ptr[0] && tokenizer->next_value.v_string[2] == ptr[1] && tokenizer->next_value.v_string[3] == '\0') {
                     SwitchInfo *info = g_slice_new0(SwitchInfo);
                     info->switchname = g_strdup(tokenizer->next_value.v_string + 1);
                     g_scanner_get_next_token(tokenizer);
@@ -289,11 +284,12 @@ get_switches(GScanner *tokenizer, GSList *switcheslist, const char *switches, co
                     switcheslist = g_slist_prepend(switcheslist, info);
                     found = true;
                 }
-        }
-        else
+            }
+        } else {
             break;
+        }
 
-        if(!found)
+        if (!found)
             break;
         /* Unexpected switch, so it must belong to the next part of the field */
     }
@@ -312,19 +308,16 @@ static void field_instruction_end(ParserContext *ctx)
     g_scanner_input_text(tokenizer, state->scanbuffer->str, strlen(state->scanbuffer->str));
 
     /* Get field type */
-    if(!(field_type = get_string_token(tokenizer)))
+    if (!(field_type = get_string_token(tokenizer)))
         return;
 
     /* Determine if field type is supported and get switches and arguments */
-    while(field_info->name != NULL)
-    {
-        if(g_ascii_strcasecmp(field_type, field_info->name) == 0)
-        {
+    while (field_info->name != NULL) {
+        if (g_ascii_strcasecmp(field_type, field_info->name) == 0) {
             state->type = field_info->type;
             switches = get_switches(tokenizer, switches, field_info->switches, field_info->argswitches, field_info->wideswitches, field_info->wideargswitches);
-            if(field_info->has_argument)
-            {
-                if(!(buffer = get_string_token(tokenizer)))
+            if (field_info->has_argument) {
+                if (!(buffer = get_string_token(tokenizer)))
                     return;
                 state->argument = g_strdup(buffer);
                 switches = get_switches(tokenizer, switches, field_info->switches, field_info->argswitches, field_info->wideswitches, field_info->wideargswitches);
@@ -333,49 +326,47 @@ static void field_instruction_end(ParserContext *ctx)
         }
         field_info++;
     }
-    if(field_info->name == NULL) /* Field name wasn't found in list */
-    {
+    if (field_info->name == NULL) {
+        /* Field name wasn't found in list */
         g_warning(_("'%s' field not supported"), field_type);
         g_scanner_destroy(tokenizer);
         return;
     }
 
     formatswitches = get_switches(tokenizer, formatswitches, "", "@#*", "", "");
-    for(iter = formatswitches; iter; iter = g_slist_next(iter))
-    {
+    for (iter = formatswitches; iter; iter = g_slist_next(iter)) {
         SwitchInfo *info = (SwitchInfo *)iter->data;
-        /* Parse a date format consisting of \@ and a string */
-        if(strcmp(info->switchname, "@") == 0)
+        if (strcmp(info->switchname, "@") == 0) {
+            /* Parse a date format consisting of \@ and a string */
             state->date_format = g_strdup(info->switcharg);
-        /* Parse a numeric format consisting of \# and a string */
-        else if(strcmp(info->switchname, "#") == 0)
+        } else if (strcmp(info->switchname, "#") == 0) {
+            /* Parse a numeric format consisting of \# and a string */
             state->numeric_format = g_strdup(info->switcharg);
-        /* Parse a general format consisting of \* and a keyword */
-        else if(strcmp(info->switchname, "*") == 0)
-        {
-            if(strcmp(info->switcharg, "ALPHABETIC") == 0)
+        } else if (strcmp(info->switchname, "*") == 0) {
+            /* Parse a general format consisting of \* and a keyword */
+            if (strcmp(info->switcharg, "ALPHABETIC") == 0)
                 state->general_number_format = NUMBER_ALPHABETIC;
-            else if(strcmp(info->switcharg, "alphabetic") == 0)
+            else if (strcmp(info->switcharg, "alphabetic") == 0)
                 state->general_number_format = NUMBER_alphabetic;
-            else if(strcmp(info->switcharg, "Arabic") == 0)
+            else if (strcmp(info->switcharg, "Arabic") == 0)
                 state->general_number_format = NUMBER_ARABIC;
-            else if(strcmp(info->switcharg, "ArabicDash") == 0)
+            else if (strcmp(info->switcharg, "ArabicDash") == 0)
                 state->general_number_format = NUMBER_ARABIC_DASH;
-            else if(strcmp(info->switcharg, "CIRCLENUM") == 0)
+            else if (strcmp(info->switcharg, "CIRCLENUM") == 0)
                 state->general_number_format = NUMBER_CIRCLENUM;
-            else if(strcmp(info->switcharg, "GB1") == 0)
+            else if (strcmp(info->switcharg, "GB1") == 0)
                 state->general_number_format = NUMBER_DECIMAL_ENCLOSED_PERIOD;
-            else if(strcmp(info->switcharg, "GB2") == 0)
+            else if (strcmp(info->switcharg, "GB2") == 0)
                 state->general_number_format = NUMBER_DECIMAL_ENCLOSED_PARENTHESES;
-            else if(strcmp(info->switcharg, "Hex") == 0)
+            else if (strcmp(info->switcharg, "Hex") == 0)
                 state->general_number_format = NUMBER_HEX;
-            else if(strcmp(info->switcharg, "MERGEFORMATINET") == 0)
+            else if (strcmp(info->switcharg, "MERGEFORMATINET") == 0)
                 ; /* ignore */
-            else if(strcmp(info->switcharg, "Ordinal") == 0)
+            else if (strcmp(info->switcharg, "Ordinal") == 0)
                 state->general_number_format = NUMBER_ORDINAL;
-            else if(strcmp(info->switcharg, "Roman") == 0)
+            else if (strcmp(info->switcharg, "Roman") == 0)
                 state->general_number_format = NUMBER_ROMAN;
-            else if(strcmp(info->switcharg, "roman") == 0)
+            else if (strcmp(info->switcharg, "roman") == 0)
                 state->general_number_format = NUMBER_roman;
             else
                 g_warning(_("Format '%s' not supported"), info->switcharg);
@@ -386,52 +377,48 @@ static void field_instruction_end(ParserContext *ctx)
     Destination *fielddest = g_queue_peek_nth(ctx->destination_stack, 1);
     FieldState *fieldstate = g_queue_peek_tail(fielddest->state_stack);
 
-    switch(state->type)
-    {
-        case FIELD_TYPE_HYPERLINK:
-            /* Actually inserting hyperlinks into the text buffer is a whole
-            security can of worms I don't want to open! Just use field result */
-            fieldstate->ignore_field_result = false;
-            break;
+    switch (state->type) {
+    case FIELD_TYPE_HYPERLINK:
+        /* Actually inserting hyperlinks into the text buffer is a whole
+        security can of worms I don't want to open! Just use field result */
+        fieldstate->ignore_field_result = false;
+        break;
 
-        case FIELD_TYPE_INCLUDEPICTURE:
-        {
-            GError *error = NULL;
-            char **pathcomponents = g_strsplit(state->argument, "\\", 0);
-            char *realfilename = g_build_filenamev(pathcomponents);
+    case FIELD_TYPE_INCLUDEPICTURE: {
+        GError *error = NULL;
+        char **pathcomponents = g_strsplit(state->argument, "\\", 0);
+        char *realfilename = g_build_filenamev(pathcomponents);
 
-            g_strfreev(pathcomponents);
-            GdkPixbuf *picture = gdk_pixbuf_new_from_file(realfilename, &error);
-            if(!picture)
-                g_warning(_("Error loading picture from file '%s': %s"), realfilename, error->message);
-            else
-            {
-                /* Insert picture into text buffer */
-                GtkTextIter iter;
-                gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &iter, ctx->endmark);
-                gtk_text_buffer_insert_pixbuf(ctx->textbuffer, &iter, picture);
-                g_object_unref(picture);
-            }
-            g_free(realfilename);
-        }
-            /* Don't use calculated field result */
-            fieldstate->ignore_field_result = true;
-            break;
-
-        case FIELD_TYPE_PAGE:
-        {
-            char *output = format_integer(1, state->general_number_format);
+        g_strfreev(pathcomponents);
+        GdkPixbuf *picture = gdk_pixbuf_new_from_file(realfilename, &error);
+        if (!picture) {
+            g_warning(_("Error loading picture from file '%s': %s"), realfilename, error->message);
+        } else {
+            /* Insert picture into text buffer */
             GtkTextIter iter;
             gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &iter, ctx->endmark);
-            gtk_text_buffer_insert(ctx->textbuffer, &iter, output, -1);
-            g_free(output);
+            gtk_text_buffer_insert_pixbuf(ctx->textbuffer, &iter, picture);
+            g_object_unref(picture);
         }
-            /* Don't use calculated field result */
-            fieldstate->ignore_field_result = true;
-            break;
+        g_free(realfilename);
+    }
+        /* Don't use calculated field result */
+        fieldstate->ignore_field_result = true;
+        break;
 
-        default:
-            g_assert_not_reached();
+    case FIELD_TYPE_PAGE: {
+        char *output = format_integer(1, state->general_number_format);
+        GtkTextIter iter;
+        gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &iter, ctx->endmark);
+        gtk_text_buffer_insert(ctx->textbuffer, &iter, output, -1);
+        g_free(output);
+    }
+        /* Don't use calculated field result */
+        fieldstate->ignore_field_result = true;
+        break;
+
+    default:
+        g_assert_not_reached();
     }
 
     g_free(state->argument);
@@ -446,77 +433,76 @@ static void field_instruction_end(ParserContext *ctx)
 static char *
 format_integer(int number, GeneralNumberFormat format)
 {
-    switch(format)
+    switch (format) {
+    case NUMBER_ALPHABETIC:
+        if (number < 1)
+            break;
+        return g_strnfill(number / 26 + 1, number % 26 - 1 + 'A');
+    case NUMBER_alphabetic:
+        if (number < 1)
+            break;
+        return g_strnfill(number / 26 + 1, number % 26 - 1 + 'a');
+    case NUMBER_ARABIC_DASH:
+        return g_strdup_printf("- %d -", number);
+    case NUMBER_HEX:
+        return g_strdup_printf("%X", number);
+    case NUMBER_ORDINAL:
+        if (number % 10 == 1 && number % 100 != 11)
+            return g_strdup_printf("%dst", number);
+        if (number % 10 == 2 && number % 100 != 12)
+            return g_strdup_printf("%dnd", number);
+        if (number % 10 == 3 && number % 100 != 13)
+            return g_strdup_printf("%drd", number);
+        return g_strdup_printf("%dth", number);
+    case NUMBER_ROMAN:
+        if (number < 1)
+            break;
     {
-        case NUMBER_ALPHABETIC:
-            if(number < 1)
-                break;
-            return g_strnfill(number / 26 + 1, number % 26 - 1 + 'A');
-        case NUMBER_alphabetic:
-            if(number < 1)
-                break;
-            return g_strnfill(number / 26 + 1, number % 26 - 1 + 'a');
-        case NUMBER_ARABIC_DASH:
-            return g_strdup_printf("- %d -", number);
-        case NUMBER_HEX:
-            return g_strdup_printf("%X", number);
-        case NUMBER_ORDINAL:
-            if(number % 10 == 1 && number % 100 != 11)
-                return g_strdup_printf("%dst", number);
-            if(number % 10 == 2 && number % 100 != 12)
-                return g_strdup_printf("%dnd", number);
-            if(number % 10 == 3 && number % 100 != 13)
-                return g_strdup_printf("%drd", number);
-            return g_strdup_printf("%dth", number);
-        case NUMBER_ROMAN:
-            if(number < 1)
-                break;
-        {
-            const char *r_hundred[] = { "", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM" };
-            const char *r_ten[] = { "", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC" };
-            const char *r_one[] = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX" };
-            int thousands = number / 1000;
-            int hundreds = (number % 1000) / 100;
-            int tens = (number % 100) / 10;
-            int ones = number % 10;
-            char *thousandstring = g_strnfill(thousands, 'M');
-            char *retval = g_strconcat(thousandstring, r_hundred[hundreds], r_ten[tens], r_one[ones], NULL);
-            g_free(thousandstring);
-            return retval;
-        }
-        case NUMBER_roman:
-            if(number < 1)
-                break;
-        {
-            const char *r_hundred[] = { "", "c", "cc", "ccc", "cd", "d", "dc", "dcc", "dccc", "cm" };
-            const char *r_ten[] = { "", "x", "xx", "xxx", "xl", "l", "lx", "lxx", "lxxx", "xc" };
-            const char *r_one[] = { "", "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix" };
-            int thousands = number / 1000;
-            int hundreds = (number % 1000) / 100;
-            int tens = (number % 100) / 10;
-            int ones = number % 10;
-            char *thousandstring = g_strnfill(thousands, 'm');
-            char *retval = g_strconcat(thousandstring, r_hundred[hundreds], r_ten[tens], r_one[ones], NULL);
-            g_free(thousandstring);
-            return retval;
-        }
-        case NUMBER_CIRCLENUM:
-            if(number >= 1 && number <= 20)
-                return g_strdup_printf("\xE2\x91%c", 0x9F + number);
+        const char *r_hundred[] = { "", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM" };
+        const char *r_ten[] = { "", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC" };
+        const char *r_one[] = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX" };
+        int thousands = number / 1000;
+        int hundreds = (number % 1000) / 100;
+        int tens = (number % 100) / 10;
+        int ones = number % 10;
+        char *thousandstring = g_strnfill(thousands, 'M');
+        char *retval = g_strconcat(thousandstring, r_hundred[hundreds], r_ten[tens], r_one[ones], NULL);
+        g_free(thousandstring);
+        return retval;
+    }
+    case NUMBER_roman:
+        if (number < 1)
             break;
-        case NUMBER_DECIMAL_ENCLOSED_PERIOD:
-            if(number >= 1 && number <= 20)
-                return g_strdup_printf("\xE2\x92%c", 0x87 + number);
-            break;
-        case NUMBER_DECIMAL_ENCLOSED_PARENTHESES:
-            if(number >= 1 && number <= 12)
-                return g_strdup_printf("\xE2\x91%c", 0xB3 + number);
-            if(number >= 13 && number <= 20)
-                return g_strdup_printf("\xE2\x92%c", 0x73 + number);
-            break;
-        case NUMBER_ARABIC:
-        default:
-            break;
+    {
+        const char *r_hundred[] = { "", "c", "cc", "ccc", "cd", "d", "dc", "dcc", "dccc", "cm" };
+        const char *r_ten[] = { "", "x", "xx", "xxx", "xl", "l", "lx", "lxx", "lxxx", "xc" };
+        const char *r_one[] = { "", "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix" };
+        int thousands = number / 1000;
+        int hundreds = (number % 1000) / 100;
+        int tens = (number % 100) / 10;
+        int ones = number % 10;
+        char *thousandstring = g_strnfill(thousands, 'm');
+        char *retval = g_strconcat(thousandstring, r_hundred[hundreds], r_ten[tens], r_one[ones], NULL);
+        g_free(thousandstring);
+        return retval;
+    }
+    case NUMBER_CIRCLENUM:
+        if (number >= 1 && number <= 20)
+            return g_strdup_printf("\xE2\x91%c", 0x9F + number);
+        break;
+    case NUMBER_DECIMAL_ENCLOSED_PERIOD:
+        if (number >= 1 && number <= 20)
+            return g_strdup_printf("\xE2\x92%c", 0x87 + number);
+        break;
+    case NUMBER_DECIMAL_ENCLOSED_PARENTHESES:
+        if (number >= 1 && number <= 12)
+            return g_strdup_printf("\xE2\x91%c", 0xB3 + number);
+        if (number >= 13 && number <= 20)
+            return g_strdup_printf("\xE2\x92%c", 0x73 + number);
+        break;
+    case NUMBER_ARABIC:
+    default:
+        break;
     }
     return g_strdup_printf("%d", number);
 }
@@ -524,10 +510,9 @@ format_integer(int number, GeneralNumberFormat format)
 static bool
 field_fldrslt(ParserContext *ctx, FieldState *state, GError **error)
 {
-    if(state->ignore_field_result)
+    if (state->ignore_field_result) {
         push_new_destination(ctx, &ignore_destination, NULL);
-    else
-    {
+    } else {
         Destination *outerdest = g_queue_peek_nth(ctx->destination_stack, 1);
         Attributes *attr = g_queue_peek_head(outerdest->state_stack);
         push_new_destination(ctx, &field_result_destination, attr);

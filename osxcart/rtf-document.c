@@ -100,86 +100,84 @@ void
 apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTextIter *end)
 {
     /* Tags with parameters */
-    if(attr->style != -1)
+    if (attr->style != -1)
         apply_attribute(ctx, start, end, "osxcart-rtf-style-%i", attr->style);
-    if(attr->foreground != -1)
+    if (attr->foreground != -1)
         apply_attribute(ctx, start, end, "osxcart-rtf-foreground-%i", attr->foreground);
-    if(attr->background != -1)
+    if (attr->background != -1)
         apply_attribute(ctx, start, end, "osxcart-rtf-background-%i", attr->background);
-    if(attr->highlight != -1)
+    if (attr->highlight != -1)
         apply_attribute(ctx, start, end, "osxcart-rtf-highlight-%i", attr->highlight);
-    if(attr->size != 0.0)
+    if (attr->size != 0.0)
         apply_attribute(ctx, start, end, "osxcart-rtf-fontsize-%.3f", attr->size);
-    if(attr->space_before != 0 && !attr->ignore_space_before)
+    if (attr->space_before != 0 && !attr->ignore_space_before)
         apply_attribute(ctx, start, end, "osxcart-rtf-space-before-%i", attr->space_before);
-    if(attr->space_after != 0 && !attr->ignore_space_after)
+    if (attr->space_after != 0 && !attr->ignore_space_after)
         apply_attribute(ctx, start, end, "osxcart-rtf-space-after-%i", attr->space_after);
-    if(attr->left_margin != 0)
+    if (attr->left_margin != 0)
         apply_attribute(ctx, start, end, "osxcart-rtf-left-margin-%i", attr->left_margin);
-    if(attr->right_margin != 0)
+    if (attr->right_margin != 0)
         apply_attribute(ctx, start, end, "osxcart-rtf-right-margin-%i", attr->right_margin);
-    if(attr->indent != 0)
+    if (attr->indent != 0)
         apply_attribute(ctx, start, end, "osxcart-rtf-indent-%i", attr->indent);
-    if(attr->invisible)
+    if (attr->invisible)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-invisible", start, end);
-    if(attr->language != 1024)
+    if (attr->language != 1024)
         apply_attribute(ctx, start, end, "osxcart-rtf-language-%i", attr->language);
-    if(attr->rise != 0)
+    if (attr->rise != 0)
         apply_attribute(ctx, start, end, "osxcart-rtf-%s-%i",
             (attr->rise > 0)? "up" : "down",
             ((attr->rise > 0)? 1 : -1) * attr->rise);
-    if(attr->leading != 0)
+    if (attr->leading != 0)
         apply_attribute(ctx, start, end, "osxcart-rtf-leading-%i", attr->leading);
-    if(attr->scale != 100)
+    if (attr->scale != 100)
         apply_attribute(ctx, start, end, "osxcart-rtf-scale-%i", attr->scale);
     /* Boolean tags */
-    if(attr->italic)
+    if (attr->italic)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-italic", start, end);
-    if(attr->bold)
+    if (attr->bold)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-bold", start, end);
-    if(attr->smallcaps)
+    if (attr->smallcaps)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-smallcaps", start, end);
-    if(attr->strikethrough)
+    if (attr->strikethrough)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-strikethrough", start, end);
-    if(attr->underline == PANGO_UNDERLINE_SINGLE)
+    if (attr->underline == PANGO_UNDERLINE_SINGLE)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-underline-single", start, end);
-    if(attr->underline == PANGO_UNDERLINE_DOUBLE)
+    if (attr->underline == PANGO_UNDERLINE_DOUBLE)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-underline-double", start, end);
-    if(attr->underline == PANGO_UNDERLINE_ERROR)
+    if (attr->underline == PANGO_UNDERLINE_ERROR)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-underline-wave", start, end);
-    if(attr->justification == GTK_JUSTIFY_LEFT)
+    if (attr->justification == GTK_JUSTIFY_LEFT)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-left", start, end);
-    if(attr->justification == GTK_JUSTIFY_RIGHT)
+    if (attr->justification == GTK_JUSTIFY_RIGHT)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-right", start, end);
-    if(attr->justification == GTK_JUSTIFY_CENTER)
+    if (attr->justification == GTK_JUSTIFY_CENTER)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-center", start, end);
-    if(attr->justification == GTK_JUSTIFY_FILL)
+    if (attr->justification == GTK_JUSTIFY_FILL)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-justified", start, end);
-    if(attr->pardirection == GTK_TEXT_DIR_RTL)
+    if (attr->pardirection == GTK_TEXT_DIR_RTL)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-right-to-left", start, end);
-    if(attr->pardirection == GTK_TEXT_DIR_LTR)
+    if (attr->pardirection == GTK_TEXT_DIR_LTR)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-left-to-right", start, end);
     /* Character-formatting direction overrides paragraph formatting */
-    if(attr->chardirection == GTK_TEXT_DIR_RTL)
+    if (attr->chardirection == GTK_TEXT_DIR_RTL)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-right-to-left", start, end);
-    if(attr->chardirection == GTK_TEXT_DIR_LTR)
+    if (attr->chardirection == GTK_TEXT_DIR_LTR)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-left-to-right", start, end);
-    if(attr->subscript)
+    if (attr->subscript)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-subscript", start, end);
-    if(attr->superscript)
+    if (attr->superscript)
         gtk_text_buffer_apply_tag_by_name(ctx->textbuffer, "osxcart-rtf-superscript", start, end);
     /* Special */
-    if(attr->font != -1)
+    if (attr->font != -1)
         apply_attribute(ctx, start, end, "osxcart-rtf-font-%i", attr->font);
-    else if(ctx->default_font != -1 && g_slist_length(ctx->font_table) > (unsigned)ctx->default_font)
+    else if (ctx->default_font != -1 && g_slist_length(ctx->font_table) > (unsigned)ctx->default_font)
         apply_attribute(ctx, start, end, "osxcart-rtf-font-%i", ctx->default_font);
-    if(attr->tabs != NULL)
-    {
+    if (attr->tabs != NULL) {
         /* Create a separate tag for each PangoTabArray */
         char *tagname = g_strdup_printf("osxcart-rtf-tabs-%p", attr->tabs);
         GtkTextTag *tag;
-        if((tag = gtk_text_tag_table_lookup(ctx->tags, tagname)) == NULL)
-        {
+        if ((tag = gtk_text_tag_table_lookup(ctx->tags, tagname)) == NULL) {
             tag = gtk_text_tag_new(tagname);
             g_object_set(tag,
                          "tabs", attr->tabs,
@@ -208,15 +206,14 @@ document_text(ParserContext *ctx)
     attr = get_state(ctx);
     text = ctx->text->str;
 
-    if(text[0] == '\0')
+    if (text[0] == '\0')
         return;
 
     length = strlen(text) - 1;
-    if(!ctx->group_nesting_level && text[length] == '\n')
+    if (!ctx->group_nesting_level && text[length] == '\n')
         text[length] = '\0';
 
-    if(!attr->unicode_ignore)
-    {
+    if (!attr->unicode_ignore) {
         gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &end, ctx->endmark); /* shouldn't invalidate end, but it does? */
         gtk_text_buffer_insert(ctx->textbuffer, &end, text, -1);
         gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &start, ctx->startmark);
@@ -235,8 +232,7 @@ int
 document_get_codepage(ParserContext *ctx)
 {
     Attributes *attr = get_state(ctx);
-    if(attr->font != -1)
-    {
+    if (attr->font != -1) {
         FontProperties *fontprop = get_font_properties(ctx, attr->font);
         g_assert(fontprop);
         return fontprop->codepage;
@@ -263,8 +259,7 @@ doc_ansicpg(ParserContext *ctx, Attributes *attr, int32_t codepage, GError **err
 bool
 doc_b(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 {
-    if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-bold"))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-bold")) {
         GtkTextTag *tag = gtk_text_tag_new("osxcart-rtf-bold");
         g_object_set(tag, "weight", PANGO_WEIGHT_BOLD, NULL);
         gtk_text_tag_table_add(ctx->tags, tag);
@@ -278,15 +273,13 @@ doc_cb(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 {
     char *color;
 
-    if((color = g_slist_nth_data(ctx->color_table, param)) == NULL)
-    {
+    if ((color = g_slist_nth_data(ctx->color_table, param)) == NULL) {
         g_set_error(error, RTF_ERROR, RTF_ERROR_UNDEFINED_COLOR, _("Color '%i' undefined"), param);
         return false;
     }
 
     char *tagname = g_strdup_printf("osxcart-rtf-background-%i", param);
-    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, tagname)) {
         GtkTextTag *tag = gtk_text_tag_new(tagname);
         g_object_set(tag,
                      "background", color,
@@ -305,15 +298,13 @@ doc_cf(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 {
     char *color;
 
-    if((color = g_slist_nth_data(ctx->color_table, param)) == NULL)
-    {
+    if ((color = g_slist_nth_data(ctx->color_table, param)) == NULL) {
         g_set_error(error, RTF_ERROR, RTF_ERROR_UNDEFINED_COLOR, _("Color '%i' undefined"), param);
         return false;
     }
 
     char *tagname = g_strdup_printf("osxcart-rtf-foreground-%i", param);
-    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, tagname)) {
         GtkTextTag *tag = gtk_text_tag_new(tagname);
         g_object_set(tag,
                      "foreground", color,
@@ -330,15 +321,13 @@ doc_cf(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 bool
 doc_charscalex(ParserContext *ctx, Attributes *attr, int32_t scale, GError **error)
 {
-    if(scale <= 0)
-    {
+    if (scale <= 0) {
         g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_FONT_SIZE, _("\\charscalex%d is invalid, negative or zero scales not allowed"), scale);
         return false;
     }
 
     char *tagname = g_strdup_printf("osxcart-rtf-scale-%i", scale);
-    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, tagname)) {
         GtkTextTag *tag = gtk_text_tag_new(tagname);
         g_object_set(tag,
                      "scale", (double)scale / 100.0,
@@ -378,11 +367,9 @@ doc_deflang(ParserContext *ctx, Attributes *attr, int32_t language, GError **err
 bool
 doc_dn(ParserContext *ctx, Attributes *attr, int32_t halfpoints, GError **error)
 {
-    if(halfpoints != 0)
-    {
+    if (halfpoints != 0) {
         char *tagname = g_strdup_printf("osxcart-rtf-down-%i", halfpoints);
-        if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
-        {
+        if (!gtk_text_tag_table_lookup(ctx->tags, tagname)) {
             GtkTextTag *tag = gtk_text_tag_new(tagname);
             g_object_set(tag,
                          "rise", HALF_POINTS_TO_PANGO(-halfpoints),
@@ -400,8 +387,7 @@ doc_dn(ParserContext *ctx, Attributes *attr, int32_t halfpoints, GError **error)
 bool
 doc_f(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 {
-    if(get_font_properties(ctx, param) == NULL)
-    {
+    if (get_font_properties(ctx, param) == NULL) {
         g_warning(_("Font '%i' undefined"), param);
         return true;
     }
@@ -414,8 +400,7 @@ bool
 doc_fi(ParserContext *ctx, Attributes *attr, int32_t twips, GError **error)
 {
     char *tagname = g_strdup_printf("osxcart-rtf-indent-%i", twips);
-    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, tagname)) {
         GtkTextTag *tag = gtk_text_tag_new(tagname);
         g_object_set(tag,
                      "indent", PANGO_PIXELS(TWIPS_TO_PANGO(twips)),
@@ -447,16 +432,14 @@ doc_footnote(ParserContext *ctx, Attributes *attr, GError **error)
 bool
 doc_fs(ParserContext *ctx, Attributes *attr, int32_t halfpoints, GError **error)
 {
-    if(halfpoints <= 0)
-    {
+    if (halfpoints <= 0) {
         g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_FONT_SIZE, _("\\fs%d is invalid, negative or zero font sizes not allowed"), halfpoints);
         return false;
     }
 
     double points = halfpoints / 2.0;
     char *tagname = g_strdup_printf("osxcart-rtf-fontsize-%.3f", points);
-    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, tagname)) {
         GtkTextTag *tag = gtk_text_tag_new(tagname);
         g_object_set(tag,
                      "size", POINTS_TO_PANGO(points),
@@ -473,16 +456,14 @@ doc_fs(ParserContext *ctx, Attributes *attr, int32_t halfpoints, GError **error)
 bool
 doc_fsmilli(ParserContext *ctx, Attributes *attr, int32_t milli, GError **error)
 {
-    if(milli <= 0)
-    {
+    if (milli <= 0) {
         g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_FONT_SIZE, _("\\fsmilli%d is invalid, negative or zero font sizes not allowed"), milli);
         return false;
     }
 
     double points = milli / 1000.0;
     char *tagname = g_strdup_printf("osxcart-rtf-fontsize-%.3f", points);
-    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, tagname)) {
         GtkTextTag *tag = gtk_text_tag_new(tagname);
         g_object_set(tag,
                      "size", POINTS_TO_PANGO(points),
@@ -501,15 +482,13 @@ doc_highlight(ParserContext *ctx, Attributes *attr, int32_t param, GError **erro
 {
     char *color;
 
-    if((color = g_slist_nth_data(ctx->color_table, param)) == NULL)
-    {
+    if ((color = g_slist_nth_data(ctx->color_table, param)) == NULL) {
         g_set_error(error, RTF_ERROR, RTF_ERROR_UNDEFINED_COLOR, _("Color '%i' undefined"), param);
         return false;
     }
 
     char *tagname = g_strdup_printf("osxcart-rtf-highlight-%i", param);
-    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, tagname)) {
         GtkTextTag *tag = gtk_text_tag_new(tagname);
         g_object_set(tag,
                      "paragraph-background", color,
@@ -526,8 +505,7 @@ doc_highlight(ParserContext *ctx, Attributes *attr, int32_t param, GError **erro
 bool
 doc_i(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 {
-    if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-italic"))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-italic")) {
         GtkTextTag *tag = gtk_text_tag_new("osxcart-rtf-italic");
         g_object_set(tag,
                      "style", PANGO_STYLE_ITALIC,
@@ -562,8 +540,7 @@ doc_lang(ParserContext *ctx, Attributes *attr, int32_t language, GError **error)
 {
 
     char *tagname = g_strdup_printf("osxcart-rtf-language-%i", language);
-    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, tagname)) {
         GtkTextTag *tag = gtk_text_tag_new(tagname);
         g_object_set(tag,
                      "language", language_to_iso(language),
@@ -580,12 +557,11 @@ doc_lang(ParserContext *ctx, Attributes *attr, int32_t language, GError **error)
 bool
 doc_li(ParserContext *ctx, Attributes *attr, int32_t twips, GError **error)
 {
-    if(twips < 0)
+    if (twips < 0)
         return true; /* Silently ignore, not supported in GtkTextBuffer */
 
     char *tagname = g_strdup_printf("osxcart-rtf-left-margin-%i", twips);
-    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, tagname)) {
         GtkTextTag *tag = gtk_text_tag_new(tagname);
         g_object_set(tag,
                      "left-margin", PANGO_PIXELS(TWIPS_TO_PANGO(twips)),
@@ -602,8 +578,7 @@ doc_li(ParserContext *ctx, Attributes *attr, int32_t twips, GError **error)
 bool
 doc_ltrch(ParserContext *ctx, Attributes *attr, GError **error)
 {
-    if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-left-to-right"))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-left-to-right")) {
         GtkTextTag *tag = gtk_text_tag_new("osxcart-rtf-left-to-right");
         g_object_set(tag, "direction", GTK_TEXT_DIR_LTR, NULL);
         gtk_text_tag_table_add(ctx->tags, tag);
@@ -615,8 +590,7 @@ doc_ltrch(ParserContext *ctx, Attributes *attr, GError **error)
 bool
 doc_ltrpar(ParserContext *ctx, Attributes *attr, GError **error)
 {
-    if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-left-to-right"))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-left-to-right")) {
         GtkTextTag *tag = gtk_text_tag_new("osxcart-rtf-left-to-right");
         g_object_set(tag, "direction", GTK_TEXT_DIR_LTR, NULL);
         gtk_text_tag_table_add(ctx->tags, tag);
@@ -653,7 +627,7 @@ doc_pard(ParserContext *ctx, Attributes *attr, GError **error)
     attr->left_margin = 0;
     attr->right_margin = 0;
     attr->indent = 0;
-    if(attr->tabs)
+    if (attr->tabs)
         pango_tab_array_free(attr->tabs);
     attr->tabs = NULL;
     return true;
@@ -684,8 +658,7 @@ doc_plain(ParserContext *ctx, Attributes *attr, GError **error)
 bool
 doc_qc(ParserContext *ctx, Attributes *attr, GError **error)
 {
-    if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-center"))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-center")) {
         GtkTextTag *tag = gtk_text_tag_new("osxcart-rtf-center");
         g_object_set(tag,
                      "justification", GTK_JUSTIFY_CENTER,
@@ -700,8 +673,7 @@ doc_qc(ParserContext *ctx, Attributes *attr, GError **error)
 bool
 doc_qj(ParserContext *ctx, Attributes *attr, GError **error)
 {
-    if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-justified"))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-justified")) {
         GtkTextTag *tag = gtk_text_tag_new("osxcart-rtf-justified");
         g_object_set(tag,
                      "justification", GTK_JUSTIFY_FILL,
@@ -716,8 +688,7 @@ doc_qj(ParserContext *ctx, Attributes *attr, GError **error)
 bool
 doc_ql(ParserContext *ctx, Attributes *attr, GError **error)
 {
-    if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-left"))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-left")) {
         GtkTextTag *tag = gtk_text_tag_new("osxcart-rtf-left");
         g_object_set(tag,
                      "justification", GTK_JUSTIFY_LEFT,
@@ -732,8 +703,7 @@ doc_ql(ParserContext *ctx, Attributes *attr, GError **error)
 bool
 doc_qr(ParserContext *ctx, Attributes *attr, GError **error)
 {
-    if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-right"))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-right")) {
         GtkTextTag *tag = gtk_text_tag_new("osxcart-rtf-right");
         g_object_set(tag,
                      "justification", GTK_JUSTIFY_RIGHT,
@@ -748,12 +718,11 @@ doc_qr(ParserContext *ctx, Attributes *attr, GError **error)
 bool
 doc_ri(ParserContext *ctx, Attributes *attr, int32_t twips, GError **error)
 {
-    if(twips < 0)
+    if (twips < 0)
         return true; /* Silently ignore, not supported in GtkTextBuffer */
 
     char *tagname = g_strdup_printf("osxcart-rtf-right-margin-%i", twips);
-    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, tagname)) {
         GtkTextTag *tag = gtk_text_tag_new(tagname);
         g_object_set(tag,
                      "right-margin", PANGO_PIXELS(TWIPS_TO_PANGO(twips)),
@@ -770,8 +739,7 @@ doc_ri(ParserContext *ctx, Attributes *attr, int32_t twips, GError **error)
 static bool
 doc_rtf(ParserContext *ctx, Attributes *attr, int32_t version, GError **error)
 {
-    if(version != 1)
-    {
+    if (version != 1) {
         g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_VERSION, _("Unsupported RTF version '%i'"), (int)version);
         return false;
     }
@@ -781,8 +749,7 @@ doc_rtf(ParserContext *ctx, Attributes *attr, int32_t version, GError **error)
 bool
 doc_rtlch(ParserContext *ctx, Attributes *attr, GError **error)
 {
-    if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-right-to-left"))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-right-to-left")) {
         GtkTextTag *tag = gtk_text_tag_new("osxcart-rtf-right-to-left");
         g_object_set(tag, "direction", GTK_TEXT_DIR_RTL, NULL);
         gtk_text_tag_table_add(ctx->tags, tag);
@@ -794,8 +761,7 @@ doc_rtlch(ParserContext *ctx, Attributes *attr, GError **error)
 bool
 doc_rtlpar(ParserContext *ctx, Attributes *attr, GError **error)
 {
-    if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-right-to-left"))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-right-to-left")) {
         GtkTextTag *tag = gtk_text_tag_new("osxcart-rtf-right-to-left");
         g_object_set(tag, "direction", GTK_TEXT_DIR_RTL, NULL);
         gtk_text_tag_table_add(ctx->tags, tag);
@@ -808,8 +774,7 @@ bool
 doc_s(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 {
     char *tagname = g_strdup_printf("osxcart-rtf-style-%i", param);
-    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, tagname)) {
         g_warning(_("Style '%i' undefined"), param);
         g_free(tagname);
         return true;
@@ -822,12 +787,11 @@ doc_s(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 bool
 doc_sa(ParserContext *ctx, Attributes *attr, int32_t twips, GError **error)
 {
-    if(twips < 0)
+    if (twips < 0)
         return true; /* Silently ignore, not supported in GtkTextBuffer */
 
     char *tagname = g_strdup_printf("osxcart-rtf-space-after-%i", twips);
-    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, tagname)) {
         GtkTextTag *tag = gtk_text_tag_new(tagname);
         g_object_set(tag,
                      "pixels-below-lines", PANGO_PIXELS(TWIPS_TO_PANGO(twips)),
@@ -851,12 +815,11 @@ doc_saauto(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 bool
 doc_sb(ParserContext *ctx, Attributes *attr, int32_t twips, GError **error)
 {
-    if(twips < 0)
+    if (twips < 0)
         return true; /* Silently ignore, not supported in GtkTextBuffer */
 
     char *tagname = g_strdup_printf("osxcart-rtf-space-before-%i", twips);
-    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, tagname)) {
         GtkTextTag *tag = gtk_text_tag_new(tagname);
         g_object_set(tag,
                      "pixels-above-lines", PANGO_PIXELS(TWIPS_TO_PANGO(twips)),
@@ -880,8 +843,7 @@ doc_sbauto(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 bool
 doc_scaps(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 {
-    if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-smallcaps"))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-smallcaps")) {
         GtkTextTag *tag = gtk_text_tag_new("osxcart-rtf-smallcaps");
         g_object_set(tag,
                      "variant", PANGO_VARIANT_SMALL_CAPS,
@@ -896,12 +858,11 @@ doc_scaps(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 bool
 doc_slleading(ParserContext *ctx, Attributes *attr, int32_t twips, GError **error)
 {
-    if(twips < 0)
+    if (twips < 0)
         return true; /* Silently ignore, not supported in GtkTextBuffer */
 
     char *tagname = g_strdup_printf("osxcart-rtf-leading-%i", twips);
-    if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, tagname)) {
         GtkTextTag *tag = gtk_text_tag_new(tagname);
         g_object_set(tag,
                      "pixels-inside-wrap", PANGO_PIXELS(TWIPS_TO_PANGO(twips)),
@@ -918,8 +879,7 @@ doc_slleading(ParserContext *ctx, Attributes *attr, int32_t twips, GError **erro
 bool
 doc_strike(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 {
-    if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-strikethrough"))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-strikethrough")) {
         GtkTextTag *tag = gtk_text_tag_new("osxcart-rtf-strikethrough");
         g_object_set(tag,
                      "strikethrough", true,
@@ -934,8 +894,7 @@ doc_strike(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 bool
 doc_sub(ParserContext *ctx, Attributes *attr, GError **error)
 {
-    if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-subscript"))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-subscript")) {
         GtkTextTag *tag = gtk_text_tag_new("osxcart-rtf-subscript");
         g_object_set(tag,
                      "rise", POINTS_TO_PANGO(-6),
@@ -952,8 +911,7 @@ doc_sub(ParserContext *ctx, Attributes *attr, GError **error)
 bool
 doc_super(ParserContext *ctx, Attributes *attr, GError **error)
 {
-    if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-superscript"))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-superscript")) {
         GtkTextTag *tag = gtk_text_tag_new("osxcart-rtf-superscript");
         g_object_set(tag,
                      "rise", POINTS_TO_PANGO(6),
@@ -972,13 +930,10 @@ doc_tx(ParserContext *ctx, Attributes *attr, int32_t twips, GError **error)
 {
     int tab_index;
 
-    if(attr->tabs == NULL)
-    {
+    if (attr->tabs == NULL) {
         attr->tabs = pango_tab_array_new(1, false);
         tab_index = 0;
-    }
-    else
-    {
+    } else {
         tab_index = pango_tab_array_get_size(attr->tabs);
         pango_tab_array_resize(attr->tabs, tab_index + 1);
     }
@@ -995,7 +950,7 @@ doc_u(ParserContext *ctx, Attributes *attr, int32_t ch, GError **error)
     int length, foo;
     gunichar code;
 
-    if(ch < 0)
+    if (ch < 0)
         code = ch + 65536;
     else
         code = ch;
@@ -1004,9 +959,10 @@ doc_u(ParserContext *ctx, Attributes *attr, int32_t ch, GError **error)
     utf8[length] = '\0';
     g_string_append(ctx->text, utf8);
 
-    for(foo = 0; foo < attr->unicode_skip; foo++)
-        if(!skip_character_or_control_word(ctx, error))
+    for (foo = 0; foo < attr->unicode_skip; foo++) {
+        if (!skip_character_or_control_word(ctx, error))
             return false;
+    }
     return true;
 }
 
@@ -1027,8 +983,7 @@ doc_ud(ParserContext *ctx, Attributes *attr, GError **error)
 bool
 doc_ul(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 {
-    if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-underline-single"))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-underline-single")) {
         GtkTextTag *tag = gtk_text_tag_new("osxcart-rtf-underline-single");
         g_object_set(tag,
                      "underline", PANGO_UNDERLINE_SINGLE,
@@ -1043,8 +998,7 @@ doc_ul(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 bool
 doc_uldb(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 {
-    if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-underline-double"))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-underline-double")) {
         GtkTextTag *tag = gtk_text_tag_new("osxcart-rtf-underline-double");
         g_object_set(tag,
                      "underline", PANGO_UNDERLINE_DOUBLE,
@@ -1066,12 +1020,11 @@ doc_ulnone(ParserContext *ctx, Attributes *attr, GError **error)
 bool
 doc_ulstyle(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 {
-    switch(param & 0xF)
-    {
-        case 1:
-            return doc_ul(ctx, attr, 1, error);
-        case 9:
-            return doc_uldb(ctx, attr, 1, error);
+    switch (param & 0xF) {
+    case 1:
+        return doc_ul(ctx, attr, 1, error);
+    case 9:
+        return doc_uldb(ctx, attr, 1, error);
     }
     return doc_ulnone(ctx, attr, error);
 }
@@ -1079,8 +1032,7 @@ doc_ulstyle(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 bool
 doc_ulwave(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 {
-    if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-underline-wave"))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-underline-wave")) {
         GtkTextTag *tag = gtk_text_tag_new("osxcart-rtf-underline-wave");
         g_object_set(tag,
                      "underline", PANGO_UNDERLINE_ERROR,
@@ -1095,11 +1047,9 @@ doc_ulwave(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 bool
 doc_up(ParserContext *ctx, Attributes *attr, int32_t halfpoints, GError **error)
 {
-    if(halfpoints != 0)
-    {
+    if (halfpoints != 0) {
         char *tagname = g_strdup_printf("osxcart-rtf-up-%i", halfpoints);
-        if(!gtk_text_tag_table_lookup(ctx->tags, tagname))
-        {
+        if (!gtk_text_tag_table_lookup(ctx->tags, tagname)) {
             GtkTextTag *tag = gtk_text_tag_new(tagname);
             g_object_set(tag,
                          "rise", HALF_POINTS_TO_PANGO(halfpoints),
@@ -1124,8 +1074,7 @@ doc_upr(ParserContext *ctx, Attributes *attr, GError **error)
 bool
 doc_v(ParserContext *ctx, Attributes *attr, int32_t param, GError **error)
 {
-    if(!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-invisible"))
-    {
+    if (!gtk_text_tag_table_lookup(ctx->tags, "osxcart-rtf-invisible")) {
         GtkTextTag *tag = gtk_text_tag_new("osxcart-rtf-invisible");
         g_object_set(tag,
                      "invisible", true,

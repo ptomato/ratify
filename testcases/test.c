@@ -39,7 +39,7 @@ rtf_parse_pass_case(const void *name)
     GtkTextBuffer *buffer = gtk_text_buffer_new(NULL);
     char *filename = build_filename(name);
 
-    if(!rtf_text_buffer_import(buffer, filename, &error))
+    if (!rtf_text_buffer_import(buffer, filename, &error))
         g_test_message("Error message: %s", error->message);
     g_free(filename);
     g_object_unref(buffer);
@@ -79,12 +79,12 @@ rtf_write_pass_case(const void *name)
     GtkTextBuffer *buffer2 = gtk_text_buffer_new(NULL);
     char *filename = build_filename(name);
 
-    if(!rtf_text_buffer_import(buffer1, filename, &error))
+    if (!rtf_text_buffer_import(buffer1, filename, &error))
         g_test_message("Import error message: %s", error->message);
     g_free(filename);
     g_assert(error == NULL);
     char *string = rtf_text_buffer_export_to_string(buffer1);
-    if(!rtf_text_buffer_import_from_string(buffer2, string, &error))
+    if (!rtf_text_buffer_import_from_string(buffer2, string, &error))
         g_test_message("Export error message: %s", error->message);
     g_assert(error == NULL);
 
@@ -133,14 +133,14 @@ rtf_parse_human_approval_case(const void *name)
     GFile *file = g_file_new_for_path(filename);
 
     /* Get RTF code */
-    if(!g_file_get_contents(filename, &text, NULL, &error))
+    if (!g_file_get_contents(filename, &text, NULL, &error))
         g_test_message("Error message: %s", error->message);
     g_assert(error == NULL);
 
     /* Import RTF code into text buffer. Import it from a file, even though we
     have already loaded the RTF code to display in the left-hand pane, because
     the RTF code may contain references to images. */
-    if(!rtf_text_buffer_import_file(rtfbuffer, file, NULL, &error))
+    if (!rtf_text_buffer_import_file(rtfbuffer, file, NULL, &error))
         g_test_message("Error message: %s", error->message);
     g_assert(error == NULL);
     g_object_unref(file);
@@ -330,11 +330,10 @@ check_wmf_and_emf(void)
 {
     GSList *iter, *formats = gdk_pixbuf_get_formats();
 
-    for(iter = formats; iter; iter = g_slist_next(iter))
-    {
-        if(strcmp(gdk_pixbuf_format_get_name(iter->data), "wmf") == 0)
+    for (iter = formats; iter; iter = g_slist_next(iter)) {
+        if (strcmp(gdk_pixbuf_format_get_name(iter->data), "wmf") == 0)
             have_wmf = true;
-        else if(strcmp(gdk_pixbuf_format_get_name(iter->data), "emf") == 0)
+        else if (strcmp(gdk_pixbuf_format_get_name(iter->data), "emf") == 0)
             have_emf = true;
     }
     g_slist_free(formats);
@@ -346,9 +345,8 @@ add_tests(const char **testlist, const char *path, void (test_func)(const void *
     const char **ptr;
     char *testname;
 
-    for(ptr = testlist; *ptr; ptr += 2)
-    {
-        if((!have_wmf && strstr(ptr[0], "WMF")) || (!have_emf && strstr(ptr[0], "EMF")))
+    for (ptr = testlist; *ptr; ptr += 2) {
+        if ((!have_wmf && strstr(ptr[0], "WMF")) || (!have_emf && strstr(ptr[0], "EMF")))
             continue;
         testname = g_strconcat(path, ptr[0], NULL);
         g_test_add_data_func(testname, ptr[1], test_func);
@@ -393,8 +391,7 @@ main(int argc, char **argv)
     g_test_add_data_func("/rtf/write/RTFD test", "rtfdtest.rtfd", rtf_write_pass_case);
 
     /* Human tests -- only on thorough testing */
-    if(g_test_thorough())
-    {
+    if (g_test_thorough()) {
         add_tests(rtfbookexamples, "/rtf/parse/human/", rtf_parse_human_approval_case);
         add_tests(codeprojectpasscases, "/rtf/parse/human/", rtf_parse_human_approval_case);
         add_tests(variouspasscases, "/rtf/parse/human/", rtf_parse_human_approval_case);

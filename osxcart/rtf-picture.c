@@ -161,10 +161,11 @@ parsing a width or height declaration */
 static void
 adjust_loader_size(PictState *state)
 {
-    if(state->loader && (state->width != -1 || state->width_goal != -1) && (state->height != -1 || state->height_goal != -1))
+    if (state->loader && (state->width != -1 || state->width_goal != -1) && (state->height != -1 || state->height_goal != -1)) {
         gdk_pixbuf_loader_set_size(state->loader,
                                    (state->width_goal != -1)? state->width_goal : state->width,
                                    (state->height_goal != -1)? state->height_goal : state->height);
+    }
 }
 
 /* The "text" in a \pict destination is the picture, expressed as a long string
@@ -181,47 +182,43 @@ pict_text(ParserContext *ctx)
         "OS/2 Presentation Manager", "image/x-wmf", "image/x-bmp", "image-x-bmp"
     }; /* "OS/2 Presentation Manager" isn't supported */
 
-    if(state->error)
+    if (state->error)
         return;
 
-    if(strlen(ctx->text->str) == 0)
+    if (strlen(ctx->text->str) == 0)
         return;
 
     /* If no GdkPixbufLoader has been initialized yet, then do that */
-    if(!state->loader)
-    {
+    if (!state->loader) {
         GSList *formats = gdk_pixbuf_get_formats();
         GSList *iter;
         char **mimes;
 
         /* Make sure the MIME type we want to load is present in the list of
         formats compiled into our GdkPixbuf library */
-        for(iter = formats; iter && !state->loader; iter = g_slist_next(iter))
-        {
+        for (iter = formats; iter && !state->loader; iter = g_slist_next(iter)) {
             int i;
             mimes = gdk_pixbuf_format_get_mime_types(iter->data);
 
-            for(i = 0; mimes[i] != NULL; i++)
-            if(g_ascii_strcasecmp(mimes[i], mimetypes[state->type]) == 0)
-            {
-                state->loader = gdk_pixbuf_loader_new_with_mime_type(mimetypes[state->type], &error);
-                if(!state->loader)
-                {
-                    g_warning(_("Error loading picture of MIME type '%s': %s"), mimetypes[state->type], error->message);
-                    state->error = true;
+            for (i = 0; mimes[i] != NULL; i++) {
+                if (g_ascii_strcasecmp(mimes[i], mimetypes[state->type]) == 0) {
+                    state->loader = gdk_pixbuf_loader_new_with_mime_type(mimetypes[state->type], &error);
+                    if (!state->loader) {
+                        g_warning(_("Error loading picture of MIME type '%s': %s"), mimetypes[state->type], error->message);
+                        state->error = true;
+                    }
+                    break;
                 }
-                break;
             }
         }
-        if(!state->loader && !state->error)
-        {
+        if (!state->loader && !state->error) {
             g_warning(_("Module for loading MIME type '%s' not found"), mimetypes[state->type]);
             state->error = true;
         }
 
         g_slist_free(formats);
 
-        if(state->error)
+        if (state->error)
             return;
 
         adjust_loader_size(state);
@@ -229,8 +226,7 @@ pict_text(ParserContext *ctx)
 
     /* Convert the "text" into binary data */
     writebuffer = g_new0(uint8_t, strlen(ctx->text->str));
-    for(count = 0; ctx->text->str[count * 2] && ctx->text->str[count * 2 + 1]; count++)
-    {
+    for (count = 0; ctx->text->str[count * 2] && ctx->text->str[count * 2 + 1]; count++) {
         char buf[3];
         uint8_t byte;
 
@@ -238,8 +234,7 @@ pict_text(ParserContext *ctx)
         buf[2] = '\0';
         errno = 0;
         byte = (uint8_t)strtol(buf, NULL, 16);
-        if(errno)
-        {
+        if (errno) {
             g_warning(_("Error in \\pict data: '%s'"), buf);
             state->error = true;
             g_free(writebuffer);
@@ -248,8 +243,7 @@ pict_text(ParserContext *ctx)
         writebuffer[count] = byte;
     }
     /* Write the "text" into the GdkPixbufLoader */
-    if(!gdk_pixbuf_loader_write(state->loader, writebuffer, count, &error))
-    {
+    if (!gdk_pixbuf_loader_write(state->loader, writebuffer, count, &error)) {
         g_warning(_("Error reading \\pict data: %s"), error->message);
         state->error = true;
     }
@@ -266,18 +260,15 @@ pict_end(ParserContext *ctx)
     GError *error = NULL;
     PictState *state = get_state(ctx);
 
-    if(!state->error)
-    {
-        if(state->loader && !gdk_pixbuf_loader_close(state->loader, &error))
+    if (!state->error) {
+        if (state->loader && !gdk_pixbuf_loader_close(state->loader, &error))
             g_warning(_("Error closing pixbuf loader: %s"), error->message);
         GdkPixbuf *picture = gdk_pixbuf_loader_get_pixbuf(state->loader);
-        if(!picture)
+        if (!picture) {
             g_warning(_("Error loading picture"));
-        else
-        {
+        } else {
             /* Scale picture if needed */
-            if(state->xscale != 100 || state->yscale != 100)
-            {
+            if (state->xscale != 100 || state->yscale != 100) {
                 int newwidth = gdk_pixbuf_get_width(picture) * state->xscale / 100;
                 int newheight = gdk_pixbuf_get_height(picture) * state->yscale / 100;
                 GdkPixbuf *newpicture = gdk_pixbuf_scale_simple(picture, newwidth, newheight, GDK_INTERP_BILINEAR);
@@ -292,8 +283,7 @@ pict_end(ParserContext *ctx)
 static bool
 pic_dibitmap(ParserContext *ctx, PictState *state, int32_t param, GError **error)
 {
-    if(param != 0)
-    {
+    if (param != 0) {
         g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_PICT_TYPE, _("Invalid bitmap type '%i' for \\dibitmap"), param);
         return false;
     }
@@ -387,8 +377,7 @@ pic_pngblip(ParserContext *ctx, PictState *state, GError **error)
 static bool
 pic_wbitmap(ParserContext *ctx, PictState *state, int32_t param, GError **error)
 {
-    if(param != 0)
-    {
+    if (param != 0) {
         g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_PICT_TYPE, _("Invalid bitmap type '%i' for \\wbitmap"), param);
         return false;
     }
@@ -424,8 +413,7 @@ nextgraphic_end(ParserContext *ctx)
     filename = g_strstrip(g_strdup(ctx->text->str));
     g_string_truncate(ctx->text, 0);
     pixbuf = gdk_pixbuf_new_from_file_at_scale(filename, state->width, state->height, false /* preserve aspect ratio */, &error);
-    if(!pixbuf)
-    {
+    if (!pixbuf) {
         g_warning(_("Error loading picture from file '%s': %s"), filename, error->message);
         return;
     }

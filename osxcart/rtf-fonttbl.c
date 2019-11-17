@@ -110,8 +110,7 @@ font_table_text(ParserContext *ctx)
 
     name = g_strdup(ctx->text->str);
     semicolon = strchr(name, ';');
-    if(!semicolon)
-    {
+    if (!semicolon) {
         char *newname = g_strconcat(state->name, name, NULL);
         g_free(state->name);
         state->name = newname;
@@ -131,22 +130,22 @@ font_table_text(ParserContext *ctx)
     since any font might be declared the default font; remove any previous font
     with this font table index first */
     tagname = g_strdup_printf("osxcart-rtf-font-%i", state->index);
-    if((tag = gtk_text_tag_table_lookup(ctx->tags, tagname)))
+    if ((tag = gtk_text_tag_table_lookup(ctx->tags, tagname)))
         gtk_text_tag_table_remove(ctx->tags, tag);
     tag = gtk_text_tag_new(tagname);
 
-    if(fontprop->font_name && font_suggestions[state->family])
+    if (fontprop->font_name && font_suggestions[state->family]) {
         fontstring = g_strconcat(fontprop->font_name,
                                  ",",
                                  font_suggestions[state->family],
                                  NULL);
-    else if(fontprop->font_name)
+    } else if (fontprop->font_name) {
         fontstring = g_strdup(fontprop->font_name);
-    else if(font_suggestions[state->family])
+    } else if (font_suggestions[state->family]) {
         fontstring = g_strdup(font_suggestions[state->family]);
+    }
 
-    if(fontstring)
-    {
+    if (fontstring) {
         g_object_set(tag,
                      "family", fontstring,
                      "family-set", true,
@@ -167,49 +166,48 @@ font_table_text(ParserContext *ctx)
 static int
 fcharset_to_codepage(int charset)
 {
-    switch(charset)
-    {
-        case 0:   return 1252;  /* "ANSI" */
-        case 1:   return -1;    /* default */
-        case 2:   return -1;    /* Symbol; only works in Symbol font of course */
-        case 77:  return 10000; /* Mac Roman */
-        case 78:  return 10001; /* Mac Shift JIS */
-        case 79:  return 10003; /* Mac Hangul */
-        case 80:  return 10008; /* Mac GB2312 */
-        case 81:  return 10002; /* Mac Big5 */
-        case 83:  return 10005; /* Mac Hebrew */
-        case 84:  return 10004; /* Mac Arabic */
-        case 85:  return 10006; /* Mac Greek */
-        case 86:  return 10081; /* Mac Turkish */
-        case 87:  return 10021; /* Mac Thai */
-        case 88:  return 10029; /* Mac East Europe */
-        case 89:  return 10007; /* Mac Cyrillic */
-        case 128: return 943;   /* ShiftJIS */
-        case 129: return 949;   /* Hangul */
-        case 130: return 1361;  /* Johab */
-        case 134: return 936;   /* GB2312 */
-        case 136: return 950;   /* Chinese Big5 */
-        case 161: return 1253;  /* Greek */
-        case 162: return 1254;  /* Turkish */
-        case 163: return 1258;  /* Vietnamese */
-        case 177: return 1255;  /* Hebrew */
-        case 178: return 1256;  /* Arabic */
-        case 181: return 862;   /* Hebrew user */
-        case 186: return 1257;  /* Baltic */
-        case 204: return 1251;  /* Russian */
-        case 222: return 874;   /* Thai */
-        case 238: return 1250;  /* Eastern European */
-        case 254: return 437;   /* PC 437 */
-        case 255: return 850;   /* OEM */
+    switch (charset) {
+    case 0:   return 1252;  /* "ANSI" */
+    case 1:   return -1;    /* default */
+    case 2:   return -1;    /* Symbol; only works in Symbol font of course */
+    case 77:  return 10000; /* Mac Roman */
+    case 78:  return 10001; /* Mac Shift JIS */
+    case 79:  return 10003; /* Mac Hangul */
+    case 80:  return 10008; /* Mac GB2312 */
+    case 81:  return 10002; /* Mac Big5 */
+    case 83:  return 10005; /* Mac Hebrew */
+    case 84:  return 10004; /* Mac Arabic */
+    case 85:  return 10006; /* Mac Greek */
+    case 86:  return 10081; /* Mac Turkish */
+    case 87:  return 10021; /* Mac Thai */
+    case 88:  return 10029; /* Mac East Europe */
+    case 89:  return 10007; /* Mac Cyrillic */
+    case 128: return 943;   /* ShiftJIS */
+    case 129: return 949;   /* Hangul */
+    case 130: return 1361;  /* Johab */
+    case 134: return 936;   /* GB2312 */
+    case 136: return 950;   /* Chinese Big5 */
+    case 161: return 1253;  /* Greek */
+    case 162: return 1254;  /* Turkish */
+    case 163: return 1258;  /* Vietnamese */
+    case 177: return 1255;  /* Hebrew */
+    case 178: return 1256;  /* Arabic */
+    case 181: return 862;   /* Hebrew user */
+    case 186: return 1257;  /* Baltic */
+    case 204: return 1251;  /* Russian */
+    case 222: return 874;   /* Thai */
+    case 238: return 1250;  /* Eastern European */
+    case 254: return 437;   /* PC 437 */
+    case 255: return 850;   /* OEM */
 
-        case 82:  /* Mac Johab (old) */
-        case 179: /* Arabic traditional (old) */
-        case 180: /* Arabic user (old) */
-            g_warning(_("Character set %d not supported"), charset);
-            return -1;
-        default:
-            g_warning(_("Unknown character set %d"), charset);
-            return -1;
+    case 82:  /* Mac Johab (old) */
+    case 179: /* Arabic traditional (old) */
+    case 180: /* Arabic user (old) */
+        g_warning(_("Character set %d not supported"), charset);
+        return -1;
+    default:
+        g_warning(_("Unknown character set %d"), charset);
+        return -1;
     }
 }
 

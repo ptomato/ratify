@@ -81,10 +81,10 @@ G_GNUC_INTERNAL void set_default_paragraph_attributes(Attributes *attr);
     ((Attributes *)state)->unicode_skip = 1; \
     ((Attributes *)state)->unicode_ignore = false;
 #define ATTR_COPY \
-    if(((Attributes *)state)->tabs) \
+    if (((Attributes *)state)->tabs) \
         ((Attributes *)copy)->tabs = pango_tab_array_copy(((Attributes *)state)->tabs);
 #define ATTR_FREE \
-    if(((Attributes *)state)->tabs) \
+    if (((Attributes *)state)->tabs) \
         pango_tab_array_free(((Attributes *)state)->tabs);
 
 #define DEFINE_STATE_FUNCTIONS_FULL(tn, fn, init_code, copy_code, free_code) \

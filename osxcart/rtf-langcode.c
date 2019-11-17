@@ -294,9 +294,10 @@ const char *
 language_to_iso(int wincode)
 {
     IsoLangCode *lang;
-    for(lang = isolangcodes; lang->isocode != NULL; lang++)
-        if(wincode == lang->wincode)
+    for (lang = isolangcodes; lang->isocode != NULL; lang++) {
+        if (wincode == lang->wincode)
             return lang->isocode;
+    }
     return "zxx"; /* No language */
 }
 
@@ -304,8 +305,9 @@ int
 language_to_wincode(const char *isocode)
 {
     IsoLangCode *lang;
-    for(lang = isolangcodes; lang->isocode != NULL; lang++)
-        if(g_ascii_strcasecmp(isocode, lang->isocode) == 0)
+    for (lang = isolangcodes; lang->isocode != NULL; lang++) {
+        if (g_ascii_strcasecmp(isocode, lang->isocode) == 0)
             return lang->wincode;
+    }
     return 1024; /* No language */
 }
