@@ -68,27 +68,25 @@ writer_context_free(WriterContext *ctx)
     g_slice_free(WriterContext, ctx);
 }
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(WriterContext, writer_context_free);
+
 /* Return the number of color in the color table. If color is not in the color
 table, then add it. */
 static int
 get_color_from_gdk_color(GdkColor *color, WriterContext *ctx)
 {
-    GList *link;
-    int colornum;
-    char *colorcode;
-
     if (color->red == 0 && color->green == 0 && color->blue == 0)
         return 0; /* Color 0 always black in this implementation */
 
-    colorcode = g_strdup_printf("\\red%d\\green%d\\blue%d", color->red >> 8, color->green >> 8, color->blue >> 8);
-    if (!(link = g_list_find_custom(ctx->color_table, colorcode, (GCompareFunc)strcmp)))
-    {
+    g_autofree char *colorcode = g_strdup_printf("\\red%d\\green%d\\blue%d", color->red >> 8, color->green >> 8, color->blue >> 8);
+    int colornum;
+    GList *link = g_list_find_custom(ctx->color_table, colorcode, (GCompareFunc)strcmp);
+    if (link == NULL) {
         colornum = g_list_length(ctx->color_table);
         ctx->color_table = g_list_append(ctx->color_table, g_strdup(colorcode));
-    }
-    else
+    } else {
         colornum = g_list_position(ctx->color_table, link);
-    g_free(colorcode);
+    }
 
     g_assert(colornum > 0 && colornum < 256);
     return colornum;
@@ -104,7 +102,6 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
     double factor, points;
     GdkColor *color;
     const char *name;
-    GString *code;
 
     /* First check if this is a osxcart named tag that doesn't have a direct
      Pango attributes equivalent, such as superscript or subscript. Treat these
@@ -121,7 +118,7 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
     }
 
     /* Otherwise, read the attributes one by one and add RTF code for them */
-    code = g_string_new("");
+    GString *code = g_string_new("");
 
     g_object_get(tag, "background-set", &val, NULL);
     if (val) {
@@ -133,10 +130,11 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
     g_object_get(tag, "family-set", &val, NULL);
     if (val) {
         const char *family;
-        GList *link;
-        int fontnum;
         g_object_get(tag, "family", &family, NULL);
-        if (!(link = g_list_find_custom(ctx->font_table, family, (GCompareFunc)strcmp))) {
+
+        int fontnum;
+        GList *link = g_list_find_custom(ctx->font_table, family, (GCompareFunc)strcmp);
+        if (link == NULL) {
             fontnum = g_list_length(ctx->font_table);
             ctx->font_table = g_list_append(ctx->font_table, g_strdup(family));
         } else {
@@ -189,10 +187,9 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
 
     g_object_get(tag, "language-set", &val, NULL);
     if (val) {
-        char *isocode;
+        g_autofree char *isocode = NULL;
         g_object_get(tag, "language", &isocode, NULL);
         g_string_append_printf(code, "\\lang%d", language_to_wincode(isocode));
-        g_free(isocode);
     }
 
     g_object_get(tag, "left-margin-set", &val, NULL);
@@ -287,13 +284,11 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
     g_object_get(tag, "tabs-set", &val, NULL);
     if (val) {
         PangoTabArray *tabs;
-        bool in_pixels;
-        int size, count;
-
         g_object_get(tag, "tabs", &tabs, NULL);
-        in_pixels = pango_tab_array_get_positions_in_pixels(tabs);
-        size = pango_tab_array_get_size(tabs);
-        for (count = 0; count < size; count++) {
+
+        bool in_pixels = pango_tab_array_get_positions_in_pixels(tabs);
+        int size = pango_tab_array_get_size(tabs);
+        for (int count = 0; count < size; count++) {
             int location;
             /* alignment can only be LEFT in the current version of Pango */
             pango_tab_array_get_tab(tabs, count, NULL, &location);
@@ -370,7 +365,7 @@ looking ahead or backtracking to insert spaces. */
 static void
 write_space_or_newline(WriterContext *ctx)
 {
-    int linelength = strlen(strrchr(ctx->output->str, '\n'));
+    size_t linelength = strlen(strrchr(ctx->output->str, '\n'));
     g_string_append_c(ctx->output, (linelength > 60)? '\n' : ' ');
 }
 
@@ -379,9 +374,7 @@ It replaces special characters by their RTF control word equivalents. */
 static void
 write_rtf_text(WriterContext *ctx, const char *text)
 {
-    const char *ptr;
-
-    for (ptr = text; *ptr; ptr = g_utf8_next_char(ptr)) {
+    for (const char *ptr = text; *ptr; ptr = g_utf8_next_char(ptr)) {
         gunichar ch = g_utf8_get_char(ptr);
 
         if (ch == 0x09) {
@@ -463,9 +456,6 @@ write_rtf_text_and_pictures(WriterContext *ctx, const GtkTextIter *start, const 
 {
     GtkTextIter iter;
     GdkPixbuf *pixbuf = NULL;
-    char *text, *pngbuffer;
-    size_t bufsize;
-    GError *error = NULL;
 
     for (iter = *start; !gtk_text_iter_equal(&iter, end); gtk_text_iter_forward_char(&iter)) {
         if ((pixbuf = gtk_text_iter_get_pixbuf(&iter)))
@@ -473,21 +463,21 @@ write_rtf_text_and_pictures(WriterContext *ctx, const GtkTextIter *start, const 
     }
 
     if (!pixbuf) {
-        text = gtk_text_buffer_get_text(ctx->linebuffer, start, end, true);
+        g_autofree char *text = gtk_text_buffer_get_text(ctx->linebuffer, start, end, true);
         write_rtf_text(ctx, text);
-        g_free(text);
         return;
     }
 
     /* Write the text before the pixbuf, insert a \pict destination into the document, and recurse on the text after */
-    text = gtk_text_buffer_get_text(ctx->linebuffer, start, &iter, true);
+    g_autofree char *text = gtk_text_buffer_get_text(ctx->linebuffer, start, &iter, true);
     write_rtf_text(ctx, text);
-    g_free(text);
 
+    char *pngbuffer;
+    size_t bufsize;
+    GError *error = NULL;
     if (gdk_pixbuf_save_to_buffer(pixbuf, &pngbuffer, &bufsize, "png", &error, "compression", "9", NULL)) {
-        size_t count;
         g_string_append_printf(ctx->output, "{\\pict\\pngblip\\picw%d\\pich%d", gdk_pixbuf_get_width(pixbuf), gdk_pixbuf_get_height(pixbuf));
-        for (count = 0; count < bufsize; count++) {
+        for (size_t count = 0; count < bufsize; count++) {
             if (count % 40 == 0)
                 g_string_append_c(ctx->output, '\n');
             g_string_append_printf(ctx->output, "%02X", (unsigned char)pngbuffer[count]);
@@ -507,8 +497,7 @@ one sequentially with formatting codes */
 static void
 write_rtf_paragraphs(WriterContext *ctx)
 {
-    GSList *taglist, *ptr;
-    GtkTextIter start, end, tagend, linestart = *(ctx->start), lineend = linestart;
+    GtkTextIter linestart = *(ctx->start), lineend = linestart;
 
     while (gtk_text_iter_in_range(&lineend, ctx->start, ctx->end)) {
         /* Begin the paragraph by resetting the paragraph properties */
@@ -526,63 +515,60 @@ write_rtf_paragraphs(WriterContext *ctx)
         if (ctx->linebuffer)
             g_object_unref(ctx->linebuffer);
         ctx->linebuffer = gtk_text_buffer_new(gtk_text_buffer_get_tag_table(ctx->textbuffer));
+        GtkTextIter start, end;
         gtk_text_buffer_get_start_iter(ctx->linebuffer, &start);
         gtk_text_buffer_insert_range(ctx->linebuffer, &start, &linestart, &lineend);
         gtk_text_buffer_get_bounds(ctx->linebuffer, &start, &end);
 
         /* Insert codes for tags that apply to the whole line, then remove those
         tags because we've dealt with them */
-        taglist = gtk_text_iter_get_tags(&linestart);
-        for (ptr = taglist; ptr; ptr = g_slist_next(ptr)) {
-            tagend = start;
+        g_autoptr(GSList) taglist = gtk_text_iter_get_tags(&linestart);
+        for (GSList *ptr = taglist; ptr; ptr = g_slist_next(ptr)) {
+            GtkTextIter tagend = start;
             gtk_text_iter_forward_to_tag_toggle(&tagend, ptr->data);
             if (gtk_text_iter_equal(&tagend, &end)) {
                 g_string_append(ctx->output, g_hash_table_lookup(ctx->tag_codes, ptr->data));
                 gtk_text_buffer_remove_tag(ctx->linebuffer, ptr->data, &start, &end);
             }
         }
-        g_slist_free(taglist);
         write_space_or_newline(ctx);
         g_string_append_c(ctx->output, '{');
 
         end = start;
         while (!gtk_text_iter_is_end(&end)) {
-            GSList *tagstartlist, *tagendlist, *tagonlylist = NULL;
-            size_t length;
-
             /* Enclose a section of text without any tag flips between start
             and end. Then, make tagstartlist a list of tags that open at the
             beginning of this section, and tagendlist a list of tags that end
             at the end of this section. */
 
             gtk_text_iter_forward_to_tag_toggle(&end, NULL);
-            tagstartlist = gtk_text_iter_get_toggled_tags(&start, true);
-            tagendlist = gtk_text_iter_get_toggled_tags(&end, false);
+            g_autoptr(GSList) tagstartlist = gtk_text_iter_get_toggled_tags(&start, true);
+            g_autoptr(GSList) tagendlist = gtk_text_iter_get_toggled_tags(&end, false);
+            g_autoptr(GSList) tagonlylist = NULL;
 
             /* Move tags that do not extend before or after this section to
             tagonlylist. */
-            for (ptr = tagstartlist; ptr; ptr = g_slist_next(ptr)) {
+            for (GSList *ptr = tagstartlist; ptr; ptr = g_slist_next(ptr)) {
                 if (g_slist_find(tagendlist, ptr->data))
                     tagonlylist = g_slist_prepend(tagonlylist, ptr->data);
             }
-            for (ptr = tagonlylist; ptr; ptr = g_slist_next(ptr)) {
+            for (GSList *ptr = tagonlylist; ptr; ptr = g_slist_next(ptr)) {
                 tagstartlist = g_slist_remove(tagstartlist, ptr->data);
                 tagendlist = g_slist_remove(tagendlist, ptr->data);
             }
 
             /* Output the tags in tagstartlist */
-            length = ctx->output->len;
-            for (ptr = tagstartlist; ptr; ptr = g_slist_next(ptr))
+            size_t length = ctx->output->len;
+            for (GSList *ptr = tagstartlist; ptr; ptr = g_slist_next(ptr))
                 g_string_append(ctx->output, g_hash_table_lookup(ctx->tag_codes, ptr->data));
             if (length != ctx->output->len)
                 write_space_or_newline(ctx);
-            g_slist_free(tagstartlist);
 
             /* Output the tags in tagonlylist, within their own group */
             if (tagonlylist) {
                 g_string_append_c(ctx->output, '{');
                 length = ctx->output->len;
-                for (ptr = tagonlylist; ptr; ptr = g_slist_next(ptr))
+                for (GSList *ptr = tagonlylist; ptr; ptr = g_slist_next(ptr))
                     g_string_append(ctx->output, g_hash_table_lookup(ctx->tag_codes, ptr->data));
                 if (length != ctx->output->len)
                     write_space_or_newline(ctx);
@@ -594,7 +580,6 @@ write_rtf_paragraphs(WriterContext *ctx)
             /* Close the tagonlylist group */
             if (tagonlylist)
                 g_string_append_c(ctx->output, '}');
-            g_slist_free(tagonlylist);
 
             /* If any tags end here, close the group and open another one,
             then output the tags that _apply_ to the end iter but do not _start_
@@ -602,20 +587,17 @@ write_rtf_paragraphs(WriterContext *ctx)
             be in a separate group.) */
             if (tagendlist) {
                 g_string_append(ctx->output, "}{");
-                taglist = gtk_text_iter_get_tags(&end);
-                tagstartlist = gtk_text_iter_get_toggled_tags(&end, true);
-                for (ptr = tagstartlist; ptr; ptr = g_slist_next(ptr))
-                    taglist = g_slist_remove(taglist, ptr->data);
-                g_slist_free(tagstartlist);
+                g_autoptr(GSList) new_taglist = gtk_text_iter_get_tags(&end);
+                g_autoptr(GSList) new_tagstartlist = gtk_text_iter_get_toggled_tags(&end, true);
+                for (GSList *ptr = new_tagstartlist; ptr; ptr = g_slist_next(ptr))
+                    new_taglist = g_slist_remove(new_taglist, ptr->data);
 
                 length = ctx->output->len;
-                for (ptr = taglist; ptr; ptr = g_slist_next(ptr))
+                for (GSList *ptr = new_taglist; ptr; ptr = g_slist_next(ptr))
                     g_string_append(ctx->output, g_hash_table_lookup(ctx->tag_codes, ptr->data));
                 if (length != ctx->output->len)
                     write_space_or_newline(ctx);
-                g_slist_free(taglist);
             }
-            g_slist_free(tagendlist);
 
             start = end;
         }
@@ -680,12 +662,10 @@ write_rtf(WriterContext *ctx)
 uint8_t *
 rtf_serialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, const GtkTextIter *start, const GtkTextIter *end, size_t *length)
 {
-    WriterContext *ctx = writer_context_new();
-    char *contents;
+    g_autoptr(WriterContext) ctx = writer_context_new();
 
     analyze_buffer(ctx, content_buffer, start, end);
-    contents = write_rtf(ctx);
+    char *contents = write_rtf(ctx);
     *length = strlen(contents);
-    writer_context_free(ctx);
     return (uint8_t *)contents;
 }

@@ -57,12 +57,9 @@ destination */
 static ParserContext *
 parser_context_new(const char *rtftext, GtkTextBuffer *textbuffer, GtkTextIter *insert)
 {
-    ParserContext *ctx;
-    Destination *dest;
-
     g_assert(rtftext != NULL && textbuffer != NULL);
 
-    ctx = g_slice_new0(ParserContext);
+    ParserContext *ctx = g_slice_new0(ParserContext);
     ctx->codepage = -1;
     ctx->default_codepage = 1252;
     ctx->default_font = -1;
@@ -81,7 +78,7 @@ parser_context_new(const char *rtftext, GtkTextBuffer *textbuffer, GtkTextIter *
     ctx->startmark = gtk_text_buffer_create_mark(textbuffer, NULL, insert, true);
     ctx->endmark = gtk_text_buffer_create_mark(textbuffer, NULL, insert, false);
 
-    dest = g_slice_new0(Destination);
+    Destination *dest = g_slice_new0(Destination);
     dest->info = &document_destination;
     dest->nesting_level = 0;
     dest->state_stack = g_queue_new();
@@ -151,6 +148,8 @@ parser_context_free(ParserContext *ctx)
     g_slice_free(ParserContext, ctx);
 }
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(ParserContext, parser_context_free);
+
 /* Convenience function to get the current state of the current destination */
 void *
 get_state(ParserContext *ctx)
@@ -164,11 +163,8 @@ font does not exist */
 FontProperties *
 get_font_properties(ParserContext *ctx, int index)
 {
-    unsigned i;
-    FontProperties *properties;
-
-    for (i = 0; i < g_slist_length(ctx->font_table); i++) {
-        properties = g_slist_nth_data(ctx->font_table, i);
+    for (unsigned i = 0; i < g_slist_length(ctx->font_table); i++) {
+        FontProperties *properties = g_slist_nth_data(ctx->font_table, i);
         if (properties != NULL && properties->index == index)
             return properties;
     }
@@ -180,9 +176,6 @@ exists; otherwise NULL */
 static char *
 get_charset_for_codepage(int codepage)
 {
-    GIConv converter;
-    char *charset;
-    int i = 0;
     struct codepage_to_locale {
         int codepage;
         const char* locale;
@@ -202,18 +195,16 @@ get_charset_for_codepage(int codepage)
         return NULL;
 
     /* First try the "CP<cpge>" charset */
-    charset = g_strdup_printf("CP%i", codepage);
-    converter = g_iconv_open("UTF-8", charset);
+    g_autofree char *charset = g_strdup_printf("CP%i", codepage);
+    GIConv converter = g_iconv_open("UTF-8", charset);
 
     if (converter != (GIConv)-1) {
         g_iconv_close(converter);
-        return charset;
+        return g_steal_pointer(&charset);
     }
 
-    g_free(charset);
-
     /* If there is no such converter, try the hard-coded table */
-    for (i = 0; ansicpgs[i].codepage != 0; i++) {
+    for (int i = 0; ansicpgs[i].codepage != 0; i++) {
         if (ansicpgs[i].codepage == codepage) {
             converter = g_iconv_open("UTF-8", ansicpgs[i].locale);
             if (converter != (GIConv)-1) {
@@ -229,21 +220,16 @@ get_charset_for_codepage(int codepage)
 bool
 convert_hex_to_utf8(ParserContext *ctx, char ch, GError **error)
 {
-    char *text_to_convert, *converted_text, *charset;
-    int codepage = -1;
-    GError *converterror = NULL;
-    Destination *dest;
-
     /* Determine the character encoding that ch is in. First see if the current
     destination diverts us to another codepage (e.g., \fcharset in the \fonttbl
     destination) and if not, use either the current codepage or the default codepage. */
-    dest = (Destination *)g_queue_peek_head(ctx->destination_stack);
-    codepage = -1;
+    Destination *dest = (Destination *)g_queue_peek_head(ctx->destination_stack);
+    int codepage = -1;
     if (dest->info->get_codepage)
         codepage = dest->info->get_codepage(ctx);
     if (codepage == -1)
         codepage = ctx->codepage;
-    charset = get_charset_for_codepage(codepage);
+    g_autofree char *charset = get_charset_for_codepage(codepage);
     if (charset == NULL)
         charset = get_charset_for_codepage(ctx->default_codepage);
     if (charset == NULL) {
@@ -253,6 +239,7 @@ convert_hex_to_utf8(ParserContext *ctx, char ch, GError **error)
 
     /* Now see if there was any incompletely converted text left over from
     previous characters */
+    g_autofree char *text_to_convert = NULL;
     if (ctx->convertbuffer->len) {
         g_string_append_c(ctx->convertbuffer, ch);
         text_to_convert = g_strdup(ctx->convertbuffer->str);
@@ -261,8 +248,8 @@ convert_hex_to_utf8(ParserContext *ctx, char ch, GError **error)
         text_to_convert = g_strndup(&ch, 1);
     }
 
-    converted_text = g_convert_with_fallback(text_to_convert, -1, "UTF-8", charset, "?", NULL, NULL, &converterror);
-    g_free(charset);
+    GError *converterror = NULL;
+    g_autofree char *converted_text = g_convert_with_fallback(text_to_convert, -1, "UTF-8", charset, "?", NULL, NULL, &converterror);
     if (converterror) {
         /* If there is a "partial input" error, then save the text
          in the convert buffer and retrieve it if there is another
@@ -274,9 +261,7 @@ convert_hex_to_utf8(ParserContext *ctx, char ch, GError **error)
         g_clear_error(&converterror);
     } else {
         g_string_append(ctx->text, converted_text);
-        g_free(converted_text);
     }
-    g_free(text_to_convert);
     return true;
 }
 
@@ -293,15 +278,13 @@ parse_control_word(ParserContext *ctx, char **word, GError **error)
     ctx->pos++;
     if (*ctx->pos == '*') {
         /* Ignorable destination */
-        char *destword;
-
         ctx->pos++;
         while (isspace(*ctx->pos))
             ctx->pos++;
+        g_autofree char *destword = NULL;
         if (!parse_control_word(ctx, &destword, error))
             return false;
         *word = g_strconcat("*", destword, NULL);
-        g_free(destword);
     } else if (g_ascii_ispunct(*ctx->pos) || *ctx->pos == '\n' || *ctx->pos == '\r') {
         /* Control symbol */
         *word = g_strndup(ctx->pos, 1);
@@ -331,7 +314,6 @@ static bool
 parse_int_parameter(ParserContext *ctx, int32_t *value)
 {
     size_t length = 0;
-    char *intstr;
 
     g_assert(ctx != NULL);
 
@@ -349,7 +331,7 @@ parse_int_parameter(ParserContext *ctx, int32_t *value)
     return false;
 
     /* Convert it */
-    intstr = g_strndup(ctx->pos, length);
+    g_autofree char *intstr = g_strndup(ctx->pos, length);
     if (value)
         *value = strtol(intstr, NULL, 10);
     ctx->pos += length;
@@ -379,11 +361,10 @@ skip_character_or_control_word(ParserContext *ctx, GError **error)
                 ctx->pos += 4;
                 return true;
             } else {
-                char *word = NULL;
+                g_autofree char *word = NULL;
                 bool success = parse_control_word(ctx, &word, error);
                 if (!parse_int_parameter(ctx, NULL) && *(ctx->pos) == ' ')
                     ctx->pos++;
-                g_free(word);
                 return success;
             }
         } else if (*ctx->pos == '\n' || *ctx->pos == '\r') {
@@ -400,10 +381,9 @@ in the current destination's control word table */
 static bool
 do_word_action(ParserContext *ctx, const char *text, GError **error)
 {
-    Destination *dest;
     const ControlWord *word;
 
-    dest = (Destination *)g_queue_peek_head(ctx->destination_stack);
+    Destination *dest = (Destination *)g_queue_peek_head(ctx->destination_stack);
 
     for (word = dest->info->word_table; word->word != NULL; word++) {
         if (strcmp(text, word->word) == 0)
@@ -488,13 +468,11 @@ current group. */
 static void
 pop_state(ParserContext *ctx)
 {
-    Destination *dest;
-
     g_assert(ctx != NULL);
 
     ctx->group_nesting_level--;
 
-    dest = (Destination *)g_queue_peek_head(ctx->destination_stack);
+    Destination *dest = (Destination *)g_queue_peek_head(ctx->destination_stack);
     dest->info->flush(ctx);
 
     if (ctx->group_nesting_level < dest->nesting_level) {
@@ -519,11 +497,9 @@ the group do not affect the state outside of the group. */
 static void
 push_state(ParserContext *ctx)
 {
-    Destination *dest;
-
     g_assert(ctx != NULL);
 
-    dest = (Destination *)g_queue_peek_head(ctx->destination_stack);
+    Destination *dest = (Destination *)g_queue_peek_head(ctx->destination_stack);
     dest->info->flush(ctx);
     ctx->group_nesting_level++;
     g_queue_push_head(dest->state_stack, dest->info->state_copy(g_queue_peek_head(dest->state_stack)));
@@ -547,24 +523,19 @@ parse_rtf(ParserContext *ctx, GError **error)
         } else if (*ctx->pos == '\\') {
             /* Special case: \' doesn't follow the regular syntax */
             if (ctx->pos[1] == '\'') {
-                char *hexcode, ch;
-
                 if (!(isxdigit(ctx->pos[2]) && isxdigit(ctx->pos[3]))) {
                     g_set_error(error, RTF_ERROR, RTF_ERROR_BAD_HEX_CODE, _("Expected a two-character hexadecimal code after \\'"));
                     return false;
                 }
-                hexcode = g_strndup(ctx->pos + 2, 2);
-                ch = strtol(hexcode, NULL, 16);
-                g_free(hexcode);
+                g_autofree char *hexcode = g_strndup(ctx->pos + 2, 2);
+                char ch = strtol(hexcode, NULL, 16);
                 ctx->pos += 4;
 
                 if (!convert_hex_to_utf8(ctx, ch, error))
                     return false;
             } else {
-                char *word = NULL;
-                bool success = parse_control_word(ctx, &word, error) && do_word_action(ctx, word, error);
-                g_free(word);
-                if (!success)
+                g_autofree char *word = NULL;
+                if (!parse_control_word(ctx, &word, error) || !do_word_action(ctx, word, error))
                     return false;
             }
         } else if (*ctx->pos == '\n' || *ctx->pos == '\r') {
@@ -603,17 +574,11 @@ parse_rtf(ParserContext *ctx, GError **error)
 bool
 rtf_deserialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, GtkTextIter *iter, const char *data, size_t length, bool create_tags, void *user_data, GError **error)
 {
-    ParserContext *ctx;
-    bool success;
-
     if (!g_str_has_prefix(data, "{\\rtf")) {
         g_set_error(error, RTF_ERROR, RTF_ERROR_INVALID_RTF, _("RTF format must begin with '{\\rtf'"));
         return false;
     }
 
-    ctx = parser_context_new(data, content_buffer, iter);
-    success = parse_rtf(ctx, error);
-    parser_context_free(ctx);
-
-    return success;
+    g_autoptr(ParserContext) ctx = parser_context_new(data, content_buffer, iter);
+    return parse_rtf(ctx, error);
 }

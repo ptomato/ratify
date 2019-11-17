@@ -93,11 +93,8 @@ const DestinationInfo fonttbl_destination = {
 static void
 font_table_text(ParserContext *ctx)
 {
-    char *name, *semicolon, *tagname, *fontstring = NULL;
-    FontProperties *fontprop;
     FontTableState *state = (FontTableState *)get_state(ctx);
-    GtkTextTag *tag;
-    static char *font_suggestions[] = {
+    static const char *font_suggestions[] = {
         "Sans", /* Default font for \fnil */
         "Serif", /* \froman */
         "Sans", /* \fswiss */
@@ -108,19 +105,17 @@ font_table_text(ParserContext *ctx)
         NULL /* \fbidi */
     };
 
-    name = g_strdup(ctx->text->str);
-    semicolon = strchr(name, ';');
+    g_autofree char *name = g_strdup(ctx->text->str);
+    char *semicolon = strchr(name, ';');
     if (!semicolon) {
-        char *newname = g_strconcat(state->name, name, NULL);
-        g_free(state->name);
-        state->name = newname;
+        state->name = g_strconcat(state->name, name, NULL);
         g_string_truncate(ctx->text, 0);
         return;
     }
     g_string_assign(ctx->text, semicolon + 1); /* Leave the text after the semicolon in the buffer */
     *semicolon = '\0';
 
-    fontprop = g_slice_new0(FontProperties);
+    FontProperties *fontprop = g_slice_new0(FontProperties);
     fontprop->index = state->index;
     fontprop->codepage = state->codepage;
     fontprop->font_name = g_strconcat(state->name, name, NULL);
@@ -129,11 +124,13 @@ font_table_text(ParserContext *ctx)
     /* Add the tag to the buffer right now instead of when the font is used,
     since any font might be declared the default font; remove any previous font
     with this font table index first */
-    tagname = g_strdup_printf("osxcart-rtf-font-%i", state->index);
-    if ((tag = gtk_text_tag_table_lookup(ctx->tags, tagname)))
+    g_autofree char *tagname = g_strdup_printf("osxcart-rtf-font-%i", state->index);
+    GtkTextTag *tag = gtk_text_tag_table_lookup(ctx->tags, tagname);
+    if (tag != NULL)
         gtk_text_tag_table_remove(ctx->tags, tag);
     tag = gtk_text_tag_new(tagname);
 
+    g_autofree char *fontstring = NULL;
     if (fontprop->font_name && font_suggestions[state->family]) {
         fontstring = g_strconcat(fontprop->font_name,
                                  ",",
@@ -150,10 +147,8 @@ font_table_text(ParserContext *ctx)
                      "family", fontstring,
                      "family-set", true,
                      NULL);
-        g_free(fontstring);
     }
     gtk_text_tag_table_add(ctx->tags, tag);
-    g_free(tagname);
 
     g_free(state->name);
     state->index = 0;

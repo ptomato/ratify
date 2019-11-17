@@ -198,14 +198,12 @@ the returned value. */
 static char *
 get_string_token(GScanner *tokenizer)
 {
-    GTokenType token;
-
     if (g_scanner_eof(tokenizer)) {
         g_warning(_("Unexpected end of field instructions"));
         g_scanner_destroy(tokenizer);
         return NULL;
     }
-    token = g_scanner_get_next_token(tokenizer);
+    GTokenType token = g_scanner_get_next_token(tokenizer);
     if (token != G_TOKEN_STRING) {
         g_warning(_("Expected a string in field instructions"));
         g_scanner_destroy(tokenizer);
@@ -244,8 +242,7 @@ get_switches(GScanner *tokenizer, GSList *switcheslist, const char *switches, co
         if (token != G_TOKEN_STRING)
             break;
         if (tokenizer->next_value.v_string[0] == '\\') {
-            const char *ptr;
-            for (ptr = switches; *ptr && !found; ptr++) {
+            for (const char *ptr = switches; *ptr && !found; ptr++) {
                 if (tokenizer->next_value.v_string[1] == ptr[0] && tokenizer->next_value.v_string[2] == '\0') {
                     SwitchInfo *info = g_slice_new0(SwitchInfo);
                     info->switchname = g_strdup(tokenizer->next_value.v_string + 1);
@@ -255,7 +252,7 @@ get_switches(GScanner *tokenizer, GSList *switcheslist, const char *switches, co
                     found = true;
                 }
             }
-            for (ptr = argswitches; *ptr && !found; ptr++) {
+            for (const char *ptr = argswitches; *ptr && !found; ptr++) {
                 if (tokenizer->next_value.v_string[1] == ptr[0] && tokenizer->next_value.v_string[2] == '\0') {
                     SwitchInfo *info = g_slice_new0(SwitchInfo);
                     info->switchname = g_strdup(tokenizer->next_value.v_string + 1);
@@ -265,7 +262,7 @@ get_switches(GScanner *tokenizer, GSList *switcheslist, const char *switches, co
                     found = true;
                 }
             }
-            for (ptr = wideswitches; *ptr && !found; ptr++) {
+            for (const char *ptr = wideswitches; *ptr && !found; ptr++) {
                 if (tokenizer->next_value.v_string[1] == ptr[0] && tokenizer->next_value.v_string[2] == ptr[1] && tokenizer->next_value.v_string[3] == '\0') {
                     SwitchInfo *info = g_slice_new0(SwitchInfo);
                     info->switchname = g_strdup(tokenizer->next_value.v_string + 1);
@@ -275,7 +272,7 @@ get_switches(GScanner *tokenizer, GSList *switcheslist, const char *switches, co
                     found = true;
                 }
             }
-            for (ptr = wideargswitches; *ptr && !found; ptr += 2) {
+            for (const char *ptr = wideargswitches; *ptr && !found; ptr += 2) {
                 if (tokenizer->next_value.v_string[1] == ptr[0] && tokenizer->next_value.v_string[2] == ptr[1] && tokenizer->next_value.v_string[3] == '\0') {
                     SwitchInfo *info = g_slice_new0(SwitchInfo);
                     info->switchname = g_strdup(tokenizer->next_value.v_string + 1);
@@ -300,24 +297,25 @@ get_switches(GScanner *tokenizer, GSList *switcheslist, const char *switches, co
 static void field_instruction_end(ParserContext *ctx)
 {
     FieldInstructionState *state = get_state(ctx);
-    char *field_type, *buffer;
-    GSList *switches = NULL, *formatswitches = NULL, *iter;
-    const FieldInfo *field_info = fields;
-    GScanner *tokenizer = g_scanner_new(&field_parser);
+    GSList *switches = NULL, *formatswitches = NULL;
+    g_autoptr(GScanner) tokenizer = g_scanner_new(&field_parser);
 
     g_scanner_input_text(tokenizer, state->scanbuffer->str, strlen(state->scanbuffer->str));
 
     /* Get field type */
-    if (!(field_type = get_string_token(tokenizer)))
+    const char *field_type = get_string_token(tokenizer);
+    if (field_type == NULL)
         return;
 
     /* Determine if field type is supported and get switches and arguments */
+    const FieldInfo *field_info = fields;
     while (field_info->name != NULL) {
         if (g_ascii_strcasecmp(field_type, field_info->name) == 0) {
             state->type = field_info->type;
             switches = get_switches(tokenizer, switches, field_info->switches, field_info->argswitches, field_info->wideswitches, field_info->wideargswitches);
             if (field_info->has_argument) {
-                if (!(buffer = get_string_token(tokenizer)))
+                const char *buffer = get_string_token(tokenizer);
+                if (buffer == NULL)
                     return;
                 state->argument = g_strdup(buffer);
                 switches = get_switches(tokenizer, switches, field_info->switches, field_info->argswitches, field_info->wideswitches, field_info->wideargswitches);
@@ -329,12 +327,11 @@ static void field_instruction_end(ParserContext *ctx)
     if (field_info->name == NULL) {
         /* Field name wasn't found in list */
         g_warning(_("'%s' field not supported"), field_type);
-        g_scanner_destroy(tokenizer);
         return;
     }
 
     formatswitches = get_switches(tokenizer, formatswitches, "", "@#*", "", "");
-    for (iter = formatswitches; iter; iter = g_slist_next(iter)) {
+    for (GSList *iter = formatswitches; iter; iter = g_slist_next(iter)) {
         SwitchInfo *info = (SwitchInfo *)iter->data;
         if (strcmp(info->switchname, "@") == 0) {
             /* Parse a date format consisting of \@ and a string */
@@ -386,11 +383,10 @@ static void field_instruction_end(ParserContext *ctx)
 
     case FIELD_TYPE_INCLUDEPICTURE: {
         GError *error = NULL;
-        char **pathcomponents = g_strsplit(state->argument, "\\", 0);
-        char *realfilename = g_build_filenamev(pathcomponents);
+        g_auto(GStrv) pathcomponents = g_strsplit(state->argument, "\\", 0);
+        g_autofree char *realfilename = g_build_filenamev(pathcomponents);
 
-        g_strfreev(pathcomponents);
-        GdkPixbuf *picture = gdk_pixbuf_new_from_file(realfilename, &error);
+        g_autoptr(GdkPixbuf) picture = gdk_pixbuf_new_from_file(realfilename, &error);
         if (!picture) {
             g_warning(_("Error loading picture from file '%s': %s"), realfilename, error->message);
         } else {
@@ -398,20 +394,17 @@ static void field_instruction_end(ParserContext *ctx)
             GtkTextIter iter;
             gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &iter, ctx->endmark);
             gtk_text_buffer_insert_pixbuf(ctx->textbuffer, &iter, picture);
-            g_object_unref(picture);
         }
-        g_free(realfilename);
     }
         /* Don't use calculated field result */
         fieldstate->ignore_field_result = true;
         break;
 
     case FIELD_TYPE_PAGE: {
-        char *output = format_integer(1, state->general_number_format);
+        g_autofree char *output = format_integer(1, state->general_number_format);
         GtkTextIter iter;
         gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &iter, ctx->endmark);
         gtk_text_buffer_insert(ctx->textbuffer, &iter, output, -1);
-        g_free(output);
     }
         /* Don't use calculated field result */
         fieldstate->ignore_field_result = true;
@@ -426,7 +419,6 @@ static void field_instruction_end(ParserContext *ctx)
     g_free(state->numeric_format);
     g_slist_foreach(switches, (GFunc)free_switch_info, NULL);
     g_slist_foreach(formatswitches, (GFunc)free_switch_info, NULL);
-    g_scanner_destroy(tokenizer);
 }
 
 /* Free the return value when done with it */
@@ -465,10 +457,8 @@ format_integer(int number, GeneralNumberFormat format)
         int hundreds = (number % 1000) / 100;
         int tens = (number % 100) / 10;
         int ones = number % 10;
-        char *thousandstring = g_strnfill(thousands, 'M');
-        char *retval = g_strconcat(thousandstring, r_hundred[hundreds], r_ten[tens], r_one[ones], NULL);
-        g_free(thousandstring);
-        return retval;
+        g_autofree char *thousandstring = g_strnfill(thousands, 'M');
+        return g_strconcat(thousandstring, r_hundred[hundreds], r_ten[tens], r_one[ones], NULL);
     }
     case NUMBER_roman:
         if (number < 1)
@@ -481,10 +471,8 @@ format_integer(int number, GeneralNumberFormat format)
         int hundreds = (number % 1000) / 100;
         int tens = (number % 100) / 10;
         int ones = number % 10;
-        char *thousandstring = g_strnfill(thousands, 'm');
-        char *retval = g_strconcat(thousandstring, r_hundred[hundreds], r_ten[tens], r_one[ones], NULL);
-        g_free(thousandstring);
-        return retval;
+        g_autofree char *thousandstring = g_strnfill(thousands, 'm');
+        return g_strconcat(thousandstring, r_hundred[hundreds], r_ten[tens], r_one[ones], NULL);
     }
     case NUMBER_CIRCLENUM:
         if (number >= 1 && number <= 20)

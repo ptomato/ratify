@@ -175,9 +175,7 @@ pict_text(ParserContext *ctx)
 {
     GError *error = NULL;
     PictState *state = get_state(ctx);
-    uint8_t *writebuffer;
-    int count;
-    const char *mimetypes[] = {
+    static const char *mimetypes[] = {
         "image/x-emf", "image/png", "image/jpeg", "image/x-pict",
         "OS/2 Presentation Manager", "image/x-wmf", "image/x-bmp", "image-x-bmp"
     }; /* "OS/2 Presentation Manager" isn't supported */
@@ -190,17 +188,14 @@ pict_text(ParserContext *ctx)
 
     /* If no GdkPixbufLoader has been initialized yet, then do that */
     if (!state->loader) {
-        GSList *formats = gdk_pixbuf_get_formats();
-        GSList *iter;
-        char **mimes;
+        g_autoptr(GSList) formats = gdk_pixbuf_get_formats();
 
         /* Make sure the MIME type we want to load is present in the list of
         formats compiled into our GdkPixbuf library */
-        for (iter = formats; iter && !state->loader; iter = g_slist_next(iter)) {
-            int i;
-            mimes = gdk_pixbuf_format_get_mime_types(iter->data);
+        for (GSList *iter = formats; iter && !state->loader; iter = g_slist_next(iter)) {
+            g_auto(GStrv) mimes = gdk_pixbuf_format_get_mime_types(iter->data);
 
-            for (i = 0; mimes[i] != NULL; i++) {
+            for (size_t i = 0; mimes[i] != NULL; i++) {
                 if (g_ascii_strcasecmp(mimes[i], mimetypes[state->type]) == 0) {
                     state->loader = gdk_pixbuf_loader_new_with_mime_type(mimetypes[state->type], &error);
                     if (!state->loader) {
@@ -216,8 +211,6 @@ pict_text(ParserContext *ctx)
             state->error = true;
         }
 
-        g_slist_free(formats);
-
         if (state->error)
             return;
 
@@ -225,19 +218,18 @@ pict_text(ParserContext *ctx)
     }
 
     /* Convert the "text" into binary data */
-    writebuffer = g_new0(uint8_t, strlen(ctx->text->str));
+    g_autofree uint8_t *writebuffer = g_new0(uint8_t, strlen(ctx->text->str));
+    size_t count;
     for (count = 0; ctx->text->str[count * 2] && ctx->text->str[count * 2 + 1]; count++) {
         char buf[3];
-        uint8_t byte;
 
         memcpy(buf, ctx->text->str + (count * 2), 2);
         buf[2] = '\0';
         errno = 0;
-        byte = (uint8_t)strtol(buf, NULL, 16);
+        uint8_t byte = (uint8_t)strtol(buf, NULL, 16);
         if (errno) {
             g_warning(_("Error in \\pict data: '%s'"), buf);
             state->error = true;
-            g_free(writebuffer);
             return;
         }
         writebuffer[count] = byte;
@@ -248,7 +240,6 @@ pict_text(ParserContext *ctx)
         state->error = true;
     }
 
-    g_free(writebuffer);
     g_string_truncate(ctx->text, 0);
 }
 
@@ -257,10 +248,10 @@ the GdkPixbufLoader and load the picture */
 static void
 pict_end(ParserContext *ctx)
 {
-    GError *error = NULL;
     PictState *state = get_state(ctx);
 
     if (!state->error) {
+        GError *error = NULL;
         if (state->loader && !gdk_pixbuf_loader_close(state->loader, &error))
             g_warning(_("Error closing pixbuf loader: %s"), error->message);
         GdkPixbuf *picture = gdk_pixbuf_loader_get_pixbuf(state->loader);
@@ -405,19 +396,16 @@ nextgraphic_text(ParserContext *ctx)
 static void
 nextgraphic_end(ParserContext *ctx)
 {
-    GdkPixbuf *pixbuf;
-    char *filename;
     NeXTGraphicState *state = get_state(ctx);
     GError *error = NULL;
 
-    filename = g_strstrip(g_strdup(ctx->text->str));
+    g_autofree char *filename = g_strstrip(g_strdup(ctx->text->str));
     g_string_truncate(ctx->text, 0);
-    pixbuf = gdk_pixbuf_new_from_file_at_scale(filename, state->width, state->height, false /* preserve aspect ratio */, &error);
+    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file_at_scale(filename, state->width, state->height, false /* preserve aspect ratio */, &error);
     if (!pixbuf) {
         g_warning(_("Error loading picture from file '%s': %s"), filename, error->message);
         return;
     }
-    g_free(filename);
 
     insert_picture_into_textbuffer(ctx, pixbuf);
 }

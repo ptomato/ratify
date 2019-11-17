@@ -52,30 +52,24 @@ end of the textbuffer */
 static void
 footnote_text(ParserContext *ctx)
 {
-    GtkTextIter start, end;
-    GtkTextMark *placeholder;
-    Attributes *attr;
-    int length;
-    char *text;
-
     g_assert(ctx != NULL);
 
-    attr = get_state(ctx);
-    text = ctx->text->str;
-
+    char *text = ctx->text->str;
     if (text[0] == '\0')
         return;
 
-    length = strlen(text) - 1;
+    size_t length = strlen(text) - 1;
     if (!ctx->group_nesting_level && text[length] == '\n')
         text[length] = '\0';
 
+    GtkTextIter start, end;
     gtk_text_buffer_get_end_iter(ctx->textbuffer, &end);
-    placeholder = gtk_text_buffer_create_mark(ctx->textbuffer, NULL, &end, true);
+    GtkTextMark *placeholder = gtk_text_buffer_create_mark(ctx->textbuffer, NULL, &end, true);
     gtk_text_buffer_insert(ctx->textbuffer, &end, text, -1);
     gtk_text_buffer_get_iter_at_mark(ctx->textbuffer, &start, placeholder);
     gtk_text_buffer_get_end_iter(ctx->textbuffer, &end);
 
+    Attributes *attr = get_state(ctx);
     apply_attributes(ctx, attr, &start, &end);
 
     gtk_text_buffer_delete_mark(ctx->textbuffer, placeholder);

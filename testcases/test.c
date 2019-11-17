@@ -19,16 +19,13 @@ failed. */
 static void
 rtf_fail_case(const void *name)
 {
-    GError *error = NULL;
-    GtkTextBuffer *buffer = gtk_text_buffer_new(NULL);
-    char *filename = build_filename(name);
+    g_autoptr(GError) error = NULL;
+    g_autoptr(GtkTextBuffer) buffer = gtk_text_buffer_new(NULL);
+    g_autofree char *filename = build_filename(name);
 
     g_assert(!rtf_text_buffer_import(buffer, filename, &error));
-    g_free(filename);
-    g_object_unref(buffer);
     g_assert(error != NULL);
     g_test_message("Error message: %s", error->message);
-    g_error_free(error);
 }
 
 /* This test tries to import an RTF file, and succeeds if the import succeeded. */
@@ -36,13 +33,11 @@ static void
 rtf_parse_pass_case(const void *name)
 {
     GError *error = NULL;
-    GtkTextBuffer *buffer = gtk_text_buffer_new(NULL);
-    char *filename = build_filename(name);
+    g_autoptr(GtkTextBuffer) buffer = gtk_text_buffer_new(NULL);
+    g_autofree char *filename = build_filename(name);
 
     if (!rtf_text_buffer_import(buffer, filename, &error))
         g_test_message("Error message: %s", error->message);
-    g_free(filename);
-    g_object_unref(buffer);
     g_assert(error == NULL);
 }
 
@@ -52,16 +47,13 @@ static void
 rtf_write_case(gcontpointer name)
 {
     GError *error = NULL;
-    GtkTextBuffer *buffer = gtk_text_buffer_new(NULL);
-    char *filename = build_filename(name);
+    g_autoptr(GtkTextBuffer) buffer = gtk_text_buffer_new(NULL);
+    g_autofree char *filename = build_filename(name);
 
     g_assert(rtf_text_buffer_import(buffer, filename, &error));
-    g_free(filename);
     g_assert(error == NULL);
-    char *string = rtf_text_buffer_export_to_string(buffer);
-    g_object_unref(buffer);
+    g_autofree char *string = rtf_text_buffer_export_to_string(buffer);
     g_print("%s\n", string);
-    g_free(string);
 }
 #endif /* rtf_write_case */
 
@@ -75,31 +67,24 @@ static void
 rtf_write_pass_case(const void *name)
 {
     GError *error = NULL;
-    GtkTextBuffer *buffer1 = gtk_text_buffer_new(NULL);
-    GtkTextBuffer *buffer2 = gtk_text_buffer_new(NULL);
-    char *filename = build_filename(name);
+    g_autoptr(GtkTextBuffer) buffer1 = gtk_text_buffer_new(NULL);
+    g_autoptr(GtkTextBuffer) buffer2 = gtk_text_buffer_new(NULL);
+    g_autofree char *filename = build_filename(name);
 
     if (!rtf_text_buffer_import(buffer1, filename, &error))
         g_test_message("Import error message: %s", error->message);
-    g_free(filename);
     g_assert(error == NULL);
-    char *string = rtf_text_buffer_export_to_string(buffer1);
+    g_autofree char *string = rtf_text_buffer_export_to_string(buffer1);
     if (!rtf_text_buffer_import_from_string(buffer2, string, &error))
         g_test_message("Export error message: %s", error->message);
     g_assert(error == NULL);
 
     GtkTextIter start, end;
     gtk_text_buffer_get_bounds(buffer1, &start, &end);
-    char *text1 = gtk_text_buffer_get_slice(buffer1, &start, &end, TRUE);
+    g_autofree char *text1 = gtk_text_buffer_get_slice(buffer1, &start, &end, TRUE);
     gtk_text_buffer_get_bounds(buffer2, &start, &end);
-    char *text2 = gtk_text_buffer_get_slice(buffer2, &start, &end, TRUE);
+    g_autofree char *text2 = gtk_text_buffer_get_slice(buffer2, &start, &end, TRUE);
     g_assert_cmpstr(text1, ==, text2);
-
-    g_free(text1);
-    g_free(text2);
-    g_object_unref(buffer1);
-    g_object_unref(buffer2);
-    g_free(string);
 }
 
 static void
@@ -125,14 +110,11 @@ static void
 rtf_parse_human_approval_case(const void *name)
 {
     GError *error = NULL;
-    GtkWidget *label, *pane, *codescroll, *codeview, *rtfscroll, *rtfview,
-        *window, *vbox, *buttons, *yes, *no;
-    GtkTextBuffer *rtfbuffer = gtk_text_buffer_new(NULL);
-    char *text, *filename = build_filename(name);
     bool was_correct = false;
-    GFile *file = g_file_new_for_path(filename);
 
     /* Get RTF code */
+    g_autofree char *filename = build_filename(name);
+    g_autofree char *text = NULL;
     if (!g_file_get_contents(filename, &text, NULL, &error))
         g_test_message("Error message: %s", error->message);
     g_assert(error == NULL);
@@ -140,29 +122,30 @@ rtf_parse_human_approval_case(const void *name)
     /* Import RTF code into text buffer. Import it from a file, even though we
     have already loaded the RTF code to display in the left-hand pane, because
     the RTF code may contain references to images. */
+    g_autoptr(GFile) file = g_file_new_for_path(filename);
+    g_autoptr(GtkTextBuffer) rtfbuffer = gtk_text_buffer_new(NULL);
     if (!rtf_text_buffer_import_file(rtfbuffer, file, NULL, &error))
         g_test_message("Error message: %s", error->message);
     g_assert(error == NULL);
-    g_object_unref(file);
 
     /* Build the interface widgets */
-    label = gtk_label_new("Is the RTF code rendered correctly?");
-    pane = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
-    codescroll = gtk_scrolled_window_new(NULL, NULL);
+    GtkWidget *label = gtk_label_new("Is the RTF code rendered correctly?");
+    GtkWidget *pane = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
+    GtkWidget *codescroll = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(codescroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-    codeview = gtk_text_view_new();
+    GtkWidget *codeview = gtk_text_view_new();
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(codeview), GTK_WRAP_CHAR);
     gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(codeview)), text, -1);
-    rtfscroll = gtk_scrolled_window_new(NULL, NULL);
+    GtkWidget *rtfscroll = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(rtfscroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-    rtfview = gtk_text_view_new_with_buffer(rtfbuffer);
+    GtkWidget *rtfview = gtk_text_view_new_with_buffer(rtfbuffer);
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(rtfview), GTK_WRAP_WORD);
-    buttons = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
+    GtkWidget *buttons = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_button_box_set_layout(GTK_BUTTON_BOX(buttons), GTK_BUTTONBOX_END);
     gtk_box_set_spacing(GTK_BOX(buttons), 6);
-    yes = gtk_button_new_with_mnemonic("_Yes");
-    no = gtk_button_new_with_mnemonic("_No");
-    vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    GtkWidget *yes = gtk_button_new_with_mnemonic("_Yes");
+    GtkWidget *no = gtk_button_new_with_mnemonic("_No");
+    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     /* Pack everything into containers */
     gtk_container_add(GTK_CONTAINER(codescroll), codeview);
     gtk_container_add(GTK_CONTAINER(rtfscroll), rtfview);
@@ -174,7 +157,7 @@ rtf_parse_human_approval_case(const void *name)
     gtk_box_pack_start(GTK_BOX(vbox), label, false, false, 6);
     gtk_box_pack_start(GTK_BOX(vbox), buttons, false, false, 6);
     /* Build window */
-    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), filename);
     gtk_window_set_modal(GTK_WINDOW(window), true);
     gtk_window_set_default_size(GTK_WINDOW(window), 1000, 400);
@@ -185,13 +168,11 @@ rtf_parse_human_approval_case(const void *name)
     g_signal_connect(no, "clicked", G_CALLBACK(yes_not_clicked), NULL);
     g_signal_connect(window, "delete-event", G_CALLBACK(yes_not_clicked), NULL);
     gtk_widget_show_all(window);
-    g_free(filename);
 
     /* Run it */
     gtk_main();
     gtk_widget_destroy(window);
 
-    g_free(text);
     g_assert(was_correct);
 }
 
@@ -328,29 +309,24 @@ bool have_emf = false;
 static void
 check_wmf_and_emf(void)
 {
-    GSList *iter, *formats = gdk_pixbuf_get_formats();
+    g_autoptr(GSList) formats = gdk_pixbuf_get_formats();
 
-    for (iter = formats; iter; iter = g_slist_next(iter)) {
+    for (GSList *iter = formats; iter; iter = g_slist_next(iter)) {
         if (strcmp(gdk_pixbuf_format_get_name(iter->data), "wmf") == 0)
             have_wmf = true;
         else if (strcmp(gdk_pixbuf_format_get_name(iter->data), "emf") == 0)
             have_emf = true;
     }
-    g_slist_free(formats);
 }
 
 static void
 add_tests(const char **testlist, const char *path, void (test_func)(const void *))
 {
-    const char **ptr;
-    char *testname;
-
-    for (ptr = testlist; *ptr; ptr += 2) {
+    for (const char **ptr = testlist; *ptr; ptr += 2) {
         if ((!have_wmf && strstr(ptr[0], "WMF")) || (!have_emf && strstr(ptr[0], "EMF")))
             continue;
-        testname = g_strconcat(path, ptr[0], NULL);
+        g_autofree char *testname = g_strconcat(path, ptr[0], NULL);
         g_test_add_data_func(testname, ptr[1], test_func);
-        g_free(testname);
     }
 }
 

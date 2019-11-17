@@ -81,20 +81,19 @@ the current style */
 static void
 stylesheet_text(ParserContext *ctx)
 {
-    char *semicolon, *tagname;
     StylesheetState *state = get_state(ctx);
     Attributes *attr = (Attributes *)state;
-    GtkTextTag *tag;
 
-    semicolon = strchr(ctx->text->str, ';');
+    const char *semicolon = strchr(ctx->text->str, ';');
     if (!semicolon) {
         g_string_truncate(ctx->text, 0);
         return;
     }
     g_string_assign(ctx->text, semicolon + 1); /* Leave the text after the semicolon in the buffer */
 
-    tagname = g_strdup_printf("osxcart-rtf-style-%i", state->index);
-    if ((tag = gtk_text_tag_table_lookup(ctx->tags, tagname)))
+    g_autofree char *tagname = g_strdup_printf("osxcart-rtf-style-%i", state->index);
+    GtkTextTag *tag = gtk_text_tag_table_lookup(ctx->tags, tagname);
+    if (tag != NULL)
         gtk_text_tag_table_remove(ctx->tags, tag);
     tag = gtk_text_tag_new(tagname);
 
@@ -152,7 +151,7 @@ stylesheet_text(ParserContext *ctx)
 
     /* Add each character attribute to the tag */
     if (attr->foreground != -1) {
-        char *color = g_slist_nth_data(ctx->color_table, attr->foreground);
+        const char *color = g_slist_nth_data(ctx->color_table, attr->foreground);
         /* color must exist, because that was already checked when executing
          the \cf command */
         g_object_set(tag,
@@ -161,7 +160,7 @@ stylesheet_text(ParserContext *ctx)
                      NULL);
     }
     if (attr->background != -1) {
-        char *color = g_slist_nth_data(ctx->color_table, attr->background);
+        const char *color = g_slist_nth_data(ctx->color_table, attr->background);
         /* color must exist, because that was already checked when executing
          the \cf command */
         g_object_set(tag,
@@ -170,7 +169,7 @@ stylesheet_text(ParserContext *ctx)
                      NULL);
     }
     if (attr->highlight != -1) {
-        char *color = g_slist_nth_data(ctx->color_table, attr->highlight);
+        const char *color = g_slist_nth_data(ctx->color_table, attr->highlight);
         /* color must exist, because that was already checked when executing
          the \cf command */
         g_object_set(tag,
@@ -179,7 +178,7 @@ stylesheet_text(ParserContext *ctx)
                      NULL);
     }
     if (attr->font != -1) {
-        char *tagname = g_strdup_printf("osxcart-rtf-font-%d", attr->font);
+        g_autofree char *tagname = g_strdup_printf("osxcart-rtf-font-%d", attr->font);
         GtkTextTag *fonttag = gtk_text_tag_table_lookup(ctx->tags, tagname);
         PangoFontDescription *fontdesc;
 
@@ -190,7 +189,6 @@ stylesheet_text(ParserContext *ctx)
                          "family-set", true,
                          NULL);
         }
-        g_free(tagname);
     }
     if (attr->size != 0.0) {
         g_object_set(tag,
@@ -260,7 +258,6 @@ stylesheet_text(ParserContext *ctx)
     }
 
     gtk_text_tag_table_add(ctx->tags, tag);
-    g_free(tagname);
 
     state->index = 0;
     state->type = STYLE_PARAGRAPH;

@@ -10,9 +10,9 @@ URL: https://github.com/ptomato/%{name}
 License: LGPLv3
 Group: Development/Libraries
 Source: http://github.com/ptomato/%{name}/releases/download/%{version}/%{name}-%{version}.tar.xz
-Requires: glib2%{?_isa} >= 2.18
+Requires: glib2%{?_isa} >= 2.44
 Requires: gtk3%{?_isa}
-BuildRequires: glib2-devel%{?_isa} >= 2.18
+BuildRequires: glib2-devel%{?_isa} >= 2.44
 BuildRequires: gtk3-devel%{?_isa}
 BuildRequires: gettext
 BuildRequires: libtool >= 2.2

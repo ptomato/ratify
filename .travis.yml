@@ -10,7 +10,7 @@ addons:
       - libgirepository1.0-dev
       - libgtk-3-dev
 compiler:
-  - clang
+  # - clang - clang-7 doesn't seem to cope with custom autoptr funcs.
   - gcc
 after_failure:
   - test -f testcases/test-suite.log && cat testcases/test-suite.log
