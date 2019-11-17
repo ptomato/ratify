@@ -23,8 +23,8 @@ rtf_fail_case(const void *name)
     g_autoptr(GtkTextBuffer) buffer = gtk_text_buffer_new(NULL);
     g_autofree char *filename = build_filename(name);
 
-    g_assert(!rtf_text_buffer_import(buffer, filename, &error));
-    g_assert(error != NULL);
+    g_assert_false(rtf_text_buffer_import(buffer, filename, &error));
+    g_assert_nonnull(error);
     g_test_message("Error message: %s", error->message);
 }
 
@@ -38,7 +38,7 @@ rtf_parse_pass_case(const void *name)
 
     if (!rtf_text_buffer_import(buffer, filename, &error))
         g_test_message("Error message: %s", error->message);
-    g_assert(error == NULL);
+    g_assert_no_error(error);
 }
 
 /* This test is commented out. */
@@ -50,8 +50,8 @@ rtf_write_case(gcontpointer name)
     g_autoptr(GtkTextBuffer) buffer = gtk_text_buffer_new(NULL);
     g_autofree char *filename = build_filename(name);
 
-    g_assert(rtf_text_buffer_import(buffer, filename, &error));
-    g_assert(error == NULL);
+    g_assert_true(rtf_text_buffer_import(buffer, filename, &error));
+    g_assert_no_error(error);
     g_autofree char *string = rtf_text_buffer_export_to_string(buffer);
     g_print("%s\n", string);
 }
@@ -73,11 +73,11 @@ rtf_write_pass_case(const void *name)
 
     if (!rtf_text_buffer_import(buffer1, filename, &error))
         g_test_message("Import error message: %s", error->message);
-    g_assert(error == NULL);
+    g_assert_no_error(error);
     g_autofree char *string = rtf_text_buffer_export_to_string(buffer1);
     if (!rtf_text_buffer_import_from_string(buffer2, string, &error))
         g_test_message("Export error message: %s", error->message);
-    g_assert(error == NULL);
+    g_assert_no_error(error);
 
     GtkTextIter start, end;
     gtk_text_buffer_get_bounds(buffer1, &start, &end);
@@ -117,7 +117,7 @@ rtf_parse_human_approval_case(const void *name)
     g_autofree char *text = NULL;
     if (!g_file_get_contents(filename, &text, NULL, &error))
         g_test_message("Error message: %s", error->message);
-    g_assert(error == NULL);
+    g_assert_no_error(error);
 
     /* Import RTF code into text buffer. Import it from a file, even though we
     have already loaded the RTF code to display in the left-hand pane, because
@@ -126,7 +126,7 @@ rtf_parse_human_approval_case(const void *name)
     g_autoptr(GtkTextBuffer) rtfbuffer = gtk_text_buffer_new(NULL);
     if (!rtf_text_buffer_import_file(rtfbuffer, file, NULL, &error))
         g_test_message("Error message: %s", error->message);
-    g_assert(error == NULL);
+    g_assert_no_error(error);
 
     /* Build the interface widgets */
     GtkWidget *label = gtk_label_new("Is the RTF code rendered correctly?");
@@ -173,7 +173,7 @@ rtf_parse_human_approval_case(const void *name)
     gtk_main();
     gtk_widget_destroy(window);
 
-    g_assert(was_correct);
+    g_assert_true(was_correct);
 }
 
 const char *rtfbookexamples[] = {
