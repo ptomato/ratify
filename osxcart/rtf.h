@@ -5,15 +5,15 @@
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
-terms of the GNU Lesser General Public License as published by the Free Software 
-Foundation, either version 3 of the License, or (at your option) any later 
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
 version.
 
-Osxcart is distributed in the hope that it will be useful, but WITHOUT ANY 
+Osxcart is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU Lesser General Public License along 
+You should have received a copy of the GNU Lesser General Public License along
 with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <glib.h>
@@ -47,19 +47,19 @@ G_BEGIN_DECLS
  * The different codes which can be thrown in the #RTF_ERROR domain.
  */
 typedef enum {
-	RTF_ERROR_FAILED,
-	RTF_ERROR_INVALID_RTF,
-	RTF_ERROR_MISSING_PARAMETER,
-	RTF_ERROR_MISSING_BRACE,
-	RTF_ERROR_EXTRA_CHARACTERS,
-	RTF_ERROR_BAD_VERSION,
-	RTF_ERROR_UNDEFINED_COLOR,
-	RTF_ERROR_UNDEFINED_FONT,
-	RTF_ERROR_UNDEFINED_STYLE,
-	RTF_ERROR_BAD_HEX_CODE,
-	RTF_ERROR_BAD_PICT_TYPE,
-	RTF_ERROR_BAD_FONT_SIZE,
-	RTF_ERROR_UNSUPPORTED_CHARSET
+    RTF_ERROR_FAILED,
+    RTF_ERROR_INVALID_RTF,
+    RTF_ERROR_MISSING_PARAMETER,
+    RTF_ERROR_MISSING_BRACE,
+    RTF_ERROR_EXTRA_CHARACTERS,
+    RTF_ERROR_BAD_VERSION,
+    RTF_ERROR_UNDEFINED_COLOR,
+    RTF_ERROR_UNDEFINED_FONT,
+    RTF_ERROR_UNDEFINED_STYLE,
+    RTF_ERROR_BAD_HEX_CODE,
+    RTF_ERROR_BAD_PICT_TYPE,
+    RTF_ERROR_BAD_FONT_SIZE,
+    RTF_ERROR_UNSUPPORTED_CHARSET
 } RtfError;
 
 /**

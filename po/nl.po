@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Osxcart 1.1\n"
 "Report-Msgid-Bugs-To: http://github.com/ptomato/osxcart/issues\n"
-"POT-Creation-Date: 2019-11-16 21:16-0800\n"
+"POT-Creation-Date: 2019-11-16 21:24-0800\n"
 "PO-Revision-Date: 2015-10-11 14:47-0700\n"
 "Last-Translator: Philip Chimento <philip.chimento@gmail.com>\n"
 "Language-Team: Osxcart <philip.chimento@gmail.com>\n"
@@ -18,165 +18,165 @@ msgstr ""
 "X-Generator: Virtaal 0.7.1\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
-#: osxcart/rtf.c:188
+#: osxcart/rtf.c:191
 #, c-format
 msgid "Could not change directory to '%s': %s"
 msgstr "Kan niet naar map '%s' navigeren: %s"
 
-#: osxcart/rtf.c:197 osxcart/rtf.c:207
+#: osxcart/rtf.c:200 osxcart/rtf.c:210
 #, c-format
 msgid "Could not restore current directory: %s"
 msgstr "Kan huidige map niet heropenen: %s"
 
-#: osxcart/rtf-deserialize.c:251
+#: osxcart/rtf-deserialize.c:254
 #, c-format
 msgid "Character set %d is not supported"
 msgstr "Geen ondersteuning voor tekenset %d"
 
-#: osxcart/rtf-deserialize.c:276
+#: osxcart/rtf-deserialize.c:279
 #, c-format
 msgid "Conversion error: %s"
 msgstr "Fout bij omzetten: %s"
 
-#: osxcart/rtf-deserialize.c:327
+#: osxcart/rtf-deserialize.c:330
 msgid "Backslash encountered without control word"
 msgstr "Omgekeerde schuine streep gevonden zonder opvolgend commando"
 
-#: osxcart/rtf-deserialize.c:392 osxcart/rtf-deserialize.c:587
+#: osxcart/rtf-deserialize.c:395 osxcart/rtf-deserialize.c:590
 msgid "Expected a two-character hexadecimal code after \\'"
 msgstr "Hexadecimale code van twee tekens verwacht na \\'"
 
-#: osxcart/rtf-deserialize.c:469
+#: osxcart/rtf-deserialize.c:472
 #, c-format
 msgid "Expected a number after control word '\\%s'"
 msgstr "Getal verwacht na commando '\\%s'"
 
-#: osxcart/rtf-deserialize.c:565
+#: osxcart/rtf-deserialize.c:568
 msgid "File ended unexpectedly"
 msgstr "Onverwacht einde bestand"
 
-#: osxcart/rtf-deserialize.c:636
+#: osxcart/rtf-deserialize.c:639
 msgid "Characters found after final closing brace"
 msgstr "Tekens gevonden na sluitaccolade"
 
-#: osxcart/rtf-deserialize.c:652
+#: osxcart/rtf-deserialize.c:655
 msgid "RTF format must begin with '{\\rtf'"
 msgstr "RTF-formaat moet beginnen met '{\\rtf'"
 
-#: osxcart/rtf-document.c:279 osxcart/rtf-document.c:306
-#: osxcart/rtf-document.c:502
+#: osxcart/rtf-document.c:282 osxcart/rtf-document.c:309
+#: osxcart/rtf-document.c:505
 #, c-format
 msgid "Color '%i' undefined"
 msgstr "Ongedefinieerde kleur '%i'"
 
-#: osxcart/rtf-document.c:331
+#: osxcart/rtf-document.c:334
 #, c-format
 msgid "\\charscalex%d is invalid, negative or zero scales not allowed"
 msgstr ""
 "\\charscalex%d is ongeldig, nul of negatieve schaling is niet toegestaan"
 
-#: osxcart/rtf-document.c:401
+#: osxcart/rtf-document.c:404
 #, c-format
 msgid "Font '%i' undefined"
 msgstr "Ongedefinieerd lettertype '%i'"
 
-#: osxcart/rtf-document.c:448
+#: osxcart/rtf-document.c:451
 #, c-format
 msgid "\\fs%d is invalid, negative or zero font sizes not allowed"
 msgstr ""
 "\\fs%d is ongeldig, lettergrootte nul of negatieve lettergroottes zijn niet "
 "toegestaan"
 
-#: osxcart/rtf-document.c:474
+#: osxcart/rtf-document.c:477
 #, c-format
 msgid "\\fsmilli%d is invalid, negative or zero font sizes not allowed"
 msgstr ""
 "\\fsmilli%d is ongeldig, lettergrootte nul of negatieve lettergroottes zijn "
 "niet toegestaan"
 
-#: osxcart/rtf-document.c:771
+#: osxcart/rtf-document.c:774
 #, c-format
 msgid "Unsupported RTF version '%i'"
 msgstr "Geen ondersteuning voor RTF-versie '%i'"
 
-#: osxcart/rtf-document.c:809
+#: osxcart/rtf-document.c:812
 #, c-format
 msgid "Style '%i' undefined"
 msgstr "Ongedefinieerde stijl '%i'"
 
-#: osxcart/rtf-field.c:201
+#: osxcart/rtf-field.c:204
 msgid "Unexpected end of field instructions"
 msgstr "Onverwacht einde veldinstructies"
 
-#: osxcart/rtf-field.c:208
+#: osxcart/rtf-field.c:211
 msgid "Expected a string in field instructions"
 msgstr "Tekenreeks verwacht in veldinstructies"
 
-#: osxcart/rtf-field.c:334
+#: osxcart/rtf-field.c:337
 #, c-format
 msgid "'%s' field not supported"
 msgstr "Geen ondersteuning voor veld '%s'"
 
-#: osxcart/rtf-field.c:377
+#: osxcart/rtf-field.c:380
 #, c-format
 msgid "Format '%s' not supported"
 msgstr "Geen ondersteuning voor formaat '%s'"
 
-#: osxcart/rtf-field.c:402 osxcart/rtf-picture.c:424
+#: osxcart/rtf-field.c:405 osxcart/rtf-picture.c:427
 #, c-format
 msgid "Error loading picture from file '%s': %s"
 msgstr "Fout bij inezen afbeelding uit bestand '%s': %s"
 
-#: osxcart/rtf-fonttbl.c:204
+#: osxcart/rtf-fonttbl.c:207
 #, c-format
 msgid "Character set %d not supported"
 msgstr "Geen ondersteuning voor tekenset %d"
 
-#: osxcart/rtf-fonttbl.c:207
+#: osxcart/rtf-fonttbl.c:210
 #, c-format
 msgid "Unknown character set %d"
 msgstr "Onbekend tekenset %d"
 
-#: osxcart/rtf-picture.c:205
+#: osxcart/rtf-picture.c:208
 #, c-format
 msgid "Error loading picture of MIME type '%s': %s"
 msgstr "Fout bij inladen afbeelding met MIME-type '%s': %s"
 
-#: osxcart/rtf-picture.c:213
+#: osxcart/rtf-picture.c:216
 #, c-format
 msgid "Module for loading MIME type '%s' not found"
 msgstr "Module niet gevonden voor inladen MIME-type '%s'"
 
-#: osxcart/rtf-picture.c:238
+#: osxcart/rtf-picture.c:241
 #, c-format
 msgid "Error in \\pict data: '%s'"
 msgstr "Ongeldige \\pict gegevens: '%s'"
 
-#: osxcart/rtf-picture.c:248
+#: osxcart/rtf-picture.c:251
 #, c-format
 msgid "Error reading \\pict data: %s"
 msgstr "Fout bij inlezen \\pict gegevens: %s"
 
-#: osxcart/rtf-picture.c:267
+#: osxcart/rtf-picture.c:270
 #, c-format
 msgid "Error closing pixbuf loader: %s"
 msgstr "Fout bij sluiten pixbuflader: %s"
 
-#: osxcart/rtf-picture.c:270
+#: osxcart/rtf-picture.c:273
 msgid "Error loading picture"
 msgstr "Fout bij inlezen afbeelding"
 
-#: osxcart/rtf-picture.c:292
+#: osxcart/rtf-picture.c:295
 #, c-format
 msgid "Invalid bitmap type '%i' for \\dibitmap"
 msgstr "Ongeldig bitmaptype '%i' in \\dibitmap commando"
 
-#: osxcart/rtf-picture.c:387
+#: osxcart/rtf-picture.c:390
 #, c-format
 msgid "Invalid bitmap type '%i' for \\wbitmap"
 msgstr "Ongeldig bitmaptype '%i' in \\wbitmap commando"
 
-#: osxcart/rtf-serialize.c:548
+#: osxcart/rtf-serialize.c:550
 #, c-format
 msgid "Could not serialize picture, skipping: %s"
 msgstr ""

@@ -5,15 +5,15 @@
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
-terms of the GNU Lesser General Public License as published by the Free Software 
-Foundation, either version 3 of the License, or (at your option) any later 
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
 version.
 
-Osxcart is distributed in the hope that it will be useful, but WITHOUT ANY 
+Osxcart is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU Lesser General Public License along 
+You should have received a copy of the GNU Lesser General Public License along
 with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <glib.h>
@@ -24,73 +24,73 @@ typedef struct _ParserContext ParserContext;
 typedef struct _ControlWord ControlWord;
 typedef struct _Destination Destination;
 typedef struct _DestinationInfo DestinationInfo;
-    
+
 #define POINTS_TO_PANGO(pts) ((gint)(pts * PANGO_SCALE))
 #define HALF_POINTS_TO_PANGO(halfpts) (halfpts * PANGO_SCALE / 2)
 #define TWIPS_TO_PANGO(twips) (twips * PANGO_SCALE / 20)
 
 struct _ParserContext {
-	/* Header information */
-	gint codepage;
-	gint default_codepage;
-	gint default_font;
-	gint default_language;
-	
-	/* Destination stack management */
-	gint group_nesting_level;
-	GQueue *destination_stack;
+    /* Header information */
+    gint codepage;
+    gint default_codepage;
+    gint default_font;
+    gint default_language;
 
-	/* Tables */
-	GSList *color_table;
-	GSList *font_table;
+    /* Destination stack management */
+    gint group_nesting_level;
+    GQueue *destination_stack;
 
-	/* Other document attributes */
-	gint footnote_number;
+    /* Tables */
+    GSList *color_table;
+    GSList *font_table;
 
-	/* Text information */
-	const gchar *rtftext;
-	const gchar *pos;
-	GString *convertbuffer;
-	/* Text waiting for insertion */
-	GString *text;
+    /* Other document attributes */
+    gint footnote_number;
 
-	/* Output references */
-	GtkTextBuffer *textbuffer;
-	GtkTextTagTable *tags;
-	GtkTextMark *startmark;
-	GtkTextMark *endmark;
+    /* Text information */
+    const gchar *rtftext;
+    const gchar *pos;
+    GString *convertbuffer;
+    /* Text waiting for insertion */
+    GString *text;
+
+    /* Output references */
+    GtkTextBuffer *textbuffer;
+    GtkTextTagTable *tags;
+    GtkTextMark *startmark;
+    GtkTextMark *endmark;
 };
 
 struct _DestinationInfo {
     const ControlWord *word_table;
     void (*flush)(ParserContext *);
-	StateNewFunc *state_new;
-	StateCopyFunc *state_copy;
-	StateFreeFunc *state_free;
-	void (*cleanup)(ParserContext *);
-	gint (*get_codepage)(ParserContext *);
+    StateNewFunc *state_new;
+    StateCopyFunc *state_copy;
+    StateFreeFunc *state_free;
+    void (*cleanup)(ParserContext *);
+    gint (*get_codepage)(ParserContext *);
 };
 
 typedef enum {
-	NO_PARAMETER,
-	OPTIONAL_PARAMETER,
-	REQUIRED_PARAMETER,
-	SPECIAL_CHARACTER,
-	DESTINATION
+    NO_PARAMETER,
+    OPTIONAL_PARAMETER,
+    REQUIRED_PARAMETER,
+    SPECIAL_CHARACTER,
+    DESTINATION
 } ControlWordType;
 
 struct _ControlWord {
-	const gchar *word;
-	ControlWordType type;
-	gboolean flush_buffer;
-	gboolean (*action)();
-	gint32 defaultparam;
-	const gchar *replacetext;
-	const DestinationInfo *destinfo;
+    const gchar *word;
+    ControlWordType type;
+    gboolean flush_buffer;
+    gboolean (*action)();
+    gint32 defaultparam;
+    const gchar *replacetext;
+    const DestinationInfo *destinfo;
 };
 
 struct _Destination {
-	gint nesting_level;
+    gint nesting_level;
     GQueue *state_stack;
     const DestinationInfo *info;
 };
@@ -98,7 +98,7 @@ struct _Destination {
 typedef struct {
     gint index;
     gint codepage;
-	gchar *font_name;
+    gchar *font_name;
 } FontProperties;
 
 G_GNUC_INTERNAL void push_new_destination(ParserContext *ctx, const DestinationInfo *destinfo, gpointer state_to_copy);
