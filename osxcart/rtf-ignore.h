@@ -16,6 +16,7 @@ You should have received a copy of the GNU Lesser General Public License along
 with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <glib.h>
+
 #include "rtf-deserialize.h"
 
 G_GNUC_INTERNAL void ignore_pending_text(ParserContext *ctx);

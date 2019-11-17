@@ -17,6 +17,7 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <glib.h>
 #include <gtk/gtk.h>
+
 #include "rtf-state.h"
 
 typedef struct _ParserContext ParserContext;

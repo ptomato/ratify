@@ -1,7 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
-#include <glib.h>
+
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#include <glib.h>
 #include <gtk/gtk.h>
 #include <osxcart/rtf.h>
 

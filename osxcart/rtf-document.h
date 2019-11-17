@@ -17,6 +17,7 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <glib.h>
 #include <pango/pango.h>
+
 #include "rtf-deserialize.h"
 #include "rtf-ignore.h"
 #include "rtf-state.h"
