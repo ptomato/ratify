@@ -1,7 +1,7 @@
-#ifndef __OSXCART_RTF_H__
-#define __OSXCART_RTF_H__
+#ifndef OSXCART_RTF_H
+#define OSXCART_RTF_H
 
-/* Copyright 2009, 2011 P. F. Chimento
+/* Copyright 2009, 2011, 2019 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
@@ -81,4 +81,4 @@ gchar *rtf_text_buffer_export_to_string(GtkTextBuffer *buffer);
 
 G_END_DECLS
 
-#endif /* __OSXCART_RTF_H__ */
+#endif  /* OSXCART_RTF_H */

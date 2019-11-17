@@ -1,7 +1,6 @@
-#ifndef __OSXCART_RTF_LANGCODE_H__
-#define __OSXCART_RTF_LANGCODE_H__
+#pragma once
 
-/* Copyright 2009 P. F. Chimento
+/* Copyright 2009, 2019 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
@@ -20,5 +19,3 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 
 G_GNUC_INTERNAL const gchar *language_to_iso(gint wincode);
 G_GNUC_INTERNAL gint language_to_wincode(const gchar *isocode);
-
-#endif /* __OSXCART_RTF_LANGCODE_H__ */

@@ -1,7 +1,6 @@
-#ifndef __OSXCART_RTF_STATE_H__
-#define __OSXCART_RTF_STATE_H__
+#pragma once
 
-/* Copyright 2009, 2015 P. F. Chimento
+/* Copyright 2009, 2015, 2019 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
@@ -116,5 +115,3 @@ G_GNUC_INTERNAL void set_default_paragraph_attributes(Attributes *attr);
     DEFINE_STATE_FUNCTIONS_FULL(tn, fn, ATTR_NEW, ATTR_COPY, ATTR_FREE)
 #define DEFINE_STATE_FUNCTIONS_WITH_INIT(tn, fn, init_code) \
     DEFINE_STATE_FUNCTIONS_FULL(tn, fn, init_code, ;, ;)
-
-#endif /* __OSXCART_RTF_STATE_H__ */

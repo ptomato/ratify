@@ -1,7 +1,6 @@
-#ifndef __OSXCART_RTF_DESERIALIZE_H__
-#define __OSXCART_RTF_DESERIALIZE_H__
+#pragma once
 
-/* Copyright 2009 P. F. Chimento
+/* Copyright 2009, 2019 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
@@ -107,5 +106,3 @@ G_GNUC_INTERNAL FontProperties *get_font_properties(ParserContext *ctx, int inde
 G_GNUC_INTERNAL void flush_text(ParserContext *ctx);
 G_GNUC_INTERNAL gboolean skip_character_or_control_word(ParserContext *ctx, GError **error);
 G_GNUC_INTERNAL gboolean rtf_deserialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, GtkTextIter *iter, const gchar *data, gsize length, gboolean create_tags, gpointer user_data, GError **error);
-
-#endif /* __OSXCART_RTF_DESERIALIZE_H__ */

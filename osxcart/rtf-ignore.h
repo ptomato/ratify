@@ -1,7 +1,6 @@
-#ifndef __OSXCART_RTF_IGNORE_H__
-#define __OSXCART_RTF_IGNORE_H__
+#pragma once
 
-/* Copyright 2009 P. F. Chimento
+/* Copyright 2009, 2019 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
@@ -25,5 +24,3 @@ G_GNUC_INTERNAL gpointer ignore_state_copy(gconstpointer state);
 G_GNUC_INTERNAL void ignore_state_free(gpointer state);
 
 extern const DestinationInfo ignore_destination;
-
-#endif /* __OSXCART_RTF_IGNORE_H__ */

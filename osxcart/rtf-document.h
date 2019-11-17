@@ -1,7 +1,6 @@
-#ifndef __OSXCART_RTF_DOCUMENT_H__
-#define __OSXCART_RTF_DOCUMENT_H__
+#pragma once
 
-/* Copyright 2009, 2012 P. F. Chimento
+/* Copyright 2009, 2012, 2019 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
@@ -145,5 +144,3 @@ extern const DestinationInfo shppict_destination;
     { "ts", REQUIRED_PARAMETER, TRUE, doc_s }, \
     { "*ud", NO_PARAMETER, TRUE, doc_ud }, \
     { "upr", NO_PARAMETER, TRUE, doc_upr }
-
-#endif /* __OSXCART_RTF_DOCUMENT_H__ */

@@ -1,7 +1,6 @@
-#ifndef __OSXCART_RTF_SERIALIZE_H__
-#define __OSXCART_RTF_SERIALIZE_H__
+#pragma once
 
-/* Copyright 2009 P. F. Chimento
+/* Copyright 2009, 2019 P. F. Chimento
 This file is part of Osxcart.
 
 Osxcart is free software: you can redistribute it and/or modify it under the
@@ -20,5 +19,3 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 #include <gtk/gtk.h>
 
 G_GNUC_INTERNAL guint8 *rtf_serialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, const GtkTextIter *start, const GtkTextIter *end, gsize *length);
-
-#endif /* __OSXCART_RTF_SERIALIZE_H__ */
