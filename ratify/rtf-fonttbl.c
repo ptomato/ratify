@@ -1,17 +1,17 @@
 /* Copyright 2009, 2019 P. F. Chimento
-This file is part of Osxcart.
+This file is part of Ratify.
 
-Osxcart is free software: you can redistribute it and/or modify it under the
+Ratify is free software: you can redistribute it and/or modify it under the
 terms of the GNU Lesser General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
 version.
 
-Osxcart is distributed in the hope that it will be useful, but WITHOUT ANY
+Ratify is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License along
-with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
+with Ratify.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "config.h"
 
@@ -124,7 +124,7 @@ font_table_text(ParserContext *ctx)
     /* Add the tag to the buffer right now instead of when the font is used,
     since any font might be declared the default font; remove any previous font
     with this font table index first */
-    g_autofree char *tagname = g_strdup_printf("osxcart-rtf-font-%i", state->index);
+    g_autofree char *tagname = g_strdup_printf("rtf-font-%i", state->index);
     GtkTextTag *tag = gtk_text_tag_table_lookup(ctx->tags, tagname);
     if (tag != NULL)
         gtk_text_tag_table_remove(ctx->tags, tag);

@@ -5,7 +5,7 @@ AC_PREREQ([2.62]) # Earliest version that works with gobject introspection
 
 ### INITIALIZATION #############################################################
 
-AC_INIT([Osxcart], [1.99.0])
+AC_INIT([Ratify], [2.0.0])
 AC_CONFIG_SRCDIR([testcases/test.c]) # Sanity check
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.11 -Wall -Wno-portability foreign parallel-tests
@@ -22,9 +22,9 @@ dnl 2. If any interfaces have been added, changed, or removed, increment current
 dnl    and set revision to 0.
 dnl 3. If any interfaces have been added, increment age.
 dnl 4. If any interfaces have been removed or changed, set age to 0.
-AC_SUBST([LT_VERSION_INFO], [1:1:1])
-OSXCART_API_VERSION=2
-AC_SUBST([OSXCART_API_VERSION])
+AC_SUBST([LT_VERSION_INFO], [0:0:0])
+RATIFY_API_VERSION=2
+AC_SUBST([RATIFY_API_VERSION])
 
 ### PROGRAMS ###################################################################
 
@@ -41,12 +41,12 @@ dnl Adding arguments in configure.ac requires gtk-doc 1.14
 
 ### LIBRARIES ##################################################################
 
-OSXCART_REQUIRES="glib-2.0 >= 2.44 gio-2.0 >= 2.44 gdk-3.0 gtk+-3.0"
-OSXCART_REQUIRES_PRIVATE="gdk-pixbuf-2.0 >= 2.6"
-PKG_CHECK_MODULES([OSXCART], [$OSXCART_REQUIRES $OSXCART_REQUIRES_PRIVATE])
+RATIFY_REQUIRES="glib-2.0 >= 2.44 gio-2.0 >= 2.44 gdk-3.0 gtk+-3.0"
+RATIFY_REQUIRES_PRIVATE="gdk-pixbuf-2.0 >= 2.6"
+PKG_CHECK_MODULES([RATIFY], [$RATIFY_REQUIRES $RATIFY_REQUIRES_PRIVATE])
 PKG_CHECK_MODULES([TEST], [glib-2.0 gtk+-3.0])
-AC_SUBST([OSXCART_REQUIRES])
-AC_SUBST([OSXCART_REQUIRES_PRIVATE])
+AC_SUBST([RATIFY_REQUIRES])
+AC_SUBST([RATIFY_REQUIRES_PRIVATE])
 
 ### HEADER FILES ###############################################################
 
@@ -60,7 +60,7 @@ AC_C_INLINE
 ### INTERNATIONALIZATION ######################################################
 
 AM_GNU_GETTEXT_VERSION([0.17])
-GETTEXT_PACKAGE=AC_PACKAGE_TARNAME-"$OSXCART_API_VERSION"
+GETTEXT_PACKAGE=AC_PACKAGE_TARNAME-"$RATIFY_API_VERSION"
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [GETTEXT package name])
 
@@ -111,8 +111,8 @@ AC_CONFIG_FILES([
 	docs/reference/version.xml
 	po/Makefile.in
 ])
-AC_CONFIG_FILES([osxcart-$OSXCART_API_VERSION.pc:osxcart.pc.in], [],
-	[OSXCART_API_VERSION='$OSXCART_API_VERSION'])
+AC_CONFIG_FILES([ratify-$RATIFY_API_VERSION.pc:ratify.pc.in], [],
+	[RATIFY_API_VERSION='$RATIFY_API_VERSION'])
 
 # Do it
 AC_OUTPUT

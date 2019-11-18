@@ -1,11 +1,10 @@
 # List of source files containing translatable strings.
 
-osxcart/rtf.c
-osxcart/rtf-deserialize.c
-osxcart/rtf-document.c
-osxcart/rtf-field.c
-osxcart/rtf-fonttbl.c
-osxcart/rtf-picture.c
-osxcart/rtf-serialize.c
-osxcart/rtf-stylesheet.c
-
+ratify/rtf.c
+ratify/rtf-deserialize.c
+ratify/rtf-document.c
+ratify/rtf-field.c
+ratify/rtf-fonttbl.c
+ratify/rtf-picture.c
+ratify/rtf-serialize.c
+ratify/rtf-stylesheet.c

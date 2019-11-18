@@ -30,59 +30,59 @@ AM_CFLAGS = $(WARNINGFLAGS)
 
 ### C LIBRARY AND HEADERS ######################################################
 
-rtf_public_headers = osxcart/rtf.h
-rtf_introspection_sources = osxcart/rtf.c
+rtf_public_headers = ratify/rtf.h
+rtf_introspection_sources = ratify/rtf.c
 rtf_sources = \
 	$(rtf_introspection_sources) \
-	osxcart/rtf-colortbl.c \
-	osxcart/rtf-deserialize.c \
-	osxcart/rtf-deserialize.h \
-	osxcart/rtf-document.c \
-	osxcart/rtf-document.h \
-	osxcart/rtf-field.c \
-	osxcart/rtf-fonttbl.c \
-	osxcart/rtf-footnote.c \
-	osxcart/rtf-ignore.c \
-	osxcart/rtf-ignore.h \
-	osxcart/rtf-langcode.c \
-	osxcart/rtf-langcode.h \
-	osxcart/rtf-picture.c \
-	osxcart/rtf-serialize.c \
-	osxcart/rtf-serialize.h \
-	osxcart/rtf-state.c \
-	osxcart/rtf-state.h \
-	osxcart/rtf-stylesheet.c \
+	ratify/rtf-colortbl.c \
+	ratify/rtf-deserialize.c \
+	ratify/rtf-deserialize.h \
+	ratify/rtf-document.c \
+	ratify/rtf-document.h \
+	ratify/rtf-field.c \
+	ratify/rtf-fonttbl.c \
+	ratify/rtf-footnote.c \
+	ratify/rtf-ignore.c \
+	ratify/rtf-ignore.h \
+	ratify/rtf-langcode.c \
+	ratify/rtf-langcode.h \
+	ratify/rtf-picture.c \
+	ratify/rtf-serialize.c \
+	ratify/rtf-serialize.h \
+	ratify/rtf-state.c \
+	ratify/rtf-state.h \
+	ratify/rtf-stylesheet.c \
 	$(NULL)
 
-lib_LTLIBRARIES = libosxcart-@OSXCART_API_VERSION@.la
-libosxcart_@OSXCART_API_VERSION@_la_SOURCES = \
-	osxcart/init.c \
-	osxcart/init.h \
+lib_LTLIBRARIES = libratify-@RATIFY_API_VERSION@.la
+libratify_@RATIFY_API_VERSION@_la_SOURCES = \
+	ratify/init.c \
+	ratify/init.h \
 	$(rtf_public_headers) \
 	$(rtf_sources) \
 	$(NULL)
-libosxcart_@OSXCART_API_VERSION@_la_CPPFLAGS = \
+libratify_@RATIFY_API_VERSION@_la_CPPFLAGS = \
 	-DG_LOG_DOMAIN=\"@PACKAGE_NAME@\" \
 	-DLOCALEDIR=\""$(datadir)/locale"\" \
 	-I$(top_srcdir) \
 	$(NULL)
-libosxcart_@OSXCART_API_VERSION@_la_CFLAGS = @OSXCART_CFLAGS@ $(AM_CFLAGS)
-libosxcart_@OSXCART_API_VERSION@_la_LIBADD = @OSXCART_LIBS@
-libosxcart_@OSXCART_API_VERSION@_la_LDFLAGS = \
+libratify_@RATIFY_API_VERSION@_la_CFLAGS = @RATIFY_CFLAGS@ $(AM_CFLAGS)
+libratify_@RATIFY_API_VERSION@_la_LIBADD = @RATIFY_LIBS@
+libratify_@RATIFY_API_VERSION@_la_LDFLAGS = \
 	-version-info $(LT_VERSION_INFO) \
 	-no-undefined \
 	-export-symbols-regex "^rtf_" \
 	$(NULL)
 
-libosxcart_includedir = $(includedir)/osxcart-@OSXCART_API_VERSION@/osxcart
-libosxcart_include_HEADERS = \
+libratify_includedir = $(includedir)/ratify-@RATIFY_API_VERSION@/ratify
+libratify_include_HEADERS = \
 	$(rtf_public_headers) \
 	$(NULL)
 
 ### PKGCONFIG FILE #############################################################
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = osxcart-@OSXCART_API_VERSION@.pc
+pkgconfig_DATA = ratify-@RATIFY_API_VERSION@.pc
 DISTCLEANFILES += $(pkgconfig_DATA)
 
 ### GOBJECT INTROSPECTION BINDINGS #############################################
@@ -94,20 +94,20 @@ INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
 
 if HAVE_INTROSPECTION
 
-OsxcartRtf-@OSXCART_API_VERSION@.gir: libosxcart-@OSXCART_API_VERSION@.la
-OsxcartRtf_@OSXCART_API_VERSION@_gir_FILES = \
+Ratify-@RATIFY_API_VERSION@.gir: libratify-@RATIFY_API_VERSION@.la
+Ratify_@RATIFY_API_VERSION@_gir_FILES = \
 	$(rtf_public_headers) \
 	$(rtf_introspection_sources) \
 	$(NULL)
-OsxcartRtf_@OSXCART_API_VERSION@_gir_LIBS = libosxcart-@OSXCART_API_VERSION@.la
-OsxcartRtf_@OSXCART_API_VERSION@_gir_INCLUDES = Gtk-3.0
-OsxcartRtf_@OSXCART_API_VERSION@_gir_CFLAGS = @OSXCART_CFLAGS@
+Ratify_@RATIFY_API_VERSION@_gir_LIBS = libratify-@RATIFY_API_VERSION@.la
+Ratify_@RATIFY_API_VERSION@_gir_INCLUDES = Gtk-3.0
+Ratify_@RATIFY_API_VERSION@_gir_CFLAGS = @RATIFY_CFLAGS@
 # Otherwise can't find gtk/gtk.h?
-OsxcartRtf_@OSXCART_API_VERSION@_gir_SCANNERFLAGS = \
+Ratify_@RATIFY_API_VERSION@_gir_SCANNERFLAGS = \
 	--identifier-prefix=Rtf \
-	--c-include='osxcart/rtf.h' \
+	--c-include='ratify/rtf.h' \
 	$(NULL)
-INTROSPECTION_GIRS += OsxcartRtf-@OSXCART_API_VERSION@.gir
+INTROSPECTION_GIRS += Ratify-@RATIFY_API_VERSION@.gir
 
 girdir = $(datadir)/gir-1.0
 gir_DATA = $(INTROSPECTION_GIRS)
@@ -118,42 +118,42 @@ CLEANFILES += $(gir_DATA) $(typelib_DATA)
 if BUILDING_VAPI
 
 vapidir = $(datadir)/vala/vapi
-dist_vapi_DATA = osxcart-@OSXCART_API_VERSION@.vapi
-osxcart-@OSXCART_API_VERSION@.vapi: $(INTROSPECTION_GIRS)
-	$(AM_V_GEN)$(VAPIGEN) --library=osxcart --pkg gtk+-3.0 $(INTROSPECTION_GIRS) && \
-	mv osxcart.vapi $@ && \
+dist_vapi_DATA = ratify-@RATIFY_API_VERSION@.vapi
+ratify-@RATIFY_API_VERSION@.vapi: $(INTROSPECTION_GIRS)
+	$(AM_V_GEN)$(VAPIGEN) --library=ratify --pkg gtk+-3.0 $(INTROSPECTION_GIRS) && \
+	mv ratify.vapi $@ && \
 	touch $@  # Doesn't update the timestamp if unchanged?
-DISTCLEANFILES += osxcart-@OSXCART_API_VERSION@.vapi
+DISTCLEANFILES += ratify-@RATIFY_API_VERSION@.vapi
 
 endif # BUILDING_VAPI
 endif # HAVE_INTROSPECTION
 
 ### TESTS ######################################################################
 
-check_PROGRAMS = test-osxcart
-test_osxcart_CPPFLAGS = \
+check_PROGRAMS = run-tests
+run_tests_CPPFLAGS = \
 	-I$(top_srcdir) \
 	-DTESTFILEDIR=\""$(abs_srcdir)/testcases"\" \
 	$(NULL)
-test_osxcart_SOURCES = testcases/test.c
-test_osxcart_CFLAGS = @TEST_CFLAGS@ $(AM_CFLAGS)
-test_osxcart_LDADD = @TEST_LIBS@ libosxcart-@OSXCART_API_VERSION@.la
+run_tests_SOURCES = testcases/test.c
+run_tests_CFLAGS = @TEST_CFLAGS@ $(AM_CFLAGS)
+run_tests_LDADD = @TEST_LIBS@ libratify-@RATIFY_API_VERSION@.la
 
-TESTS = test-osxcart
+TESTS = run-tests
 AM_TESTS_ENVIRONMENT = export GNOME_DISABLE_CRASH_DIALOG=1;
 LOG_COMPILER = $(XVFB_RUN) gtester
 AM_LOG_FLAGS = -k
 
 # Extra targets that build a GTester report
 .PHONY: test-report perf-report full-report
-test-report: test-osxcart
-	GNOME_DISABLE_CRASH_DIALOG=1 gtester -k test-osxcart -o=testlog.xml; \
+test-report: run-tests
+	GNOME_DISABLE_CRASH_DIALOG=1 gtester -k run-tests -o=testlog.xml; \
 	gtester-report testlog.xml > testlog.html
-perf-report: test-osxcart
-	GNOME_DISABLE_CRASH_DIALOG=1 gtester -k -m=perf test-osxcart -o=testlog.xml; \
+perf-report: run-tests
+	GNOME_DISABLE_CRASH_DIALOG=1 gtester -k -m=perf run-tests -o=testlog.xml; \
 	gtester-report testlog.xml > testlog.html
-full-report: test-osxcart
-	GNOME_DISABLE_CRASH_DIALOG=1 gtester -k -m=perf -m=thorough test-osxcart -o=testlog.xml; \
+full-report: run-tests
+	GNOME_DISABLE_CRASH_DIALOG=1 gtester -k -m=perf -m=thorough run-tests -o=testlog.xml; \
 	gtester-report testlog.xml > testlog.html
 CLEANFILES += testlog.xml testlog.html
 

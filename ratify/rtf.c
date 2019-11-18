@@ -1,17 +1,17 @@
 /* Copyright 2009, 2011, 2012, 2015, 2019 P. F. Chimento
-This file is part of Osxcart.
+This file is part of Ratify.
 
-Osxcart is free software: you can redistribute it and/or modify it under the
+Ratify is free software: you can redistribute it and/or modify it under the
 terms of the GNU Lesser General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
 version.
 
-Osxcart is distributed in the hope that it will be useful, but WITHOUT ANY
+Ratify is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License along
-with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
+with Ratify.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "config.h"
 
@@ -35,11 +35,11 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
  * @title: RTF tools
  * @short_description: Tools for reading and writing Rich Text Format
  * @stability: Unstable
- * @include: osxcart/rtf.h
+ * @include: ratify/rtf.h
  *
  * Rich Text Format is a file format for storing marked-up text. It has been
- * around for more than twenty years at the time of writing, but is still used
- * as a native format by various programs and controls on Mac OS X, Windows, and
+ * around for more than thirty years at the time of writing, but is still used
+ * as a native format by various programs and controls on macOS, Windows, and
  * NeXTSTEP.
  *
  * For more information, see the <ulink
@@ -58,7 +58,7 @@ with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
 GQuark
 rtf_error_quark(void)
 {
-    osxcart_init();
+    rtf_init();
     return g_quark_from_static_string("rtf-error-quark");
 }
 
@@ -76,7 +76,7 @@ rtf_error_quark(void)
 GdkAtom
 rtf_register_serialize_format(GtkTextBuffer *buffer)
 {
-    osxcart_init();
+    rtf_init();
 
     g_return_val_if_fail(buffer != NULL, GDK_NONE);
     g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), GDK_NONE);
@@ -99,7 +99,7 @@ rtf_register_serialize_format(GtkTextBuffer *buffer)
 GdkAtom
 rtf_register_deserialize_format(GtkTextBuffer *buffer)
 {
-    osxcart_init();
+    rtf_init();
 
     g_return_val_if_fail(buffer != NULL, GDK_NONE);
     g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), GDK_NONE);
@@ -159,13 +159,11 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC(Pushd, pop_cwd);
  *
  * Returns: %TRUE if the operation was successful, %FALSE if not, in which case
  * @error is set.
- *
- * Since: 1.1
  */
 gboolean
 rtf_text_buffer_import_file(GtkTextBuffer *buffer, GFile *file, GCancellable *cancellable, GError **error)
 {
-    osxcart_init();
+    rtf_init();
 
     g_return_val_if_fail(buffer != NULL, false);
     g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), false);
@@ -219,7 +217,7 @@ rtf_text_buffer_import_file(GtkTextBuffer *buffer, GFile *file, GCancellable *ca
 gboolean
 rtf_text_buffer_import(GtkTextBuffer *buffer, const char *filename, GError **error)
 {
-    osxcart_init();
+    rtf_init();
     g_return_val_if_fail(buffer != NULL, false);
     g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), false);
     g_return_val_if_fail(filename != NULL, false);
@@ -254,7 +252,7 @@ rtf_text_buffer_import(GtkTextBuffer *buffer, const char *filename, GError **err
 gboolean
 rtf_text_buffer_import_from_string(GtkTextBuffer *buffer, const char *string, GError **error)
 {
-    osxcart_init();
+    rtf_init();
 
     g_return_val_if_fail(buffer != NULL, false);
     g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), false);
@@ -295,13 +293,11 @@ rtf_text_buffer_import_from_string(GtkTextBuffer *buffer, const char *string, GE
  *
  * Returns: %TRUE if the operation succeeded, %FALSE if not, in which case
  * @error is set.
- *
- * Since: 1.1
  */
 gboolean
 rtf_text_buffer_export_file(GtkTextBuffer *buffer, GFile *file, GCancellable *cancellable, GError **error)
 {
-    osxcart_init();
+    rtf_init();
 
     g_return_val_if_fail(buffer != NULL, false);
     g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), false);
@@ -329,7 +325,7 @@ rtf_text_buffer_export_file(GtkTextBuffer *buffer, GFile *file, GCancellable *ca
 gboolean
 rtf_text_buffer_export(GtkTextBuffer *buffer, const char *filename, GError **error)
 {
-    osxcart_init();
+    rtf_init();
 
     g_return_val_if_fail(buffer != NULL, false);
     g_return_val_if_fail(GTK_IS_TEXT_BUFFER(buffer), false);
@@ -353,7 +349,7 @@ rtf_text_buffer_export(GtkTextBuffer *buffer, const char *filename, GError **err
 char *
 rtf_text_buffer_export_to_string(GtkTextBuffer *buffer)
 {
-    osxcart_init();
+    rtf_init();
 
     g_return_val_if_fail(buffer != NULL, NULL);
 

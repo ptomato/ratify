@@ -1,0 +1,13 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: Ratify
+Description: Library for importing and exporting RTF documents in GTK
+Version: @PACKAGE_VERSION@
+URL: https://github.com/ptomato/ratify
+Requires: @RATIFY_REQUIRES@
+Requires.private: @RATIFY_REQUIRES_PRIVATE@
+Libs: -L${libdir} -lratify-@RATIFY_API_VERSION@
+Cflags: -I${includedir}/ratify-@RATIFY_API_VERSION@

@@ -1,4 +1,4 @@
-## Osxcart was written by ##
+## Ratify was written by ##
 - Philip Chimento - @ptomato
 
 ## Code contributed by ##

@@ -2,10 +2,10 @@
 %define dist .%{vendor}
 %endif
 
-Name: osxcart
-Version: 1.2.0
+Name: ratify
+Version: 2.0.0
 Release: 1%{?dist}
-Summary: Library for interfacing OS X file formats with GTK+
+Summary: Library for importing and exporting RTF documents in GTK
 URL: https://github.com/ptomato/%{name}
 License: LGPLv3
 Group: Development/Libraries
@@ -25,18 +25,16 @@ BuildRequires: vala
 %endif
 
 %description
-Osxcart, or OS X Converting And Reading Tool, is a library designed to import 
-file formats used in Mac OS X, NeXTSTEP, and GnuSTEP into GTK+/GLib-based 
-programs easily, using a lightweight interface. Examples: property lists, RTF 
-and RTFD documents.
+Ratify is a library for importing and exporting RTF documents to and
+from GtkTextBuffers.
 
 %package devel
-Summary: Library for interfacing OS X file formats with GTK+ (development files)
+Summary: Library for importing and exporting RTF documents in GTK (development files)
 Group: Development/Libraries
 Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description devel
-Development files for Osxcart.
+Development files for Ratify.
 
 %prep
 %setup -q
@@ -47,7 +45,7 @@ make %{?_smp_mflags}
 
 %install
 make DESTDIR=$RPM_BUILD_ROOT install
-rm -f $RPM_BUILD_ROOT/%{_libdir}/libosxcart-*.la
+rm -f $RPM_BUILD_ROOT/%{_libdir}/lib%{name}-*.la
 # Install vapi file in versioned vala directories on OpenSUSE
 %if 0%{?suse_version}
 mkdir -pv %{buildroot}%{_datadir}/vala-%{vala_version}
@@ -64,16 +62,16 @@ rm -rf %{buildroot}%{_datadir}/vala
 %files -f %{name}.lang
 %defattr(-,root,root,-)
 %doc README.md AUTHORS.md COPYING COPYING.LESSER ChangeLog
-%{_libdir}/libosxcart-*.so.0*
-%{_libdir}/girepository-1.0/Osxcart*.typelib
+%{_libdir}/lib%{name}-*.so.0*
+%{_libdir}/girepository-1.0/Ratify*.typelib
 
 %files devel
 %defattr(-,root,root,-)
-%{_libdir}/libosxcart-*.so
+%{_libdir}/lib%{name}-*.so
 %{_libdir}/pkgconfig/%{name}-*.pc
 %{_includedir}/%{name}-*
 %{_datadir}/gtk-doc/html/%{name}-*
-%{_datadir}/gir-1.0/Osxcart*.gir
+%{_datadir}/gir-1.0/Ratify*.gir
 %if 0%{?suse_version}
 %{_datadir}/vala-%{vala_version}/vapi/%{name}-*.vapi
 %else
@@ -81,14 +79,5 @@ rm -rf %{buildroot}%{_datadir}/vala
 %endif
 
 %changelog
-* Mon Oct 12 2015 Philip Chimento <philip.chimento@gmail.com> - 1.2.0-1
-- Require pkgconfig(vapigen) instead of vala-tools, to support OpenSUSE.
-- Configure with gtk-doc, introspection, and run tests under XVFB.
-- Fix ownership of directories.
-- Install vapi file into versioned vala directory on OpenSUSE.
-* Sun Oct 11 2015 Philip Chimento <philip.chimento@gmail.com>
-- Update URIs for project which moved from SourceForge to GitHub.
-- Release new version.
-* Sun Feb 12 2012 P. F. Chimento <philip.chimento@gmail.com> - 1.1-1
-- Fix typo in spec file.
-- Read various spec file guidelines and improved the spec file.
+* Sun Nov 17 2019 Philip Chimento <philip.chimento@gmail.com> - 2.0.0-1
+- Initial packaging.

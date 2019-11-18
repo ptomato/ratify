@@ -6,16 +6,16 @@
 <book id="index" xmlns:xi="http://www.w3.org/2003/XInclude">
 
   <bookinfo>
-    <title>Osxcart Reference Manual</title>
+    <title>Ratify Reference Manual</title>
     <releaseinfo>
-      for Osxcart &version;.
+      for Ratify &version;.
       All trademarks mentioned in this documentation are the property of their 
       respective owners, of course.
     </releaseinfo>
   </bookinfo>
 
-  <chapter id="osxcart-api-reference">
-    <title>Osxcart API Reference</title>
+  <chapter id="ratify-api-reference">
+    <title>Ratify API Reference</title>
     <xi:include href="xml/rtf.xml"/>
   </chapter>
 
@@ -25,10 +25,6 @@
   <index id="api-index">
    <title>Index of all symbols</title>
    <xi:include href="xml/api-index-full.xml"><xi:fallback /></xi:include>
-  </index>
-  <index id="api-index-1-1" role="1.1">
-    <title>Index of new symbols in 1.1</title>
-    <xi:include href="xml/api-index-1.1.xml"><xi:fallback /></xi:include>
   </index>
   <index id="api-index-deprecated" role="deprecated">
     <title>Index of deprecated symbols</title>

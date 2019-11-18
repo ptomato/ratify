@@ -1,20 +1,20 @@
-#ifndef OSXCART_RTF_H
-#define OSXCART_RTF_H
+#ifndef RATIFY_RTF_H
+#define RATIFY_RTF_H
 
 /* Copyright 2009, 2011, 2019 P. F. Chimento
-This file is part of Osxcart.
+This file is part of Ratify.
 
-Osxcart is free software: you can redistribute it and/or modify it under the
+Ratify is free software: you can redistribute it and/or modify it under the
 terms of the GNU Lesser General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
 version.
 
-Osxcart is distributed in the hope that it will be useful, but WITHOUT ANY
+Ratify is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License along
-with Osxcart.  If not, see <http://www.gnu.org/licenses/>. */
+with Ratify.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <glib.h>
 #include <gtk/gtk.h>
@@ -65,7 +65,7 @@ typedef enum {
 /**
  * RTF_ERROR:
  *
- * The domain of errors raised by RTF processing in Osxcart.
+ * The domain of errors raised by RTF processing in Ratify.
  */
 #define RTF_ERROR rtf_error_quark()
 
@@ -81,4 +81,4 @@ char *rtf_text_buffer_export_to_string(GtkTextBuffer *buffer);
 
 G_END_DECLS
 
-#endif  /* OSXCART_RTF_H */
+#endif  /* RATIFY_RTF_H */

@@ -5,7 +5,7 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <glib.h>
 #include <gtk/gtk.h>
-#include <osxcart/rtf.h>
+#include <ratify/rtf.h>
 
 /* Convenience function */
 static char *

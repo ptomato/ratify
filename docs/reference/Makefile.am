@@ -9,10 +9,10 @@ AUTOMAKE_OPTIONS = 1.6
 # of using the various options.
 	
 # The name of the module, e.g. 'glib'.
-DOC_MODULE=osxcart
+DOC_MODULE=ratify
 
 # Uncomment for versioned docs and specify the version of the module, e.g. '2'.
-DOC_MODULE_VERSION=@OSXCART_API_VERSION@
+DOC_MODULE_VERSION=@RATIFY_API_VERSION@
 
 # The top-level SGML file. You can change this if you want to.
 DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.sgml
@@ -20,7 +20,7 @@ DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.sgml
 # The directory containing the source code. Relative to $(srcdir).
 # gtk-doc will search all .c & .h files beneath here for inline comments
 # documenting the functions and macros.
-DOC_SOURCE_DIR=$(top_srcdir)/osxcart
+DOC_SOURCE_DIR=$(top_srcdir)/ratify
 
 # Extra options to pass to gtkdoc-scangobj. Not normally needed.
 SCANGOBJ_OPTIONS=
@@ -41,8 +41,8 @@ MKHTML_OPTIONS=
 FIXXREF_OPTIONS=
 
 # Used for dependencies. The docs will be rebuilt if any of these change.
-HFILE_GLOB=$(top_srcdir)/osxcart/*.h
-CFILE_GLOB=$(top_srcdir)/osxcart/*.c
+HFILE_GLOB=$(top_srcdir)/ratify/*.h
+CFILE_GLOB=$(top_srcdir)/ratify/*.c
 
 # Extra header to include when scanning, which are not under DOC_SOURCE_DIR
 EXTRA_HFILES=
@@ -70,8 +70,8 @@ expand_content_files=
 # CFLAGS and LDFLAGS for compiling gtkdoc-scangobj with your library.
 # Only needed if you are using gtkdoc-scangobj to dynamically query widget
 # signals and properties.
-GTKDOC_CFLAGS=@OSXCART_CFLAGS@
-GTKDOC_LIBS=$(top_builddir)/libosxcart-@OSXCART_API_VERSION@.la
+GTKDOC_CFLAGS=@RATIFY_CFLAGS@
+GTKDOC_LIBS=$(top_builddir)/libratify-@RATIFY_API_VERSION@.la
 
 # This includes the standard gtk-doc make rules, copied by gtkdocize.
 include $(top_srcdir)/gtk-doc.make

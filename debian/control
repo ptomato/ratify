@@ -1,4 +1,4 @@
-Source: osxcart
+Source: ratify
 Priority: optional
 Maintainer: Philip Chimento <philip.chimento@gmail.com>
 Build-Depends: autotools-dev,
@@ -14,37 +14,35 @@ Build-Depends: autotools-dev,
                xvfb
 Standards-Version: 3.9.5
 Section: libs
-Homepage: https://github.com/ptomato/osxcart
-Vcs-Git: https://github.com/ptomato/osxcart
-Vcs-Browser: https://github.com/ptomato/osxcart
+Homepage: https://github.com/ptomato/ratify
+Vcs-Git: https://github.com/ptomato/ratify
+Vcs-Browser: https://github.com/ptomato/ratify
 
-Package: libosxcart-0-0
+Package: libratify-2-0
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Library for interfacing OS X file formats with GTK+
- Osxcart, or OS X Converting And Reading Tool, is a library designed to import
- file formats used in Mac OS X, NeXTSTEP, and GnuSTEP into GTK+/GLib-based
- programs easily, using a lightweight interface. Examples: RTF
- and RTFD documents.
+Description: Library for interfacing RTF with GTK
+ Ratify is a library for importing and exporting RTF documents to and
+ from GtkTextBuffers.
 
-Package: libosxcart-0-dev
+Package: libratify-2-dev
 Section: libdevel
 Architecture: any
-Depends: libosxcart-0-0 (= ${binary:Version}), ${misc:Depends}
-Description: Library for interfacing OS X file formats with GTK+
- Files needed for developing programs that use Osxcart.
+Depends: libratify-2-0 (= ${binary:Version}), ${misc:Depends}
+Description: Library for interfacing RTF with GTK (Development files)
+ Files needed for developing programs that use Ratify.
 
-Package: libosxcart-0-doc
+Package: libratify-2-doc
 Section: doc
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: devhelp
-Description: Library for interfacing OS X file formats with GTK+
- API documentation for Osxcart.
+Description: Library for interfacing RTF with GTK (Documentation)
+ API documentation for Ratify.
 
-Package: gir1.2-osxcartrtf-0
+Package: gir1.2-ratify-2
 Section: libs
 Architecture: any
-Depends: libosxcart-0-0 (= ${binary:Version}), ${gir:Depends}, ${misc:Depends}
-Description: Library for interfacing OS X file formats with GTK+
- GObject Introspection bindings for the RTF facilities.
+Depends: libratify-2-0 (= ${binary:Version}), ${gir:Depends}, ${misc:Depends}
+Description: Library for interfacing RTF with GTK (Documentation)
+ GObject Introspection bindings for Ratify.
