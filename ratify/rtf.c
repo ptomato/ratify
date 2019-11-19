@@ -52,7 +52,7 @@ with Ratify.  If not, see <http://www.gnu.org/licenses/>. */
  *
  * The error domain for RTF serializer errors.
  *
- * Returns: (transfer none): The string <quote>rtf-error-quark</quote> as a
+ * Returns: The string <quote>rtf-error-quark</quote> as a
  * <link linkend="GQuark">GQuark</link>.
  */
 GQuark
@@ -343,8 +343,7 @@ rtf_text_buffer_export(GtkTextBuffer *buffer, const char *filename, GError **err
  * Serializes the contents of @buffer to a string in RTF format. See
  * rtf_text_buffer_export() for details.
  *
- * Returns: a string containing RTF text. The string must be freed with <link
- * linkend="glib-Memory-Allocation">g_free()</link> when you are done with it.
+ * Returns: (transfer full): a string containing RTF text.
  */
 char *
 rtf_text_buffer_export_to_string(GtkTextBuffer *buffer)
