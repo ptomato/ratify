@@ -22,6 +22,7 @@ if gtkdoc.found()
         dependencies: libratify_dep,
         ignore_headers: private_headers,
         gobject_typesfile: 'ratify.types',
+        scan_args: ['--ignore-decorators=_RTF_API'],
         mkdb_args: ['--sgml-mode', '--output-format=xml'],
         install: true)
 endif

@@ -26,22 +26,22 @@ with Ratify.  If not, see <http://www.gnu.org/licenses/>. */
 
 extern const DestinationInfo document_destination;
 
-G_GNUC_INTERNAL void apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTextIter *end);
-G_GNUC_INTERNAL void document_text(ParserContext *ctx);
-G_GNUC_INTERNAL int document_get_codepage(ParserContext *ctx);
+void apply_attributes(ParserContext *ctx, Attributes *attr, GtkTextIter *start, GtkTextIter *end);
+void document_text(ParserContext *ctx);
+int document_get_codepage(ParserContext *ctx);
 
 typedef bool DocFunc(ParserContext *, Attributes *, GError **);
 typedef bool DocParamFunc(ParserContext *, Attributes *, int32_t, GError **);
 
 /* Document destination functions usable in other destinations */
-G_GNUC_INTERNAL DocFunc doc_chftn, doc_ltrch, doc_ltrpar, doc_nosupersub,
-    doc_pard, doc_plain, doc_qc, doc_qj, doc_ql, doc_qr, doc_rtlch, doc_rtlpar,
-    doc_sub, doc_super, doc_ud, doc_ulnone, doc_upr;
-G_GNUC_INTERNAL DocParamFunc doc_b, doc_cb, doc_cf, doc_charscalex, doc_dn,
-    doc_f, doc_fi, doc_fs, doc_fsmilli, doc_highlight, doc_i, doc_lang, doc_li,
-    doc_ri, doc_s, doc_sa, doc_saauto, doc_sb, doc_sbauto, doc_scaps,
-    doc_slleading, doc_strike, doc_tx, doc_u, doc_uc, doc_ul, doc_uldb,
-    doc_ulstyle, doc_ulwave, doc_up, doc_v;
+DocFunc doc_chftn, doc_ltrch, doc_ltrpar, doc_nosupersub, doc_pard, doc_plain,
+    doc_qc, doc_qj, doc_ql, doc_qr, doc_rtlch, doc_rtlpar, doc_sub, doc_super,
+    doc_ud, doc_ulnone, doc_upr;
+DocParamFunc doc_b, doc_cb, doc_cf, doc_charscalex, doc_dn, doc_f, doc_fi,
+    doc_fs, doc_fsmilli, doc_highlight, doc_i, doc_lang, doc_li, doc_ri, doc_s,
+    doc_sa, doc_saauto, doc_sb, doc_sbauto, doc_scaps, doc_slleading,
+    doc_strike, doc_tx, doc_u, doc_uc, doc_ul, doc_uldb, doc_ulstyle,
+    doc_ulwave, doc_up, doc_v;
 
 extern const DestinationInfo shppict_destination;
 

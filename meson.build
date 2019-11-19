@@ -127,6 +127,7 @@ libratify = library(api_name, sources,
     dependencies: [glib, gio, gdk_pixbuf, gdk, gtk],
     c_args: library_cflags + common_cflags,
     link_args: common_ldflags,
+    gnu_symbol_visibility: 'hidden',
     install: true)
 
 install_headers(public_headers, subdir: join_paths(api_name, 'ratify'))

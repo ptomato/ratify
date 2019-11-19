@@ -103,9 +103,9 @@ typedef struct {
     char *font_name;
 } FontProperties;
 
-G_GNUC_INTERNAL void push_new_destination(ParserContext *ctx, const DestinationInfo *destinfo, void *state_to_copy);
-G_GNUC_INTERNAL void *get_state(ParserContext *ctx);
-G_GNUC_INTERNAL FontProperties *get_font_properties(ParserContext *ctx, int index);
-G_GNUC_INTERNAL void flush_text(ParserContext *ctx);
-G_GNUC_INTERNAL bool skip_character_or_control_word(ParserContext *ctx, GError **error);
-G_GNUC_INTERNAL bool rtf_deserialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, GtkTextIter *iter, const char *data, size_t length, bool create_tags, void *user_data, GError **error);
+void push_new_destination(ParserContext *ctx, const DestinationInfo *destinfo, void *state_to_copy);
+void *get_state(ParserContext *ctx);
+FontProperties *get_font_properties(ParserContext *ctx, int index);
+void flush_text(ParserContext *ctx);
+bool skip_character_or_control_word(ParserContext *ctx, GError **error);
+bool rtf_deserialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, GtkTextIter *iter, const char *data, size_t length, bool create_tags, void *user_data, GError **error);

@@ -68,8 +68,8 @@ typedef struct {
     bool unicode_ignore;
 } Attributes;
 
-G_GNUC_INTERNAL void set_default_character_attributes(Attributes *attr);
-G_GNUC_INTERNAL void set_default_paragraph_attributes(Attributes *attr);
+void set_default_character_attributes(Attributes *attr);
+void set_default_paragraph_attributes(Attributes *attr);
 
 #ifndef G_PASTE_ARGS /* available since 2.20 */
 #define G_PASTE_ARGS(identifier1,identifier2) identifier1 ## identifier2

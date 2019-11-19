@@ -15,7 +15,6 @@ PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along
 with Ratify.  If not, see <http://www.gnu.org/licenses/>. */
 
-#include <glib.h>
 #include <gtk/gtk.h>
 
-G_GNUC_INTERNAL uint8_t *rtf_serialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, const GtkTextIter *start, const GtkTextIter *end, size_t *length);
+uint8_t *rtf_serialize(GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, const GtkTextIter *start, const GtkTextIter *end, size_t *length);

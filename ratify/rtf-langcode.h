@@ -15,7 +15,5 @@ PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along
 with Ratify.  If not, see <http://www.gnu.org/licenses/>. */
 
-#include <glib.h>
-
-G_GNUC_INTERNAL const char *language_to_iso(int wincode);
-G_GNUC_INTERNAL int language_to_wincode(const char *isocode);
+const char *language_to_iso(int wincode);
+int language_to_wincode(const char *isocode);

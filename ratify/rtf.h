@@ -69,15 +69,21 @@ typedef enum {
  */
 #define RTF_ERROR rtf_error_quark()
 
-GQuark rtf_error_quark(void);
-GdkAtom rtf_register_serialize_format(GtkTextBuffer *buffer);
-GdkAtom rtf_register_deserialize_format(GtkTextBuffer *buffer);
-gboolean rtf_text_buffer_import_file(GtkTextBuffer *buffer, GFile *file, GCancellable *cancellable, GError **error);
-gboolean rtf_text_buffer_import(GtkTextBuffer *buffer, const char *filename, GError **error);
-gboolean rtf_text_buffer_import_from_string(GtkTextBuffer *buffer, const char *string, GError **error);
-gboolean rtf_text_buffer_export_file(GtkTextBuffer *buffer, GFile *file, GCancellable *cancellable, GError **error);
-gboolean rtf_text_buffer_export(GtkTextBuffer *buffer, const char *filename, GError **error);
-char *rtf_text_buffer_export_to_string(GtkTextBuffer *buffer);
+#ifdef G_HAVE_GNUC_VISIBILITY
+#define _RTF_API __attribute__((visibility("default")))
+#else
+#define _RTF_API
+#endif
+
+_RTF_API GQuark rtf_error_quark(void);
+_RTF_API GdkAtom rtf_register_serialize_format(GtkTextBuffer *buffer);
+_RTF_API GdkAtom rtf_register_deserialize_format(GtkTextBuffer *buffer);
+_RTF_API gboolean rtf_text_buffer_import_file(GtkTextBuffer *buffer, GFile *file, GCancellable *cancellable, GError **error);
+_RTF_API gboolean rtf_text_buffer_import(GtkTextBuffer *buffer, const char *filename, GError **error);
+_RTF_API gboolean rtf_text_buffer_import_from_string(GtkTextBuffer *buffer, const char *string, GError **error);
+_RTF_API gboolean rtf_text_buffer_export_file(GtkTextBuffer *buffer, GFile *file, GCancellable *cancellable, GError **error);
+_RTF_API gboolean rtf_text_buffer_export(GtkTextBuffer *buffer, const char *filename, GError **error);
+_RTF_API char *rtf_text_buffer_export_to_string(GtkTextBuffer *buffer);
 
 G_END_DECLS
 
