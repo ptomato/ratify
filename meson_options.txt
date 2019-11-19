@@ -1,0 +1,9 @@
+option('introspection',
+    type: 'feature', value: 'auto', yield: true,
+    description: 'Build the introspection data (requires gobject-introspection)')
+option('gtk_doc',
+    type: 'feature', value: 'auto', yield: true,
+    description: 'Build the API reference (requires gtk-doc)')
+option('vapi',
+    type: 'feature', value: 'auto', yield: true,
+    description: 'Build the vala API file (requires vapigen and -Dintrospection=true)')

@@ -2,6 +2,8 @@
 %define dist .%{vendor}
 %endif
 
+%define apiversion 2
+
 Name: ratify
 Version: 2.0.0
 Release: 1%{?dist}
@@ -15,7 +17,7 @@ Requires: gtk3%{?_isa}
 BuildRequires: glib2-devel%{?_isa} >= 2.44
 BuildRequires: gtk3-devel%{?_isa}
 BuildRequires: gettext
-BuildRequires: libtool >= 2.2
+BuildRequires: meson >= 0.50
 BuildRequires: pkgconfig(gobject-introspection-1.0)
 BuildRequires: pkgconfig(vapigen) >= 0.20
 BuildRequires: gtk-doc
@@ -40,12 +42,11 @@ Development files for Ratify.
 %setup -q
 
 %build
-%configure --disable-static --enable-introspection --enable-gtk-doc --with-xvfb-tests
-make %{?_smp_mflags}
+%meson -Dintrospection=enabled -Dgtk_doc=enabled -Dvapi=enabled
+%meson_build
 
 %install
-make DESTDIR=$RPM_BUILD_ROOT install
-rm -f $RPM_BUILD_ROOT/%{_libdir}/lib%{name}-*.la
+%meson_install
 # Install vapi file in versioned vala directories on OpenSUSE
 %if 0%{?suse_version}
 mkdir -pv %{buildroot}%{_datadir}/vala-%{vala_version}
@@ -53,13 +54,13 @@ mv %{buildroot}%{_datadir}/vala/* %{buildroot}%{_datadir}/vala-%{vala_version}
 rm -rf %{buildroot}%{_datadir}/vala
 %endif
 
-%find_lang %{name}
+%find_lang %{name}-%{apiversion}
 
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
 
-%files -f %{name}.lang
+%files -f %{name}-%{apiversion}.lang
 %defattr(-,root,root,-)
 %doc README.md AUTHORS.md COPYING COPYING.LESSER ChangeLog
 %{_libdir}/lib%{name}-*.so.0*
@@ -76,6 +77,7 @@ rm -rf %{buildroot}%{_datadir}/vala
 %{_datadir}/vala-%{vala_version}/vapi/%{name}-*.vapi
 %else
 %{_datadir}/vala/vapi/%{name}-*.vapi
+%{_datadir}/vala/vapi/%{name}-*.deps
 %endif
 
 %changelog

@@ -1,0 +1,16 @@
+<SECTION>
+<FILE>rtf</FILE>
+rtf_register_serialize_format
+rtf_register_deserialize_format
+<SUBSECTION>
+rtf_text_buffer_import_file
+rtf_text_buffer_import
+rtf_text_buffer_import_from_string
+rtf_text_buffer_export_file
+rtf_text_buffer_export
+rtf_text_buffer_export_to_string
+<SUBSECTION>
+RtfError
+RTF_ERROR
+rtf_error_quark
+</SECTION>
