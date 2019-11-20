@@ -1,18 +1,16 @@
 Source: ratify
 Priority: optional
 Maintainer: Philip Chimento <philip.chimento@gmail.com>
-Build-Depends: debhelper (>= 9),
-               gobject-introspection,
+Build-Depends: debhelper-compat (= 12),
+               dh-sequence-gir,
                gtk-doc-tools,
                libgirepository1.0-dev,
                libglib2.0-dev (>= 2.44),
                libgtk-3-dev,
                meson (>= 0.50),
                valac,
-               xauth,
-               xfonts-base,
                xvfb
-Standards-Version: 3.9.5
+Standards-Version: 4.4.1
 Section: libs
 Homepage: https://github.com/ptomato/ratify
 Vcs-Git: https://github.com/ptomato/ratify
