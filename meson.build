@@ -93,26 +93,19 @@ introspection_sources = [
     'ratify/rtf.c',
 ]
 
-sources = public_headers + introspection_sources + [
-    'ratify/init.h',
+sources = introspection_sources + [
     'ratify/init.c',
     'ratify/rtf-colortbl.c',
     'ratify/rtf-deserialize.c',
-    'ratify/rtf-deserialize.h',
     'ratify/rtf-document.c',
-    'ratify/rtf-document.h',
     'ratify/rtf-field.c',
     'ratify/rtf-fonttbl.c',
     'ratify/rtf-footnote.c',
     'ratify/rtf-ignore.c',
-    'ratify/rtf-ignore.h',
     'ratify/rtf-langcode.c',
-    'ratify/rtf-langcode.h',
     'ratify/rtf-picture.c',
     'ratify/rtf-serialize.c',
-    'ratify/rtf-serialize.h',
     'ratify/rtf-state.c',
-    'ratify/rtf-state.h',
     'ratify/rtf-stylesheet.c',
 ]
 
