@@ -35,6 +35,7 @@ glib = dependency('glib-2.0', version: '>= 2.44')
 gio = dependency('gio-2.0', version: '>= 2.44')
 gdk_pixbuf = dependency('gdk-pixbuf-2.0', version: '>= 2.6')
 gdk = dependency('gdk-3.0')
+pango = dependency('pango')
 gtk = dependency('gtk+-3.0')
 
 gir = find_program('g-ir-scanner', required: get_option('introspection'))
@@ -117,7 +118,7 @@ library_cflags = [
 libratify = library(api_name, sources,
     version: libversion, soversion: soversion,
     include_directories: root_dir,
-    dependencies: [glib, gio, gdk_pixbuf, gdk, gtk],
+    dependencies: [glib, gio, gdk_pixbuf, gdk, pango, gtk],
     c_args: library_cflags + common_cflags,
     link_args: common_ldflags,
     gnu_symbol_visibility: 'hidden',
@@ -127,12 +128,12 @@ install_headers(public_headers, subdir: join_paths(api_name, 'ratify'))
 
 libratify_dep = declare_dependency(include_directories: root_dir,
     link_with: libratify,
-    dependencies: [glib, gio, gdk_pixbuf, gdk, gtk])
+    dependencies: [glib, gio, gdk_pixbuf, gdk, pango, gtk])
 
 ### Pkgconfig File #############################################################
 
 pkg.generate(libratify, subdirs: api_name, filebase: api_name,
-    requires: [glib, gio, gdk, gtk], requires_private: gdk_pixbuf,
+    requires: [glib, gio, gdk, gtk], requires_private: [gdk_pixbuf, pango],
     name: 'Ratify',
     description: 'Library for importing and exporting RTF documents in GTK',
     url: 'https://github.com/ptomato/ratify')
