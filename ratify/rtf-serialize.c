@@ -306,12 +306,21 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
             break;
         case PANGO_UNDERLINE_SINGLE:
         case PANGO_UNDERLINE_LOW:
+#if PANGO_VERSION_CHECK(1, 46, 0)
+        case PANGO_UNDERLINE_SINGLE_LINE:
+#endif
             g_string_append(code, "\\ul");
             break;
         case PANGO_UNDERLINE_DOUBLE:
+#if PANGO_VERSION_CHECK(1, 46, 0)
+        case PANGO_UNDERLINE_DOUBLE_LINE:
+#endif
             g_string_append(code, "\\uldb");
             break;
         case PANGO_UNDERLINE_ERROR:
+#if PANGO_VERSION_CHECK(1, 46, 0)
+        case PANGO_UNDERLINE_ERROR_LINE:
+#endif
             g_string_append(code, "\\ulwave");
             break;
         }
