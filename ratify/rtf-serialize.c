@@ -332,11 +332,22 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
         g_object_get(tag, "variant", &variant, NULL);
         switch (variant) {
         case PANGO_VARIANT_NORMAL:
-            g_string_append(code, "\\scaps0");
+            g_string_append(code, "\\scaps0\\caps0");
             break;
         case PANGO_VARIANT_SMALL_CAPS:
+#if PANGO_VERSION_CHECK(1, 50, 0)
+        case PANGO_VARIANT_ALL_SMALL_CAPS:
+        case PANGO_VARIANT_PETITE_CAPS:
+        case PANGO_VARIANT_ALL_PETITE_CAPS:
+        case PANGO_VARIANT_UNICASE:
+#endif
             g_string_append(code, "\\scaps");
             break;
+#if PANGO_VERSION_CHECK(1, 50, 0)
+        case PANGO_VARIANT_TITLE_CAPS:
+            g_string_append(code, "\\caps");
+            break;
+#endif
         }
     }
 
