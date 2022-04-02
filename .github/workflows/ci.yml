@@ -23,7 +23,16 @@ jobs:
         run: meson _build
 
       - name: build
-        run: ninja -C _build
+        run: |
+          ninja -C _build
+          ninja -C _build ratify-2-doc
+          rm _build/docs/reference/html/ratify-2.devhelp2
 
       - name: test
         run: xvfb-run -a meson test -C _build
+
+      - if: github.ref_name == 'main'
+        uses: JamesIves/github-pages-deploy-action@v4.2.5
+        with:
+          branch: gh-pages
+          folder: _build/docs/reference/html
