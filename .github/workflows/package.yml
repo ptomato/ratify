@@ -1,0 +1,143 @@
+---
+name: Build packages
+"on":
+  push:
+    tags: v[0-9]+.[0-9]+.[0-9]+
+jobs:
+  tarball:
+    name: Source package
+    runs-on: ubuntu-latest
+    outputs:
+      package: ${{ steps.outputs.outputs.package }}
+      version: ${{ steps.outputs.outputs.version }}
+    steps:
+      - name: install-deps
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install \
+            gtk-doc-tools \
+            jq \
+            libgirepository1.0-dev \
+            libgtk-3-dev \
+            meson \
+            valac
+
+      # needed for dist --no-tests, unfortunately
+      - name: upgrade-meson
+        run: |
+          curl -O \
+            http://ftp.osuosl.org/pub/ubuntu/pool/universe/m/meson/meson_0.57.0+really0.56.2-0.1_all.deb
+          sudo dpkg -i meson_0.57.0+really0.56.2-0.1_all.deb
+
+      - uses: actions/checkout@v2
+
+      - name: configure
+        run: meson _build
+
+      - name: build
+        run: meson dist -C _build --no-tests
+
+      - name: prepare-environment
+        id: outputs
+        run: |
+          echo "::set-output name=package::$(\
+            meson introspect _build --projectinfo | \
+            jq -r .descriptive_name)"
+          echo "::set-output name=version::$(\
+            meson introspect _build --projectinfo | \
+            jq -r .version)"
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Source package
+          path: _build/meson-dist/ratify-*.tar.xz
+
+  rpm:
+    name: RPM
+    runs-on: ubuntu-latest
+    container:
+      image: registry.fedoraproject.org/fedora:35
+    needs: tarball
+    steps:
+      - name: install-deps
+        run: |
+          dnf install -y \
+            gcc \
+            gettext \
+            git \
+            glib2-devel \
+            gobject-introspection-devel \
+            gtk-doc \
+            gtk3-devel \
+            meson \
+            rpm-build \
+            vala
+
+      - uses: actions/checkout@v2
+
+      - name: prepare-env
+        run: |
+          echo "rpmdir=$(rpm --eval %_rpmdir)" >> $GITHUB_ENV
+          echo "sourcedir=$(rpm --eval %_sourcedir)" >> $GITHUB_ENV
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: Source package
+          path: ${{ env.sourcedir }}
+
+      - name: build-rpm
+        run: rpmbuild -ba ratify.spec
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: RPM packages
+          path: ${{ env.rpmdir }}/x86_64/
+
+  deb:
+    name: Debian
+    runs-on: ubuntu-latest
+    needs: tarball
+    steps:
+      - name: install-deps
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install \
+            debhelper \
+            devscripts \
+            gtk-doc-tools \
+            libgirepository1.0-dev \
+            libgtk-3-dev \
+            meson \
+            valac
+
+      - uses: actions/checkout@v2
+
+      - name: prepare-env
+        run: |
+          mkdir -p _deb_build
+          echo "dist_tarball=${{ needs.tarball.outputs.package }}-${{
+            needs.tarball.outputs.version }}.tar.xz" >> $GITHUB_ENV
+          echo "debsrcpkg=${{ needs.tarball.outputs.package }}_${{
+            needs.tarball.outputs.version }}.orig.tar.xz" >> $GITHUB_ENV
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: Source package
+          path: _deb_build
+
+      - name: build-deb
+        run: |
+          cd _deb_build
+          mv ${{ env.dist_tarball }} ${{ env.debsrcpkg }}
+          tar xJf ${{ env.debsrcpkg }}
+          cd ${{ needs.tarball.outputs.package }}-${{
+            needs.tarball.outputs.version }}
+          DEB_BUILD_MAINT_OPTIONS=hardening=-format \
+            debuild -rfakeroot -D -us -uc
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Debian packages
+          path: |
+            _deb_build/*.deb
+            _deb_build/*.ddeb
