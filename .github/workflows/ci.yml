@@ -1,0 +1,29 @@
+---
+name: CI workflow
+"on": [push]
+env:
+  CFLAGS: -fdiagnostics-color
+jobs:
+  run-tests:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: install-deps
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install \
+            gtk-doc-tools \
+            libgirepository1.0-dev \
+            libgtk-3-dev \
+            meson \
+            valac
+
+      - uses: actions/checkout@v2
+
+      - name: configure
+        run: meson _build
+
+      - name: build
+        run: ninja -C _build
+
+      - name: test
+        run: xvfb-run -a meson test -C _build

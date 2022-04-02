@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/ptomato/ratify.png?branch=master)](https://travis-ci.org/ptomato/ratify)
-
 # The Ratify Library #
 
 Ratify is a library for importing and exporting RTF documents to and
