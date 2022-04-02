@@ -26,7 +26,9 @@ Description: Library for interfacing RTF with GTK
 Package: libratify-2-dev
 Section: libdevel
 Architecture: any
-Depends: libratify-2-0 (= ${binary:Version}), ${misc:Depends}
+Depends: libratify-2-0 (= ${binary:Version}),
+         gir1.2-ratify-2 (= ${binary:Version}),
+         ${misc:Depends}
 Description: Library for interfacing RTF with GTK (Development files)
  Files needed for developing programs that use Ratify.
 
@@ -39,7 +41,7 @@ Description: Library for interfacing RTF with GTK (Documentation)
  API documentation for Ratify.
 
 Package: gir1.2-ratify-2
-Section: libs
+Section: introspection
 Architecture: any
 Depends: libratify-2-0 (= ${binary:Version}), ${gir:Depends}, ${misc:Depends}
 Description: Library for interfacing RTF with GTK (Documentation)
