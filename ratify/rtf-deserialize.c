@@ -129,7 +129,7 @@ static void
 parser_context_free(ParserContext *ctx)
 {
     g_assert(ctx != NULL);
-    g_string_free(ctx->convertbuffer, false);
+    g_string_free(ctx->convertbuffer, true);
 
     g_slist_foreach(ctx->color_table, (GFunc)g_free, NULL);
     g_slist_free(ctx->color_table);
