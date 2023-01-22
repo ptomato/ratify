@@ -108,7 +108,9 @@ font_table_text(ParserContext *ctx)
     g_autofree char *name = g_strdup(ctx->text->str);
     char *semicolon = strchr(name, ';');
     if (!semicolon) {
-        state->name = g_strconcat(state->name, name, NULL);
+        char *new_name = g_strconcat(state->name, name, NULL);
+        g_free(state->name);
+        state->name = new_name;
         g_string_truncate(ctx->text, 0);
         return;
     }
