@@ -101,7 +101,7 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
     int pixels, pango, colornum;
     double factor, points;
     GdkColor *color;
-    const char *name;
+    char *name;
 
     /* First check if this is a ratify-named tag that doesn't have a direct
      Pango attributes equivalent, such as superscript or subscript. Treat these
@@ -115,6 +115,7 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
             g_hash_table_insert(ctx->tag_codes, tag, g_strdup("\\sub"));
             return;
         }
+        g_free(name);
     }
 
     /* Otherwise, read the attributes one by one and add RTF code for them */
@@ -129,7 +130,7 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
 
     g_object_get(tag, "family-set", &val, NULL);
     if (val) {
-        const char *family;
+        g_autofree char *family = NULL;
         g_object_get(tag, "family", &family, NULL);
 
         int fontnum;
