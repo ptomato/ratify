@@ -5,7 +5,7 @@
 %define apiversion 2
 
 Name: ratify
-Version: 2.0.0
+Version: 2.0.1
 Release: 1%{?dist}
 Summary: Library for importing and exporting RTF documents in GTK
 URL: https://github.com/ptomato/%{name}
@@ -83,3 +83,5 @@ rm -rf %{buildroot}%{_datadir}/vala
 %changelog
 * Sun Nov 17 2019 Philip Chimento <philip.chimento@gmail.com> - 2.0.0-1
 - Initial packaging.
+* Wed Jan 3 2023 Philip Chimento <philip.chimento@gmail.com> - 2.0.1-1
+- Maintenance release 2.0.1.

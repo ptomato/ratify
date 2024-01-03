@@ -1,4 +1,4 @@
-project('ratify', 'c', version: '2.0.0', license: 'LGPL3+',
+project('ratify', 'c', version: '2.0.1', license: 'LGPL3+',
     meson_version: '>= 0.50',
     default_options: ['c_std=c99', 'warning_level=2'])
 

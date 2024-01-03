@@ -1,3 +1,9 @@
+ratify (2.0.1-1) unstable; urgency=low
+
+  * Maintenance release 2.0.1.
+
+ -- Philip Chimento <philip.chimento@gmail.com>  Wed, 3 Jan 2024 16:10:11 -0800
+
 ratify (2.0.0-1) unstable; urgency=low
 
   * Initial release
