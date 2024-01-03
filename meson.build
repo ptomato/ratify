@@ -78,7 +78,7 @@ common_cflags += cc.get_supported_arguments([
 if host_system == 'darwin'
   common_ldflags += [
     '-compatibility_version 1',
-    '-current_version @0@.@1@'.format(json_binary_age - json_interface_age, json_interface_age),
+    '-current_version @0@.@1@'.format(binary_age - interface_age, interface_age),
   ]
 endif
 
