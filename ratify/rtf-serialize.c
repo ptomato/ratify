@@ -97,7 +97,7 @@ RTF code. */
 static void
 convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
 {
-    bool val;
+    gboolean val;
     int pixels, pango, colornum;
     double factor, points;
     GdkColor *color;
