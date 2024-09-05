@@ -110,9 +110,11 @@ convert_tag_to_code(GtkTextTag *tag, WriterContext *ctx)
     if (name) {
         if (strcmp(name, "rtf-superscript") == 0) {
             g_hash_table_insert(ctx->tag_codes, tag, g_strdup("\\super"));
+            g_free(name);
             return;
         } else if (strcmp(name, "rtf-subscript") == 0) {
             g_hash_table_insert(ctx->tag_codes, tag, g_strdup("\\sub"));
+            g_free(name);
             return;
         }
         g_free(name);
